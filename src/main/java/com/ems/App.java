@@ -1,4 +1,4 @@
-package com.ems.event_management_system;
+package com.ems;
 
 /**
  * Hello world!
