@@ -1,6 +1,12 @@
 package com.ems.dao;
 
-public class TicketDao {
+import java.util.List;
 
-	
+import com.ems.model.Ticket;
+
+public interface TicketDao {
+	int getAvailableTickets(int eventId);
+
+	List<Ticket> getTicketTypes(int eventId);
+
 }

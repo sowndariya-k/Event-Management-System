@@ -1,6 +1,8 @@
 package com.ems.enums;
 
-public class PaymentMethod {
-
-	
+public enum PaymentMethod {
+	CARD, 
+	UPI,
+	NET_BANKING,
+	WALLET
 }

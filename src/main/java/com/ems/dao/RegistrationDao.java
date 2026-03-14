@@ -1,7 +1,7 @@
 package com.ems.dao;
 
-public class RegistrationDao {
+public interface RegistrationDao {
 
-	
+	void getEventWiseRegistrations(int eventId);
 
 }

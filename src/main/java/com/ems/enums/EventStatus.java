@@ -1,7 +1,9 @@
 package com.ems.enums;
 
-public class EventStatus {
-
-	
-
+public enum EventStatus {
+	DRAFT,
+	PUBLISHED,
+	CANCELLED,
+	COMPLETED,
+	APPROVED
 }

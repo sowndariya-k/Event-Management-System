@@ -1,6 +1,6 @@
 package com.ems.dao;
 
-public class PaymentDao {
+public interface PaymentDao {
 
 	
 

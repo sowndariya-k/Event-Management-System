@@ -1,7 +1,7 @@
 package com.ems.enums;
 
-public class UserRole {
-
-	
-
+public enum UserRole {
+	ADMIN,
+	ATTENDEE,
+	ORGANIZER
 }

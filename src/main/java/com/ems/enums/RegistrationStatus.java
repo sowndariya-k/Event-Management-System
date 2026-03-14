@@ -1,7 +1,6 @@
 package com.ems.enums;
 
-public class RegistrationStatus {
-
-	
-
+public enum RegistrationStatus {
+	CONFIRMED,
+	CANCELLED
 }

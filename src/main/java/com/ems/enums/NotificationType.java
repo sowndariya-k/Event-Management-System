@@ -1,6 +1,6 @@
 package com.ems.enums;
 
-public class NotificationType {
+public enum NotificationType {
 
 	
 }

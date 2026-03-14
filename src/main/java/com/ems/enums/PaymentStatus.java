@@ -1,7 +1,7 @@
 package com.ems.enums;
 
-public class PaymentStatus {
-
-	
-
+public enum PaymentStatus {
+	SUCCESS,
+	FAILED,
+	PENDING
 }

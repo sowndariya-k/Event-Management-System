@@ -1,7 +1,6 @@
 package com.ems.enums;
 
-public class UserStatus {
-
-	
-
+public enum UserStatus {
+	ACTIVE,
+	SUSPENDED
 }
