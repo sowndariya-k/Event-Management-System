@@ -1,10 +1,6 @@
 package com.ems.model;
 
 public class RegistrationTicket {
-
-<<<<<<< HEAD
-	
-=======
 	private int id;
 	private int registrationId;
 	private int ticketId;
@@ -51,6 +47,4 @@ public class RegistrationTicket {
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
->>>>>>> 3e4d4506029d2d968e9fce24b411d5ec29425433
-
 }

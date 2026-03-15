@@ -1,98 +1,48 @@
 package com.ems.model;
 
-<<<<<<< HEAD
-public class User {
-
-	
-=======
-import java.time.Instant;
-
+import java.time.LocalDateTime;
 import com.ems.enums.UserStatus;
 
-public class User implements Comparable<User> {
-	private final int userId;
-	private final String fullName;
-	private final String email;
-	private final String phone;
-	private final String passwordHash;
-	private final int roleId;
-	private final UserStatus status;
-	private final Instant createdAt;
-	private final Instant updatedAt;
-	private final String gender;
-	private final int failedAttempts;
-	private final Instant lastLogin;
+public class User {
 
-	public User(int userId, String fullName, String email, String phone, String passwordHash, int roleId,
-			UserStatus status, Instant createdAt, Instant updatedAt, String gender, int failedAttempts,
-			Instant lastLogin) {
-		super();
-		this.userId = userId;
-		this.fullName = fullName;
-		this.email = email;
-		this.phone = phone;
-		this.passwordHash = passwordHash;
-		this.roleId = roleId;
-		this.status = status;
-		this.createdAt = createdAt;
-		this.updatedAt = updatedAt;
-		this.gender = gender;
-		this.failedAttempts = failedAttempts;
-		this.lastLogin = lastLogin;
-	}
+    private int id;
+    private String fullName;
+    private String email;
+    private String phone;
+    private String passwordHash;
+    private int roleId;
+    private UserStatus status;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String gender;
 
-	public int getUserId() {
-		return userId;
-	}
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-	public String getFullName() {
-		return fullName;
-	}
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-	public String getPhone() {
-		return phone;
-	}
+    public String getPhone() { return phone; }
+    public void setPhone(String phone) { this.phone = phone; }
 
-	public String getPasswordHash() {
-		return passwordHash;
-	}
+    public String getPasswordHash() { return passwordHash; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
-	public int getRoleId() {
-		return roleId;
-	}
+    public int getRoleId() { return roleId; }
+    public void setRoleId(int roleId) { this.roleId = roleId; }
 
-	public UserStatus getStatus() {
-		return status;
-	}
+    public UserStatus getStatus() { return status; }
+    public void setStatus(UserStatus status) { this.status = status; }
 
-	public Instant getCreatedAt() {
-		return createdAt;
-	}
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-	public Instant getUpdatedAt() {
-		return updatedAt;
-	}
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
-	public String getGender() {
-		return gender;
-	}
-
-	public int getFailedAttempts() {
-		return failedAttempts;
-	}
-
-	public Instant getLastLogin() {
-		return lastLogin;
-	}
-
-	@Override
-	public int compareTo(User other) {
-		return Integer.compare(this.userId, other.userId);
-	}
->>>>>>> 3e4d4506029d2d968e9fce24b411d5ec29425433
-
+    public String getGender() { return gender; }
+    public void setGender(String gender) { this.gender = gender; }
 }

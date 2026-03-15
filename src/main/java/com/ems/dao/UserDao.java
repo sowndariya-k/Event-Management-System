@@ -1,12 +1,5 @@
 package com.ems.dao;
 
-<<<<<<< HEAD
-public class UserDao {
-
-	
-
-}
-=======
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -81,4 +74,3 @@ public interface UserDao {
 	UserRole getRole(User user) throws DataAccessException;
 
 }
->>>>>>> 3e4d4506029d2d968e9fce24b411d5ec29425433

@@ -1,10 +1,6 @@
 package com.ems.model;
 
 public class Ticket {
-
-<<<<<<< HEAD
-	
-=======
 	private int ticketId;
 	private int eventId;
 	private String ticketType;
@@ -78,6 +74,4 @@ public class Ticket {
 		return String.format("Ticket [%d] %s | Price: %.2f | Available: %d/%d", ticketId, ticketType, price,
 				availableQuantity, totalQuantity);
 	}
->>>>>>> 3e4d4506029d2d968e9fce24b411d5ec29425433
-
 }

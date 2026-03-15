@@ -1,10 +1,4 @@
 package com.ems.model;
-
-<<<<<<< HEAD
-public class SystemLog {
-
-	
-=======
 import java.time.Instant;
 
 public class SystemLog {
@@ -72,6 +66,4 @@ public class SystemLog {
 	public void setCreatedAt(Instant createdAt) {
 		this.createdAt = createdAt;
 	}
->>>>>>> 3e4d4506029d2d968e9fce24b411d5ec29425433
-
 }
