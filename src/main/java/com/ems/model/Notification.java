@@ -1,4 +1,5 @@
 package com.ems.model;
+
 import java.time.Instant;
 
 public class Notification {
@@ -68,4 +69,5 @@ public class Notification {
 	public void setReadStatus(boolean readStatus) {
 		this.readStatus = readStatus;
 	}
+
 }

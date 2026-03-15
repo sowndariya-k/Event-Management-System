@@ -1,4 +1,5 @@
 package com.ems.dao;
+
 import java.util.List;
 
 import com.ems.exception.DataAccessException;
@@ -62,4 +63,6 @@ public interface CategoryDao {
 	 * @throws DataAccessException
 	 */
 	void activateCategory(int categoryId) throws DataAccessException;
+
+	void listAllCategory();
 }

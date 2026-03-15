@@ -1,4 +1,5 @@
 package com.ems.dao;
+
 import java.util.List;
 import com.ems.exception.DataAccessException;
 import com.ems.model.Event;
@@ -12,4 +13,5 @@ public interface EventDao {
 	 * @throws DataAccessException
 	 */
 	List<Event> listAvailableEvents() throws DataAccessException;
+
 }

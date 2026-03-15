@@ -8,4 +8,5 @@ public interface TicketDao {
 	int getAvailableTickets(int eventId);
 
 	List<Ticket> getTicketTypes(int eventId);
+
 }

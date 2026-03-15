@@ -37,15 +37,6 @@ public interface UserDao {
 	 */
 	User findByEmail(String email) throws DataAccessException;
 
-	/**
-	 * Updates the status of a user account
-	 *
-	 * @param userId
-	 * @param status
-	 * @return true if update succeeded
-	 * @throws DataAccessException
-	 */
-	boolean updateUserStatus(int userId, UserStatus status) throws DataAccessException;
 
 	/**
 	 * Retrieves all users of a given role
@@ -64,13 +55,30 @@ public interface UserDao {
 	 */
 	List<User> findAllUsers() throws DataAccessException;
 
-	/**
-	 * Returns the role of the given user
-	 *
-	 * @param user
-	 * @return user role
-	 * @throws DataAccessException
-	 */
-	UserRole getRole(User user) throws DataAccessException;
 
+	/**
+     * Returns the role of the given user
+     *
+     * @param user
+     * @return user role
+     * @throws DataAccessException
+     */
+    UserRole getRole(User user) throws DataAccessException;
+
+    /**
+     * Checks whether a user exists by email
+     *
+     * @param email
+     * @return true if user exists
+     * @throws DataAccessException
+     */
+    boolean checkUserExists(String email) throws DataAccessException;
+    /**
+     * Increments failed login attempt count
+     *
+     * @param userId
+     * @throws DataAccessException
+     */
+    void incrementFailedAttempts(int userId) throws DataAccessException;
+    
 }

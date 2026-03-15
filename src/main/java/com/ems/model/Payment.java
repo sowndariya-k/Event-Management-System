@@ -1,4 +1,5 @@
 package com.ems.model;
+
 import java.time.LocalDateTime;
 
 public class Payment {
@@ -67,4 +68,5 @@ public class Payment {
 	public void setCreatedAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
+
 }

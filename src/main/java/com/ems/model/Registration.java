@@ -1,4 +1,5 @@
 package com.ems.model;
+
 import java.time.Instant;
 
 import com.ems.enums.RegistrationStatus;

@@ -1,13 +1,17 @@
 package com.ems.exception;
 
+/**
+ * Wraps database and persistence layer errors
+ */
 public class DataAccessException extends Exception {
 
-    public DataAccessException(String message) {
-        super(message);
-    }
+	private static final long serialVersionUID = 1L;
 
+	public DataAccessException(String s) {
+		super(s);
+	}
+	
     public DataAccessException(String message, Throwable cause) {
         super(message, cause);
     }
-
 }

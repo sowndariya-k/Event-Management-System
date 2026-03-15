@@ -10,125 +10,210 @@ import com.ems.enums.UserRole;
 import com.ems.enums.UserStatus;
 import com.ems.exception.DataAccessException;
 import com.ems.model.User;
+import com.ems.util.DBConnectionUtil;
 
 public class UserDaoImpl implements UserDao {
 
-    private Connection connection;
+	@Override
+	public boolean createUser(String fullName, String email, String phone, String passwordHash, int roleId,
+			UserStatus status, LocalDateTime createdAt, LocalDateTime updatedAt, String gender)
 
-    public UserDaoImpl(Connection connection) {
-        this.connection = connection;
-    }
+			throws DataAccessException {
 
-    @Override
-    public boolean createUser(String fullName, String email, String phone, String passwordHash,
-                              int roleId, UserStatus status, LocalDateTime createdAt,
-                              LocalDateTime updatedAt, String gender) throws DataAccessException {
+		String sql = "insert into users(full_name, email, phone, password_hash, role_id, created_at, status, "
+				+ "updated_at, gender) values (?,?,?,?,?,?,?,?,?)";
 
-        String sql = "INSERT INTO users (full_name,email,phone,password_hash,role_id,status,created_at,updated_at,gender) VALUES (?,?,?,?,?,?,?,?,?)";
+		try (Connection con = DBConnectionUtil.getConnection(); 
+				PreparedStatement ps = con.prepareStatement(sql)) {
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+			ps.setString(1, fullName);
+			ps.setString(2, email.toLowerCase());
+			ps.setString(3, phone);
+			ps.setString(4, passwordHash);
+			ps.setInt(5, roleId);
+			ps.setTimestamp(6, Timestamp.valueOf(createdAt));
+			ps.setString(7, status.name());
+			ps.setTimestamp(8, null);
+			ps.setString(9, gender);
+			ps.executeUpdate();
+			return true;
 
-            ps.setString(1, fullName);
-            ps.setString(2, email);
-            ps.setString(3, phone);
-            ps.setString(4, passwordHash);
-            ps.setInt(5, roleId);
-            ps.setString(6, status.name());
-            ps.setTimestamp(7, Timestamp.valueOf(createdAt));
-            ps.setTimestamp(8, Timestamp.valueOf(updatedAt));
-            ps.setString(9, gender);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DataAccessException("Error while creating user account");
+		}
+	}
 
-            return ps.executeUpdate() > 0;
+	@Override
+	public User findByEmail(String email) throws DataAccessException {
 
-        } catch (SQLException e) {
-            throw new DataAccessException("Error creating user", e);
-        }
-    }
+		// Email lookup is normalized to lowercase
 
-    @Override
-    public User findByEmail(String email) throws DataAccessException {
+		User user = null;
+		String sql = "select * from users where email = ?";
 
-        String sql = "SELECT * FROM users WHERE email=?";
+		try (Connection con = DBConnectionUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+			ps.setString(1, email.toLowerCase());
 
-            ps.setString(1, email);
-            ResultSet rs = ps.executeQuery();
+			try (ResultSet rs = ps.executeQuery()) {
+			    if (rs.next()) {
+			        user = new User(
+			        		rs.getInt("id"), 
+			        		rs.getString("full_name"), rs.getString("email"),
+			                rs.getString("phone"), rs.getString("password_hash"), rs.getInt("role_id"),
+			                UserStatus.valueOf(rs.getString("status")),
+			                rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
+			                rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
+			                rs.getString("gender"),
+			                rs.getInt("failed_attempts"),
+			                rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toInstant() : null);
+			    }
+			}
 
-            if (rs.next()) {
-                return mapUser(rs);
-            }
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while fetching user");
+		}
 
-            return null;
+		return user;
+	}
 
-        } catch (SQLException e) {
-            throw new DataAccessException("Error finding user", e);
-        }
-    }
+	
+	
+	
+	@Override
+	public List<User> findAllUsers(String userType) throws DataAccessException {
+		String sql = "select u.* from users u inner join roles r on u.role_id = r.role_id " + "where r.role_name = ?";
+		List<User> users = new ArrayList<>();
 
-    @Override
-    public boolean updateUserStatus(int userId, UserStatus status) throws DataAccessException {
+		try (Connection con = DBConnectionUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
-        String sql = "UPDATE users SET status=? WHERE id=?";
+			ps.setString(1, userType);
+			ResultSet rs = ps.executeQuery();
 
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+			while (rs.next()) {
+			    User user = new User(
+			        rs.getInt("id"),
+			        rs.getString("full_name"),
+			        rs.getString("email"),
+			        rs.getString("phone"),
+			        rs.getString("password_hash"),
+			        rs.getInt("role_id"),
+			        UserStatus.valueOf(rs.getString("status")),
+			        rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
+			        rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
+			        rs.getString("gender"),
+			        rs.getInt("failed_attempts"),
+			        rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toInstant() : null
+			    );
+			    users.add(user);
+			}
+			rs.close();
 
-            ps.setString(1, status.name());
-            ps.setInt(2, userId);
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while fetching users:");
+		}
 
-            return ps.executeUpdate() > 0;
+		return users;
+	}
 
-        } catch (SQLException e) {
-            throw new DataAccessException("Error updating status", e);
-        }
-    }
+	
+	@Override
+	public UserRole getRole(User user) throws DataAccessException {
 
-    @Override
-    public List<User> findAllUsers(String userType) throws DataAccessException {
-        return findAllUsers();
-    }
+	    String query = "SELECT role_name FROM roles WHERE role_id = ?";
 
-    @Override
-    public List<User> findAllUsers() throws DataAccessException {
+	    try (Connection conn = DBConnectionUtil.getConnection();
+	         PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-        List<User> users = new ArrayList<>();
+	        pstmt.setInt(1, user.getRoleId());
 
-        String sql = "SELECT * FROM users";
+	        ResultSet rs = pstmt.executeQuery();
 
-        try (PreparedStatement ps = connection.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+	        if (rs.next()) {
 
-            while (rs.next()) {
-                users.add(mapUser(rs));
-            }
+	            String roleName = rs.getString("role_name").toUpperCase();
 
-            return users;
+	            if(roleName.equals("USER")){
+	                roleName = "ATTENDEE";
+	            }
 
-        } catch (SQLException e) {
-            throw new DataAccessException("Error fetching users", e);
-        }
-    }
+	            return UserRole.valueOf(roleName);
+	        }
 
-    @Override
-    public UserRole getRole(User user) throws DataAccessException {
-        return UserRole.values()[user.getRoleId()];
-    }
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error while fetching role of user");
+	    }
 
-    private User mapUser(ResultSet rs) throws SQLException {
+	    throw new DataAccessException("Role not found");
+	}
 
-        User user = new User();
+	
+	@Override
+	public List<User> findAllUsers() throws DataAccessException {
+		String sql = "select * from users order by role_id";
+		List<User> users = new ArrayList<>();
 
-        user.setId(rs.getInt("id"));
-        user.setFullName(rs.getString("full_name"));
-        user.setEmail(rs.getString("email"));
-        user.setPhone(rs.getString("phone"));
-        user.setPasswordHash(rs.getString("password_hash"));
-        user.setRoleId(rs.getInt("role_id"));
-        user.setStatus(UserStatus.valueOf(rs.getString("status")));
-        user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        user.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-        user.setGender(rs.getString("gender"));
+		try (Connection con = DBConnectionUtil.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
 
-        return user;
-    }
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+			    User user = new User(
+			            rs.getInt("id"),
+			            rs.getString("full_name"),
+			            rs.getString("email"),
+			            rs.getString("phone"),
+			            rs.getString("password_hash"),
+			            rs.getInt("role_id"),
+			            UserStatus.valueOf(rs.getString("status")),
+			            rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
+			            rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
+			            rs.getString("gender"),
+			            rs.getInt("failed_attempts"),
+			            rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toInstant() : null);
+			    users.add(user);
+			}
+			rs.close();
+
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while fetching users");
+		}
+
+		return users;
+	}
+
+	@Override
+	public boolean checkUserExists(String email) throws DataAccessException {
+		String sql = "SELECT COUNT(1) FROM users WHERE email = ?";
+		try (Connection con = DBConnectionUtil.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setString(1, email.toLowerCase().trim());
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				return rs.getInt(1) > 0;
+			}
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while fetching users");
+		}
+		return false;
+	}
+	@Override
+	public void incrementFailedAttempts(int userId)
+			throws DataAccessException {
+
+		// Used for account lock or security checks
+
+		String sql = "update users set failed_attempts = failed_attempts + 1 where id = ?";
+
+		try (Connection con = DBConnectionUtil.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, userId);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while updating the failed attempts");
+		}
+	}
+
 }

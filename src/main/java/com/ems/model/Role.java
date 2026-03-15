@@ -1,4 +1,5 @@
 package com.ems.model;
+
 import java.time.Instant;
 
 public class Role {
@@ -39,4 +40,5 @@ public class Role {
 	public void setCreatedAt(Instant createdAt) {
 		this.createdAt = createdAt;
 	}
+
 }

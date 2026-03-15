@@ -1,48 +1,90 @@
 package com.ems.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import com.ems.enums.UserStatus;
 
-public class User {
+public class User implements Comparable<User> {
 
-    private int id;
-    private String fullName;
-    private String email;
-    private String phone;
-    private String passwordHash;
-    private int roleId;
-    private UserStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private String gender;
+	private final int userId;
+	private final String fullName;
+	private final String email;
+	private final String phone;
+	private final String passwordHash;
+	private final int roleId;
+	private final UserStatus status;
+	private final Instant createdAt;
+	private final Instant updatedAt;
+	private final String gender;
+	private final int failedAttempts;
+	private final Instant lastLogin;
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+	public User(int userId, String fullName, String email, String phone, String passwordHash, int roleId,
+			UserStatus status,
+			Instant createdAt, Instant updatedAt, String gender, int failedAttempts, Instant lastLogin) {
+		this.userId = userId;
+		this.fullName = fullName;
+		this.email = email;
+		this.phone = phone;
+		this.passwordHash = passwordHash;
+		this.roleId = roleId;
+		this.status = status;
+		this.createdAt = createdAt;
+		this.updatedAt = updatedAt;
+		this.gender = gender;
+		this.failedAttempts = failedAttempts;
+		this.lastLogin = lastLogin;
+	}
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+	public int getUserId() {
+		return userId;
+	}
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+	public String getFullName() {
+		return fullName;
+	}
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+	public String getEmail() {
+		return email;
+	}
 
-    public String getPasswordHash() { return passwordHash; }
-    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+	public String getPhone() {
+		return phone;
+	}
 
-    public int getRoleId() { return roleId; }
-    public void setRoleId(int roleId) { this.roleId = roleId; }
+	public String getPasswordHash() {
+		return passwordHash;
+	}
 
-    public UserStatus getStatus() { return status; }
-    public void setStatus(UserStatus status) { this.status = status; }
+	public int getRoleId() {
+		return roleId;
+	}
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+	public UserStatus getStatus() {
+		return status;
+	}
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+	public Instant getCreatedAt() {
+		return createdAt;
+	}
 
-    public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
+	public Instant getUpdatedAt() {
+		return updatedAt;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public int getFailedAttempts() {
+		return failedAttempts;
+	}
+
+	public Instant getLastLogin() {
+		return lastLogin;
+	}
+
+	@Override
+	public int compareTo(User other) {
+		return Integer.compare(this.userId, other.userId);
+	}
 }
