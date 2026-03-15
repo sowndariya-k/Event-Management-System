@@ -23,8 +23,7 @@ public class UserDaoImpl implements UserDao {
 		String sql = "insert into users(full_name, email, phone, password_hash, role_id, created_at, status, "
 				+ "updated_at, gender) values (?,?,?,?,?,?,?,?,?)";
 
-		try (Connection con = DBConnectionUtil.getConnection(); 
-				PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = DBConnectionUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
 			ps.setString(1, fullName);
 			ps.setString(2, email.toLowerCase());
@@ -57,18 +56,15 @@ public class UserDaoImpl implements UserDao {
 			ps.setString(1, email.toLowerCase());
 
 			try (ResultSet rs = ps.executeQuery()) {
-			    if (rs.next()) {
-			        user = new User(
-			        		rs.getInt("id"), 
-			        		rs.getString("full_name"), rs.getString("email"),
-			                rs.getString("phone"), rs.getString("password_hash"), rs.getInt("role_id"),
-			                UserStatus.valueOf(rs.getString("status")),
-			                rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
-			                rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
-			                rs.getString("gender"),
-			                rs.getInt("failed_attempts"),
-			                rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toInstant() : null);
-			    }
+				if (rs.next()) {
+					user = new User(rs.getInt("id"), rs.getString("full_name"), rs.getString("email"),
+							rs.getString("phone"), rs.getString("password_hash"), rs.getInt("role_id"),
+							UserStatus.valueOf(rs.getString("status")),
+							rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
+							rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
+							rs.getString("gender"), rs.getInt("failed_attempts"),
+							rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toInstant() : null);
+				}
 			}
 
 		} catch (SQLException e) {
@@ -78,9 +74,6 @@ public class UserDaoImpl implements UserDao {
 		return user;
 	}
 
-	
-	
-	
 	@Override
 	public List<User> findAllUsers(String userType) throws DataAccessException {
 		String sql = "select u.* from users u inner join roles r on u.role_id = r.role_id " + "where r.role_name = ?";
@@ -92,21 +85,14 @@ public class UserDaoImpl implements UserDao {
 			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) {
-			    User user = new User(
-			        rs.getInt("id"),
-			        rs.getString("full_name"),
-			        rs.getString("email"),
-			        rs.getString("phone"),
-			        rs.getString("password_hash"),
-			        rs.getInt("role_id"),
-			        UserStatus.valueOf(rs.getString("status")),
-			        rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
-			        rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
-			        rs.getString("gender"),
-			        rs.getInt("failed_attempts"),
-			        rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toInstant() : null
-			    );
-			    users.add(user);
+				User user = new User(rs.getInt("id"), rs.getString("full_name"), rs.getString("email"),
+						rs.getString("phone"), rs.getString("password_hash"), rs.getInt("role_id"),
+						UserStatus.valueOf(rs.getString("status")),
+						rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
+						rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
+						rs.getString("gender"), rs.getInt("failed_attempts"),
+						rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toInstant() : null);
+				users.add(user);
 			}
 			rs.close();
 
@@ -117,63 +103,54 @@ public class UserDaoImpl implements UserDao {
 		return users;
 	}
 
-	
 	@Override
 	public UserRole getRole(User user) throws DataAccessException {
 
-	    String query = "SELECT role_name FROM roles WHERE role_id = ?";
+		String query = "SELECT role_name FROM roles WHERE role_id = ?";
 
-	    try (Connection conn = DBConnectionUtil.getConnection();
-	         PreparedStatement pstmt = conn.prepareStatement(query)) {
+		try (Connection conn = DBConnectionUtil.getConnection();
+				PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-	        pstmt.setInt(1, user.getRoleId());
+			pstmt.setInt(1, user.getRoleId());
 
-	        ResultSet rs = pstmt.executeQuery();
+			ResultSet rs = pstmt.executeQuery();
 
-	        if (rs.next()) {
+			if (rs.next()) {
 
-	            String roleName = rs.getString("role_name").toUpperCase();
+				String roleName = rs.getString("role_name").toUpperCase();
 
-	            if(roleName.equals("USER")){
-	                roleName = "ATTENDEE";
-	            }
+				if (roleName.equals("USER")) {
+					roleName = "ATTENDEE";
+				}
 
-	            return UserRole.valueOf(roleName);
-	        }
+				return UserRole.valueOf(roleName);
+			}
 
-	    } catch (SQLException e) {
-	        throw new DataAccessException("Error while fetching role of user");
-	    }
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while fetching role of user");
+		}
 
-	    throw new DataAccessException("Role not found");
+		throw new DataAccessException("Role not found");
 	}
 
-	
 	@Override
 	public List<User> findAllUsers() throws DataAccessException {
 		String sql = "select * from users order by role_id";
 		List<User> users = new ArrayList<>();
 
-		try (Connection con = DBConnectionUtil.getConnection();
-				PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = DBConnectionUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 
 			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) {
-			    User user = new User(
-			            rs.getInt("id"),
-			            rs.getString("full_name"),
-			            rs.getString("email"),
-			            rs.getString("phone"),
-			            rs.getString("password_hash"),
-			            rs.getInt("role_id"),
-			            UserStatus.valueOf(rs.getString("status")),
-			            rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
-			            rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
-			            rs.getString("gender"),
-			            rs.getInt("failed_attempts"),
-			            rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toInstant() : null);
-			    users.add(user);
+				User user = new User(rs.getInt("id"), rs.getString("full_name"), rs.getString("email"),
+						rs.getString("phone"), rs.getString("password_hash"), rs.getInt("role_id"),
+						UserStatus.valueOf(rs.getString("status")),
+						rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
+						rs.getTimestamp("updated_at") != null ? rs.getTimestamp("updated_at").toInstant() : null,
+						rs.getString("gender"), rs.getInt("failed_attempts"),
+						rs.getTimestamp("last_login") != null ? rs.getTimestamp("last_login").toInstant() : null);
+				users.add(user);
 			}
 			rs.close();
 
@@ -187,8 +164,7 @@ public class UserDaoImpl implements UserDao {
 	@Override
 	public boolean checkUserExists(String email) throws DataAccessException {
 		String sql = "SELECT COUNT(1) FROM users WHERE email = ?";
-		try (Connection con = DBConnectionUtil.getConnection();
-				PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = DBConnectionUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setString(1, email.toLowerCase().trim());
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
@@ -199,16 +175,15 @@ public class UserDaoImpl implements UserDao {
 		}
 		return false;
 	}
+
 	@Override
-	public void incrementFailedAttempts(int userId)
-			throws DataAccessException {
+	public void incrementFailedAttempts(int userId) throws DataAccessException {
 
 		// Used for account lock or security checks
 
 		String sql = "update users set failed_attempts = failed_attempts + 1 where id = ?";
 
-		try (Connection con = DBConnectionUtil.getConnection();
-				PreparedStatement ps = con.prepareStatement(sql)) {
+		try (Connection con = DBConnectionUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setInt(1, userId);
 			ps.executeUpdate();
 		} catch (SQLException e) {
