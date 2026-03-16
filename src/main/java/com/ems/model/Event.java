@@ -20,6 +20,25 @@ public class Event {
 	private EventStatus status;
 	private int approvedBy;
 	
+	public Event() {
+	}
+
+	/**
+	 * @param eventId
+	 * @param organizerId
+	 * @param title
+	 * @param description
+	 * @param categoryId
+	 * @param venueId
+	 * @param startDateTime
+	 * @param endDateTime
+	 * @param approvedAt
+	 * @param createdAt
+	 * @param updatedAt
+	 * @param capacity
+	 * @param status
+	 * @param approvedBy
+	 */
 	
 	public Event(int eventId, int organizerId, String title, String description, int categoryId, int venueId,
 			Instant startDateTime, Instant endDateTime, Instant approvedAt, Instant createdAt, Instant updatedAt,
