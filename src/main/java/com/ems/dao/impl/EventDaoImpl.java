@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.ems.dao.EventDao;
 import com.ems.exception.DataAccessException;
+import com.ems.model.BookingDetail;
 import com.ems.model.Event;
 import com.ems.model.Ticket;
 import com.ems.util.DBConnectionUtil;
@@ -114,5 +115,116 @@ public class EventDaoImpl implements EventDao {
 		}
 
 		return tickets;
+	}
+
+	@Override
+	public List<Event> getUpcomingEventsByUser(int userId) throws DataAccessException {
+
+		List<Event> events = new ArrayList<>();
+
+		String query = "SELECT e.* FROM events e "
+				+ "JOIN bookings b ON e.event_id = b.event_id "
+				+ "WHERE b.user_id = ? AND e.start_datetime > NOW()";
+
+		try (Connection conn = DBConnectionUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(query)) {
+
+			ps.setInt(1, userId);
+
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+
+				Event event = new Event();
+
+				event.setEventId(rs.getInt("event_id"));
+				event.setTitle(rs.getString("title"));
+				event.setDescription(rs.getString("description"));
+				event.setCategoryId(rs.getInt("category_id"));
+				event.setVenueId(rs.getInt("venue_id"));
+
+				event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+				event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+
+				events.add(event);
+			}
+
+		} catch (Exception e) {
+			throw new DataAccessException("Error retrieving upcoming events", e);
+		}
+
+		return events;
+	}
+
+	@Override
+	public List<Event> getPastEventsByUser(int userId) throws DataAccessException {
+
+		List<Event> events = new ArrayList<>();
+
+		String query = "SELECT e.* FROM events e "
+				+ "JOIN bookings b ON e.event_id = b.event_id "
+				+ "WHERE b.user_id = ? AND e.start_datetime < NOW()";
+
+		try (Connection conn = DBConnectionUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(query)) {
+
+			ps.setInt(1, userId);
+
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+
+				Event event = new Event();
+
+				event.setEventId(rs.getInt("event_id"));
+				event.setTitle(rs.getString("title"));
+				event.setDescription(rs.getString("description"));
+				event.setCategoryId(rs.getInt("category_id"));
+				event.setVenueId(rs.getInt("venue_id"));
+
+				event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+				event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+
+				events.add(event);
+			}
+
+		} catch (Exception e) {
+			throw new DataAccessException("Error retrieving past events", e);
+		}
+
+		return events;
+	}
+
+	@Override
+	public List<BookingDetail> getBookingHistory(int userId) throws DataAccessException {
+
+		List<BookingDetail> bookings = new ArrayList<>();
+
+		String query = "SELECT * FROM bookings WHERE user_id = ?";
+
+		try (Connection conn = DBConnectionUtil.getConnection();
+				PreparedStatement ps = conn.prepareStatement(query)) {
+
+			ps.setInt(1, userId);
+
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+
+				BookingDetail booking = new BookingDetail();
+
+				booking.setBookingId(rs.getInt("booking_id"));
+				booking.setUserId(rs.getInt("user_id"));
+				booking.setEventId(rs.getInt("event_id"));
+				booking.setTotalAmount(rs.getDouble("total_amount"));
+
+				bookings.add(booking);
+			}
+
+		} catch (Exception e) {
+			throw new DataAccessException("Error retrieving booking history", e);
+		}
+
+		return bookings;
 	}
 }

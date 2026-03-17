@@ -5,6 +5,7 @@ import java.util.List;
 import com.ems.dao.EventDao;
 import com.ems.dao.impl.EventDaoImpl;
 import com.ems.exception.DataAccessException;
+import com.ems.model.BookingDetail;
 import com.ems.model.Event;
 import com.ems.model.Ticket;
 
@@ -46,5 +47,41 @@ public class EventService {
         }
 
         return eventDao.getTicketsByEventId(eventId);
+    }
+
+    /**
+     * View upcoming events registered by user
+     */
+    public List<Event> getUpcomingEvents(int userId) throws DataAccessException {
+
+        if (userId <= 0) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+
+        return eventDao.getUpcomingEventsByUser(userId);
+    }
+
+    /**
+     * View past events attended by user
+     */
+    public List<Event> getPastEvents(int userId) throws DataAccessException {
+
+        if (userId <= 0) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+
+        return eventDao.getPastEventsByUser(userId);
+    }
+
+    /**
+     * View booking history
+     */
+    public List<BookingDetail> getBookingHistory(int userId) throws DataAccessException {
+
+        if (userId <= 0) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+
+        return eventDao.getBookingHistory(userId);
     }
 }
