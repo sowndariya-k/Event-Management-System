@@ -3,7 +3,30 @@ CREATE DATABASE  IF NOT EXISTS `event_management_system` ;
 
 -- use database 
 use `event_management_system`;
+-- 
+-- roles table structure
+--
+DROP TABLE IF EXISTS `roles`;
+-- create roles table
+CREATE TABLE `roles` (
+  `role_id` int NOT NULL AUTO_INCREMENT,
+  `role_name` varchar(50) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`role_id`),
+  UNIQUE KEY `role_name` (`role_name`)
+) 
 
+-- Insert ems roles
+LOCK TABLES `roles` WRITE;
+INSERT INTO `roles` VALUES (1,'ADMIN',1,'2026-01-29 08:40:40'),(2,'ATTENDEE',1,'2026-01-29 08:40:40'),(3,'ORGANIZER',1,'2026-01-29 08:40:40');
+UNLOCK TABLES;
+
+-- Check inserted data
+SELECT * FROM `roles`;
+-- 
+-- user table structure
+--
 -- drop if exist user table
 DROP TABLE IF EXISTS `users`;
 
@@ -39,7 +62,9 @@ VALUES
 
 -- Check inserted data
 SELECT * FROM `users`;
-
+-- 
+-- categories table structure
+--
 -- Drop table if exists
 DROP TABLE IF EXISTS `categories`;
 
