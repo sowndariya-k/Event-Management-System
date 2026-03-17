@@ -1,3 +1,4 @@
+-- create database
 CREATE DATABASE  IF NOT EXISTS `event_management_system` ;
 
 -- use database 
@@ -34,7 +35,7 @@ VALUES
 INSERT INTO `users`
 (`full_name`, `email`, `phone`, `gender`, `password_hash`, `role_id`)
 VALUES
-('Sowndariya', 'sowndariya@gmail.com', '6374867255', 'Female', '$2a$12$EXAMPLEHASH', 2);
+('Sowndariya', 'sowndariya@gmail.com', '6374867255', 'Female', '$2a$12$bKQzR3uH6b3aX0jbVYwNqObF/u0PCZ9PDAxueWCO7z8QwS5bnjVQa', 2);
 
 -- Check inserted data
 SELECT * FROM `users`;
