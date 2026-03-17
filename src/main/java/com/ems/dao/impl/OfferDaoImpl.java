@@ -1,6 +1,6 @@
 package com.ems.dao.impl;
 
-public class PaymentDaolmpl {
+public class OfferDaoImpl {
 
 	
 

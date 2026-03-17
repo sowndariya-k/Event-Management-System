@@ -1,10 +1,5 @@
 package com.ems.model;
 
-<<<<<<< HEAD
-public class Feedback {
-
-	
-=======
 import java.time.LocalDateTime;
 
 public class Feedback {
@@ -72,6 +67,5 @@ public class Feedback {
 	public void setSubmittedAt(LocalDateTime submittedAt) {
 		this.submittedAt = submittedAt;
 	}
->>>>>>> 3e4d4506029d2d968e9fce24b411d5ec29425433
 
 }

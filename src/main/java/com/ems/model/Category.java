@@ -1,11 +1,6 @@
 package com.ems.model;
 
 public class Category {
-<<<<<<< HEAD
-
-	
-
-=======
 	private int categoryId;
 	private String name;
 	private int isActive;
@@ -46,5 +41,4 @@ public class Category {
 		this.isActive = isActive;
 	}
 	
->>>>>>> 3e4d4506029d2d968e9fce24b411d5ec29425433
 }

@@ -1,10 +1,5 @@
 package com.ems.model;
 
-<<<<<<< HEAD
-public class Venue {
-
-	
-=======
 import java.time.Instant;
 
 public class Venue {
@@ -113,6 +108,5 @@ public class Venue {
 	public void setStatus(boolean isActive) {
 		this.isActive = isActive;
 	}
->>>>>>> 3e4d4506029d2d968e9fce24b411d5ec29425433
 
 }

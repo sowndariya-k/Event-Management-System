@@ -1,15 +1,10 @@
 package com.ems.model;
 
-<<<<<<< HEAD
-public class User {
-
-	
-=======
 import java.time.Instant;
-
 import com.ems.enums.UserStatus;
 
 public class User implements Comparable<User> {
+
 	private final int userId;
 	private final String fullName;
 	private final String email;
@@ -24,9 +19,8 @@ public class User implements Comparable<User> {
 	private final Instant lastLogin;
 
 	public User(int userId, String fullName, String email, String phone, String passwordHash, int roleId,
-			UserStatus status, Instant createdAt, Instant updatedAt, String gender, int failedAttempts,
-			Instant lastLogin) {
-		super();
+			UserStatus status,
+			Instant createdAt, Instant updatedAt, String gender, int failedAttempts, Instant lastLogin) {
 		this.userId = userId;
 		this.fullName = fullName;
 		this.email = email;
@@ -93,6 +87,4 @@ public class User implements Comparable<User> {
 	public int compareTo(User other) {
 		return Integer.compare(this.userId, other.userId);
 	}
->>>>>>> 3e4d4506029d2d968e9fce24b411d5ec29425433
-
 }

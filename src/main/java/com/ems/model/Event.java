@@ -1,10 +1,5 @@
 package com.ems.model;
 
-<<<<<<< HEAD
-public class Event {
-
-	
-=======
 import java.time.Instant;
 
 import com.ems.enums.EventStatus;
@@ -25,6 +20,25 @@ public class Event {
 	private EventStatus status;
 	private int approvedBy;
 	
+	public Event() {
+	}
+
+	/**
+	 * @param eventId
+	 * @param organizerId
+	 * @param title
+	 * @param description
+	 * @param categoryId
+	 * @param venueId
+	 * @param startDateTime
+	 * @param endDateTime
+	 * @param approvedAt
+	 * @param createdAt
+	 * @param updatedAt
+	 * @param capacity
+	 * @param status
+	 * @param approvedBy
+	 */
 	
 	public Event(int eventId, int organizerId, String title, String description, int categoryId, int venueId,
 			Instant startDateTime, Instant endDateTime, Instant approvedAt, Instant createdAt, Instant updatedAt,
@@ -194,6 +208,5 @@ public class Event {
 				+ createdAt + ", updatedAt=" + updatedAt + ", capacity=" + capacity + ", status=" + status
 				+ ", approvedBy=" + approvedBy + "]";
 	}
->>>>>>> 3e4d4506029d2d968e9fce24b411d5ec29425433
 
 }

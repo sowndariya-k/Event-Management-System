@@ -13,6 +13,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  
 
   <dependencies>
     <dependency>
@@ -28,5 +29,19 @@
     <version>4.41.0</version>
     <scope>compile</scope>
   </dependency>
+  
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>8.0.33</version>
+    <scope>compile</scope>
+</dependency>
+
+<dependency>
+    <groupId>org.mindrot</groupId>
+	<artifactId>jbcrypt</artifactId>
+    <version>0.4</version>
+</dependency>
+
   </dependencies>
 </project>

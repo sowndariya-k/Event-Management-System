@@ -1,9 +1,8 @@
 package com.ems.util;
 
-public class ScannerUtil {
+import java.util.Scanner;
 
-	public static void close() {
-		
-	}
+public class ScannerUtil {
+	
 
 }
