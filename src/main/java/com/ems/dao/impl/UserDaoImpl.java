@@ -57,7 +57,7 @@ public class UserDaoImpl implements UserDao {
 
 			try (ResultSet rs = ps.executeQuery()) {
 				if (rs.next()) {
-					user = new User(rs.getInt("id"), rs.getString("full_name"), rs.getString("email"),
+					user = new User(rs.getInt("user_id"), rs.getString("full_name"), rs.getString("email"),
 							rs.getString("phone"), rs.getString("password_hash"), rs.getInt("role_id"),
 							UserStatus.valueOf(rs.getString("status")),
 							rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
@@ -85,7 +85,7 @@ public class UserDaoImpl implements UserDao {
 			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) {
-				User user = new User(rs.getInt("id"), rs.getString("full_name"), rs.getString("email"),
+				User user = new User(rs.getInt("user_id"), rs.getString("full_name"), rs.getString("email"),
 						rs.getString("phone"), rs.getString("password_hash"), rs.getInt("role_id"),
 						UserStatus.valueOf(rs.getString("status")),
 						rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
@@ -143,7 +143,7 @@ public class UserDaoImpl implements UserDao {
 			ResultSet rs = ps.executeQuery();
 
 			while (rs.next()) {
-				User user = new User(rs.getInt("id"), rs.getString("full_name"), rs.getString("email"),
+				User user = new User(rs.getInt("user_id"), rs.getString("full_name"), rs.getString("email"),
 						rs.getString("phone"), rs.getString("password_hash"), rs.getInt("role_id"),
 						UserStatus.valueOf(rs.getString("status")),
 						rs.getTimestamp("created_at") != null ? rs.getTimestamp("created_at").toInstant() : null,
@@ -181,7 +181,7 @@ public class UserDaoImpl implements UserDao {
 
 		// Used for account lock or security checks
 
-		String sql = "update users set failed_attempts = failed_attempts + 1 where id = ?";
+		String sql = "update users set failed_attempts = failed_attempts + 1 where user_id = ?";
 
 		try (Connection con = DBConnectionUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
 			ps.setInt(1, userId);
