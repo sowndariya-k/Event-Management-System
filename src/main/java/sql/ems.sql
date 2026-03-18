@@ -20,6 +20,7 @@ CREATE TABLE `roles` (
 -- Insert ems roles
 LOCK TABLES `roles` WRITE;
 INSERT INTO `roles` VALUES (1,'ADMIN',1,'2026-01-29 08:40:40'),(2,'ATTENDEE',1,'2026-01-29 08:40:40'),(3,'ORGANIZER',1,'2026-01-29 08:40:40');
+
 UNLOCK TABLES;
 
 -- Check inserted data

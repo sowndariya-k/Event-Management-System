@@ -15,6 +15,7 @@ import com.ems.model.Event;
 import com.ems.model.Ticket;
 import com.ems.model.User;
 import com.ems.util.InputValidationUtil;
+import com.ems.actions.EventBrowsingAction;
 
 
 public class UserMenu {
@@ -28,71 +29,77 @@ public class UserMenu {
 	}
 
 	private void start() throws DataAccessException {
-		UserDao userDao = new UserDaoImpl();
-		EventDao eventDao = new EventDaoImpl();
-		VenueDao venueDao = new VenueDaoImpl();
-		CategoryDao categoryDao = new CategoryDaoImpl();
-		TicketDao ticketDao = new TicketDaoImpl();
-		
-		while(true) {
-			System.out.println("\nUser Menu"
-					+ "\n\nEnter your choice:\n"
-			        + "1. Browse available events\r\n"
-			        + "2. Search and filter events\r\n"
-			        + "3. View my registrations\r\n"
-			        + "4. View my notifications\r\n"
-			        + "5. Register for an event\r\n"
-			        + "6. Logout"
-			        + "\n>");
-			int input = InputValidationUtil.readInt(scanner, "");
-			switch(input) {
-			case 1: 
-				printAllAvailableEvents(eventDao, venueDao, categoryDao, ticketDao);
-				break;
-			case 2:
-				while(true) {
-					System.out.println("\nEnter your choice:\n"
-							+ "1. Search by category\r\n"
-							+ "2. Search by date\r\n"
-							+ "3. Search by city\r\n"
-							+ "4. Filter by price\r\n"
-							+ "5. Filter by availability\r\n"
-							+ "6. Exit to user menu"
-					        + "\n>");
-					int filterChoice = InputValidationUtil.readInt(scanner, "");
-					switch(filterChoice) {
-					case 1:
-						searchByCategory(categoryDao);
-						break;
-					case 2:
-						break;
-					case 3:
-						break;
-					case 4:
-						break;
-					case 5:
-						printAllAvailableEvents(eventDao, venueDao, categoryDao, ticketDao);
-						break;
-					case 6:
-						return;
-					default:
-						return;
-					}
-				}
-			case 3:
-				break;
-			case 4:
-				break;
-			case 5:
-				break;
-			case 6:
-				System.out.println("logout-Going back to main menu");
-				return;
-			default:
-				return;	
-			}
-		}
-		
+	    UserDao userDao = new UserDaoImpl();
+	    EventDao eventDao = new EventDaoImpl();
+	    VenueDao venueDao = new VenueDaoImpl();
+	    CategoryDao categoryDao = new CategoryDaoImpl();
+	    TicketDao ticketDao = new TicketDaoImpl();
+
+	    while (true) {
+	        System.out.println("\nUser Menu"
+	                + "\n\nEnter your choice:\n"
+	                + "1. Browse available events\r\n"
+	                + "2. Search and filter events\r\n"
+	                + "3. View my registrations\r\n"
+	                + "4. View my notifications\r\n"
+	                + "5. Register for an event\r\n"
+	                + "6. Logout"
+	                + "\n>");
+	        int input = InputValidationUtil.readInt(scanner, "");
+
+	        switch (input) {
+	        case 1:
+	        	new EventBrowsingAction().execute();
+	            break; // ✅ THIS WAS MISSING — was falling through into case 2
+
+	        case 2:
+	            boolean exitFilter = false;
+	            while (!exitFilter) { // ✅ use a flag instead of return
+	                System.out.println("\nEnter your choice:\n"
+	                        + "1. Search by category\r\n"
+	                        + "2. Search by date\r\n"
+	                        + "3. Search by city\r\n"
+	                        + "4. Filter by price\r\n"
+	                        + "5. Filter by availability\r\n"
+	                        + "6. Exit to user menu"
+	                        + "\n>");
+	                int filterChoice = InputValidationUtil.readInt(scanner, "");
+	                switch (filterChoice) {
+	                case 1:
+	                    searchByCategory(categoryDao);
+	                    break;
+	                case 2:
+	                    break;
+	                case 3:
+	                    break;
+	                case 4:
+	                    break;
+	                case 5:
+	                    printAllAvailableEvents(eventDao, venueDao, categoryDao, ticketDao);
+	                    break;
+	                case 6:
+	                    exitFilter = true; // ✅ exits inner loop, back to User Menu
+	                    break;
+	                default:
+	                    exitFilter = true;
+	                    break;
+	                }
+	            }
+	            break; // ✅ back to outer while loop
+
+	        case 3:
+	            break;
+	        case 4:
+	            break;
+	        case 5:
+	            break;
+	        case 6:
+	            System.out.println("Logout - Going back to main menu");
+	            return;
+	        default:
+	            return;
+	        }
+	    }
 	}
 	private void searchByCategory(CategoryDao categoryDao) {
 		categoryDao.listAllCategory();
