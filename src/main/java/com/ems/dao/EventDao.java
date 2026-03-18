@@ -1,41 +1,25 @@
 package com.ems.dao;
 
 import java.util.List;
-import com.ems.exception.DataAccessException;
+
+import com.ems.model.BookingDetail;
 import com.ems.model.Event;
 import com.ems.model.Ticket;
-import com.ems.model.BookingDetail;
 
 public interface EventDao {
 
-	/**
-	 * Lists all published future events that still have available tickets
-	 */
-	List<Event> listAvailableEvents() throws DataAccessException;
+    List<Event> viewEvents();
 
-	/**
-	 * Retrieves ticket options for a specific event
-	 */
-	List<Ticket> getTicketsByEventId(int eventId) throws DataAccessException;
+    List<Event> listAvailableEvents(); // ADDED: was missing, called in UserMenu
 
-	/**
-	 * Retrieves full details of a specific event
-	 */
-	Event getEventById(int eventId) throws DataAccessException;
+    Event viewEventDetails(int eventId);
 
-	/**
-	 * View upcoming events registered by a user
-	 */
-	List<Event> getUpcomingEventsByUser(int userId) throws DataAccessException;
+    List<Ticket> viewTicketOptions(int eventId);
 
-	/**
-	 * View past events attended by a user
-	 */
-	List<Event> getPastEventsByUser(int userId) throws DataAccessException;
+    List<Event> viewUpcomingEvents();
 
-	/**
-	 * View booking details for a specific user
-	 */
-	List<BookingDetail> getBookingHistory(int userId) throws DataAccessException;
+    List<Event> viewPastEvents();
+
+    List<BookingDetail> viewBookingDetails(int userId);
 
 }

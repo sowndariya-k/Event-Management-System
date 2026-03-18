@@ -1,10 +1,8 @@
 package com.ems.service.impl;
 
 import java.util.List;
-
 import com.ems.dao.EventDao;
 import com.ems.dao.impl.EventDaoImpl;
-import com.ems.exception.DataAccessException;
 import com.ems.model.BookingDetail;
 import com.ems.model.Event;
 import com.ems.model.Ticket;
@@ -14,53 +12,42 @@ public class EventServiceImpl implements EventService {
 
     private EventDao eventDao;
 
-    // Constructor
     public EventServiceImpl() {
         eventDao = new EventDaoImpl();
     }
 
     @Override
-    public List<Event> getAvailableEvents() throws DataAccessException {
+    public List<Event> viewEvents() {
+        return eventDao.viewEvents();
+    }
+
+    @Override
+    public List<Event> listAvailableEvents() {
         return eventDao.listAvailableEvents();
     }
 
     @Override
-    public Event getEventDetails(int eventId) throws DataAccessException {
-        if (eventId <= 0) {
-            throw new IllegalArgumentException("Invalid event ID");
-        }
-        return eventDao.getEventById(eventId);
+    public Event viewEventDetails(int eventId) {
+        return eventDao.viewEventDetails(eventId);
     }
 
     @Override
-    public List<Ticket> getTicketOptions(int eventId) throws DataAccessException {
-        if (eventId <= 0) {
-            throw new IllegalArgumentException("Invalid event ID");
-        }
-        return eventDao.getTicketsByEventId(eventId);
+    public List<Ticket> viewTicketOptions(int eventId) {
+        return eventDao.viewTicketOptions(eventId);
     }
 
     @Override
-    public List<Event> getUpcomingEvents(int userId) throws DataAccessException {
-        if (userId <= 0) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-        return eventDao.getUpcomingEventsByUser(userId);
+    public List<Event> viewUpcomingEvents() {
+        return eventDao.viewUpcomingEvents();
     }
 
     @Override
-    public List<Event> getPastEvents(int userId) throws DataAccessException {
-        if (userId <= 0) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-        return eventDao.getPastEventsByUser(userId);
+    public List<Event> viewPastEvents() {
+        return eventDao.viewPastEvents();
     }
 
     @Override
-    public List<BookingDetail> getBookingHistory(int userId) throws DataAccessException {
-        if (userId <= 0) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-        return eventDao.getBookingHistory(userId);
+    public List<BookingDetail> viewBookingDetails(int userId) {
+        return eventDao.viewBookingDetails(userId);
     }
 }

@@ -2,26 +2,44 @@ package com.ems.model;
 
 public class BookingDetail {
 
-	public void setBookingId(int int1) {
-		// TODO Auto-generated method stub
-		
-	}
+    private int bookingId;
+    private int userId;
+    private int eventId;
+    private double totalAmount;
 
-	public void setUserId(int int1) {
-		// TODO Auto-generated method stub
-		
-	}
+    // Getter and Setter for bookingId
+    public int getBookingId() {
+        return bookingId;
+    }
 
-	public void setEventId(int int1) {
-		// TODO Auto-generated method stub
-		
-	}
+    public void setBookingId(int bookingId) {
+        this.bookingId = bookingId;
+    }
 
-	public void setTotalAmount(double double1) {
-		// TODO Auto-generated method stub
-		
-	}
+    // Getter and Setter for userId
+    public int getUserId() {
+        return userId;
+    }
 
-	
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
+    // Getter and Setter for eventId
+    public int getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(int eventId) {
+        this.eventId = eventId;
+    }
+
+    // Getter and Setter for totalAmount
+    public double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
 }
