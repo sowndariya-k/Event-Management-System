@@ -1,5 +1,7 @@
 package com.ems.actions;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
@@ -10,106 +12,87 @@ import com.ems.service.impl.EventServiceImpl;
 
 public class EventBrowsingAction {
 
-    private EventService eventService;
+    private final EventService eventService;
+    private final Scanner scanner;
 
-    public EventBrowsingAction() {
-        eventService = new EventServiceImpl();
+    // inject scanner from UserMenu
+    public EventBrowsingAction(Scanner scanner) {
+        this.scanner = scanner;
+        this.eventService = new EventServiceImpl();
     }
 
-    public void execute() {
+    public void printAllAvailableEvents() {
+        List<Event> events = eventService.viewEvents();
 
-        Scanner sc = new Scanner(System.in);
+        if (events.isEmpty()) {
+            System.out.println("No events available.");
+            return;
+        }
 
-        while (true) {
+        // Header for table
+        System.out.printf("%-10s %-40s %-25s%n", "Event ID", "Title", "Date & Time");
+        System.out.println("--------------------------------------------------------------------------");
 
-            System.out.println("\nBrowse Events");
-            System.out.println("1. View All Events");
-            System.out.println("2. View Event Details");
-            System.out.println("3. View Ticket Options");
-            System.out.println("4. Register for Event");
-            System.out.println("5. Exit to User Menu");
+        // Formatter for Instant
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                                                       .withZone(ZoneId.systemDefault());
 
-            System.out.print("Enter your choice: ");
-            int choice = sc.nextInt();
+        for (Event e : events) {
+            String formattedDate = formatter.format(e.getStartDateTime());
 
-            switch (choice) {
+            System.out.printf("%-10d %-40s %-25s%n",
+                    e.getEventId(),
+                    e.getTitle(),
+                    formattedDate
+            );
+        }
 
-            // 1 View All Events
-            case 1:
-                List<Event> events = eventService.viewEvents();
-                if (events.isEmpty()) {
-                    System.out.println("No events found.");
-                } else {
-                    for (Event e : events) {
-                        System.out.println("\n==============================================");
-                        System.out.println("Event ID   : " + e.getEventId());
-                        System.out.println("Title      : " + e.getTitle());
-                        System.out.println("Start Date : " + e.getStartDateTime());
-                        System.out.println("End Date   : " + e.getEndDateTime());
-                        System.out.println("Venue ID   : " + e.getVenueId());
-                        System.out.println("Capacity   : " + e.getCapacity());
-                        System.out.println("Status     : " + e.getStatus());
-                        System.out.println("==============================================");
-                    }
-                }
-                break;
+        System.out.println("--------------------------------------------------------------------------");
+    }
 
-            // 2 View Event Details
-            case 2:
-                System.out.print("Enter Event ID: ");
-                int eventId = sc.nextInt();
-                Event event = eventService.viewEventDetails(eventId);
-                if (event != null) {
-                    System.out.println("\n==============================================");
-                    System.out.println("Title        : " + event.getTitle());
-                    System.out.println("Description  : " + event.getDescription());
-                    System.out.println("Start Date   : " + event.getStartDateTime());
-                    System.out.println("End Date     : " + event.getEndDateTime());
-                    System.out.println("Venue ID     : " + event.getVenueId());
-                    System.out.println("Category ID  : " + event.getCategoryId());
-                    System.out.println("Capacity     : " + event.getCapacity());
-                    System.out.println("Status       : " + event.getStatus());
-                    System.out.println("==============================================");
-                } else {
-                    System.out.println("Event not found.");
-                }
-                break;
+    // 2. View event details
+    public void viewEventDetails() {
 
-            // 3 View Ticket Options
-            case 3:
-                System.out.print("Enter Event ID: ");
-                int eId = sc.nextInt();
-                List<Ticket> tickets = eventService.viewTicketOptions(eId);
-                if (tickets.isEmpty()) {
-                    System.out.println("No tickets found for this event.");
-                } else {
-                    System.out.println("\n==============================================");
-                    for (Ticket t : tickets) {
-                        System.out.println("Ticket ID        : " + t.getTicketId());
-                        System.out.println("Ticket Type      : " + t.getTicketType());
-                        System.out.println("Price            : ₹" + t.getPrice());
-                        System.out.println("Total Quantity   : " + t.getTotalQuantity());
-                        System.out.println("Available        : " + t.getAvailableQuantity());
-                        System.out.println("----------------------------------------------");
-                    }
-                    System.out.println("==============================================");
-                }
-                break;
+        System.out.print("Enter Event ID: ");
+        int eventId = scanner.nextInt();
 
-            // 4 Register for Event
-            case 4:
-                System.out.println("Register for Event - Coming Soon.");
-                // TODO: call RegistrationAction here once implemented
-                break;
+        Event event = eventService.getEventById(eventId);
 
-            // 5 Exit to User Menu
-            case 5:
-                System.out.println("Returning to User Menu...");
-                return;
+        if (event == null) {
+            System.out.println("Event not found.");
+            return;
+        }
 
-            default:
-                System.out.println("Invalid choice. Please try again.");
-            }
+        System.out.println("\n===== EVENT DETAILS =====");
+        System.out.println("Title       : " + event.getTitle());
+        System.out.println("Description : " + event.getDescription());
+        System.out.println("Start       : " + event.getStartDateTime());
+        System.out.println("End         : " + event.getEndDateTime());
+        System.out.println("Venue ID    : " + event.getVenueId());
+        System.out.println("Category ID : " + event.getCategoryId());
+        System.out.println("==========================");
+    }
+
+    // 3. View ticket options
+    public void viewTicketOptions() {
+
+        System.out.print("Enter Event ID: ");
+        int eventId = scanner.nextInt();
+
+        List<Ticket> tickets = eventService.getTicketTypes(eventId);
+
+        if (tickets.isEmpty()) {
+            System.out.println("No tickets available.");
+            return;
+        }
+
+        System.out.println("\n===== TICKETS =====");
+        for (Ticket t : tickets) {
+            System.out.println("Ticket ID   : " + t.getTicketId());
+            System.out.println("Type        : " + t.getTicketType());
+            System.out.println("Price       : ₹" + t.getPrice());
+            System.out.println("Available   : " + t.getAvailableQuantity());
+            System.out.println("----------------------");
         }
     }
 }

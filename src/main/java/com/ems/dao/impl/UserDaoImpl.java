@@ -191,4 +191,16 @@ public class UserDaoImpl implements UserDao {
 		}
 	}
 
+	@Override
+	public void resetFailedAttempts(int userId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean updateUser(User user) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

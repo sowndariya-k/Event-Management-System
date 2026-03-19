@@ -1,167 +1,279 @@
 package com.ems.menu;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Scanner;
 
-import com.ems.dao.*;
-import com.ems.dao.impl.*;
-import com.ems.exception.DataAccessException;
-import com.ems.model.Category;
-import com.ems.model.Event;
-import com.ems.model.Ticket;
+import com.ems.actions.EventBrowsingAction;
+import com.ems.actions.EventRegistrationAction;
+import com.ems.actions.EventSearchAction;
+import com.ems.actions.FeedbackAction;
+import com.ems.actions.NotificationAction;
+import com.ems.actions.UserAction;
+import com.ems.actions.UserRegistrationAction;
 import com.ems.model.User;
 import com.ems.util.InputValidationUtil;
-import com.ems.actions.EventBrowsingAction;
-
 
 public class UserMenu {
-	Scanner scanner;
-	User loggedInUser;
-	
-	public UserMenu(Scanner scanner, User user) throws DataAccessException {
-		this.scanner = scanner;
-		this.loggedInUser = user;
-		this.start();
-	}
 
-	private void start() throws DataAccessException {
-	    UserDao userDao = new UserDaoImpl();
-	    EventDao eventDao = new EventDaoImpl();
-	    VenueDao venueDao = new VenueDaoImpl();
-	    CategoryDao categoryDao = new CategoryDaoImpl();
-	    TicketDao ticketDao = new TicketDaoImpl();
+    private final Scanner scanner;
+    private final User loggedInUser;
 
-	    while (true) {
-	        System.out.println("\nUser Menu"
-	                + "\n\nEnter your choice:\n"
-	                + "1. Browse available events\r\n"
-	                + "2. Search and filter events\r\n"
-	                + "3. View my registrations\r\n"
-	                + "4. View my notifications\r\n"
-	                + "5. Register for an event\r\n"
-	                + "6. Logout"
-	                + "\n>");
-	        int input = InputValidationUtil.readInt(scanner, "");
+    // Actions (single responsibility)
+    private final NotificationAction notificationAction;
+    private final EventBrowsingAction eventBrowsingAction;
+    private final EventRegistrationAction eventRegistrationAction;
+    private final UserRegistrationAction userRegistrationAction;
+    private final EventSearchAction eventSearchAction;
+    private final FeedbackAction feedbackAction;
+    private final UserAction userAction;
 
-	        switch (input) {
-	        case 1:
-	        	new EventBrowsingAction().execute();
-	            break; // ✅ THIS WAS MISSING — was falling through into case 2
+    public UserMenu(Scanner scanner, User user, UserAction userAction) {
+        this.scanner = scanner;
+        this.loggedInUser = user;
+        this.userAction = userAction;
 
-	        case 2:
-	            boolean exitFilter = false;
-	            while (!exitFilter) { // ✅ use a flag instead of return
-	                System.out.println("\nEnter your choice:\n"
-	                        + "1. Search by category\r\n"
-	                        + "2. Search by date\r\n"
-	                        + "3. Search by city\r\n"
-	                        + "4. Filter by price\r\n"
-	                        + "5. Filter by availability\r\n"
-	                        + "6. Exit to user menu"
-	                        + "\n>");
-	                int filterChoice = InputValidationUtil.readInt(scanner, "");
-	                switch (filterChoice) {
-	                case 1:
-	                    searchByCategory(categoryDao);
-	                    break;
-	                case 2:
-	                    break;
-	                case 3:
-	                    break;
-	                case 4:
-	                    break;
-	                case 5:
-	                    printAllAvailableEvents(eventDao, venueDao, categoryDao, ticketDao);
-	                    break;
-	                case 6:
-	                    exitFilter = true; // ✅ exits inner loop, back to User Menu
-	                    break;
-	                default:
-	                    exitFilter = true;
-	                    break;
-	                }
-	            }
-	            break; // ✅ back to outer while loop
+        this.notificationAction = new NotificationAction();
+        this.eventBrowsingAction = new EventBrowsingAction(scanner);
+        this.eventRegistrationAction = new EventRegistrationAction();
+        this.userRegistrationAction = new UserRegistrationAction();
+        this.eventSearchAction = new EventSearchAction();
+        this.feedbackAction = new FeedbackAction();
+    }
 
-	        case 3:
-	            break;
-	        case 4:
-	            break;
-	        case 5:
-	            break;
-	        case 6:
-	            System.out.println("Logout - Going back to main menu");
-	            return;
-	        default:
-	            return;
-	        }
-	    }
-	}
-	private void searchByCategory(CategoryDao categoryDao) {
-		categoryDao.listAllCategory();
-		
-	}
-	
+    public void start() {
 
-	private void printAllAvailableEvents(EventDao eventDao, VenueDao venueDao, CategoryDao categoryDao, TicketDao ticketDao) throws DataAccessException {
-		List<Event> events = eventDao.listAvailableEvents();
-		for (Event event : events) {
+        // show unread notifications once
+        notificationAction.displayUnreadNotifications(loggedInUser.getUserId());
 
-			Category category = categoryDao.getCategory(event.getCategoryId());
-	        String venueName = venueDao.getVenueName(event.getVenueId());
-	        String venueAddress = venueDao.getVenueAddress(event.getVenueId());
-	        int totalAvailable = ticketDao.getAvailableTickets(event.getEventId());
-	        List<Ticket> tickets = ticketDao.getTicketTypes(event.getEventId());
+        while (true) {
+            System.out.println(
+                "\nUser Menu\n" +
+                "1. Browse events\n" +
+                "2. Search and filter events\n" +
+                "3. My registrations\n" +
+                "4. Notifications\n" +
+                "5. Feedback\n" +
+                "6. Update profile\n" +
+                "7. Logout\n" +
+                "Choice:"
+            );
 
-	        System.out.println("\n==============================================");
-	        System.out.println("Event ID        : " + event.getEventId());
-	        System.out.println("Title           : " + event.getTitle());
+            int choice = InputValidationUtil.readInt(scanner, "");
 
-	        if (event.getDescription() != null) {
-	            System.out.println("Description     : " + event.getDescription());
-	        }
+            switch (choice) {
+                case 1:
+                    browseEventsMenu();
+                    break;
 
-	        System.out.println("Category        : " + category);
-	        System.out.println("Duration        : "
-	                + formatDateTime(event.getStartDateTime())
-	                + " to "
-	                + formatDateTime(event.getEndDateTime()));
+                case 2:
+                    searchEventsMenu();
+                    break;
 
-	        System.out.println("Total Tickets   : " + totalAvailable);
+                case 3:
+                    registrationMenu();
+                    break;
 
-	        System.out.println("\nTicket Types");
-	        System.out.println("----------------------------------------------");
+                case 4:
+                    notificationAction.displayAllNotifications(
+                        loggedInUser.getUserId()
+                    );
+                    break;
 
-	        for (Ticket ticket : tickets) {
-	            System.out.println("• "
-	                    + ticket.getTicketType()
-	                    + " | Price: ₹"
-	                    + ticket.getPrice()
-	                    + " | Available: "
-	                    + ticket.getAvailableQuantity());
-	        }
+                case 5:
+                    feedbackMenu();
+                    break;
 
-	        System.out.println("\nVenue");
-	        System.out.println("----------------------------------------------");
-	        System.out.println("Name            : " + venueName);
-	        System.out.println("Address         : " + venueAddress);
+                case 6:
+                    boolean updated = userAction.updateProfile(loggedInUser);
+                    if (updated) return;
+                    break;
 
-	        System.out.println("==============================================");
-	    }
-	}
+                case 7:
+                    if (confirmLogout()) {
+                        System.out.println("Logging out...");
+                        return;
+                    }
+                    break;
 
-	private String formatDateTime(Instant dateTime) {
-	    if (dateTime == null) {
-	        return "N/A";
-	    }
-	    LocalDateTime localDateTime = LocalDateTime.ofInstant(dateTime, ZoneId.systemDefault());
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-	    return localDateTime.format(formatter);
-	}
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
 
-	
+    /* ===================== SUB MENUS ===================== */
+
+    private void browseEventsMenu() {
+        while (true) {
+            System.out.println(
+                "\nBrowse Events\n" +
+                "1. View all events\n" +
+                "2. View event details\n" +
+                "3. View ticket options\n" +
+                "4. Register for event\n" +
+                "5. Back\n" +
+                "Choice:"
+            );
+
+            int choice = InputValidationUtil.readInt(scanner, "");
+
+            switch (choice) {
+                case 1:
+                    eventBrowsingAction.printAllAvailableEvents();
+                    break;
+
+                case 2:
+                    eventBrowsingAction.viewEventDetails();
+                    break;
+
+                case 3:
+                    eventBrowsingAction.viewTicketOptions();
+                    break;
+
+                case 4:
+                    eventRegistrationAction.registerForAvailableEvent(
+                        loggedInUser.getUserId()
+                    );
+                    break;
+
+                case 5:
+                    return;
+
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    private void searchEventsMenu() {
+        while (true) {
+            System.out.println(
+                "\nSearch & Filter Events\n" +
+                "1. Search by category\n" +
+                "2. Search by date\n" +
+                "3. Search by date range\n" +
+                "4. Search by city\n" +
+                "5. Filter by price\n" +
+                "6. View all events\n" +
+                "7. Back\n" +
+                "Choice:"
+            );
+
+            int choice = InputValidationUtil.readInt(scanner, "");
+
+            switch (choice) {
+                case 1:
+                    eventSearchAction.handleSearchByCategory();
+                    break;
+
+                case 2:
+                    eventSearchAction.handleSearchByDate();
+                    break;
+
+                case 3:
+                    eventSearchAction.handleSearchByDateRange();
+                    break;
+
+                case 4:
+                    eventSearchAction.handleSearchByCity();
+                    break;
+
+                case 5:
+                    eventSearchAction.handleFilterByPrice();
+                    break;
+
+                case 6:
+                    eventBrowsingAction.printAllAvailableEvents();
+                    break;
+
+                case 7:
+                    return;
+
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    private void registrationMenu() {
+        while (true) {
+            System.out.println(
+                "\nMy Registrations\n" +
+                "1. Upcoming events\n" +
+                "2. Past events\n" +
+                "3. Booking details\n" +
+                "4. Cancel registration\n" +
+                "5. Back\n" +
+                "Choice:"
+            );
+
+            int choice = InputValidationUtil.readInt(scanner, "");
+
+            switch (choice) {
+                case 1:
+                    userRegistrationAction.listUpcomingEvents(
+                        loggedInUser.getUserId()
+                    );
+                    break;
+
+                case 2:
+                    userRegistrationAction.listPastEvents(
+                        loggedInUser.getUserId()
+                    );
+                    break;
+
+                case 3:
+                    userRegistrationAction.viewBookingDetails(
+                        loggedInUser.getUserId()
+                    );
+                    break;
+
+                case 4:
+                    eventRegistrationAction.cancelRegistration(
+                        loggedInUser.getUserId()
+                    );
+                    break;
+
+                case 5:
+                    return;
+
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    private void feedbackMenu() {
+        while (true) {
+            System.out.println(
+                "\nFeedback\n" +
+                "1. Submit rating\n" +
+                "2. Back\n" +
+                "Choice:"
+            );
+
+            int choice = InputValidationUtil.readInt(scanner, "");
+
+            switch (choice) {
+                case 1:
+                    feedbackAction.submitRating(
+                        loggedInUser.getUserId()
+                    );
+                    break;
+
+                case 2:
+                    return;
+
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    private boolean confirmLogout() {
+        char choice = InputValidationUtil.readChar(
+            scanner,
+            "Are you sure you want to logout? (Y/N): "
+        );
+        return Character.toUpperCase(choice) == 'Y';
+    }
 }
