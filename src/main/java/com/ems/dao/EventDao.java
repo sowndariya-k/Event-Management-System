@@ -21,5 +21,15 @@ public interface EventDao {
     List<Event> viewPastEvents();
 
     List<BookingDetail> viewBookingDetails(int userId);
+    
+    List<Event> searchByCategory(int categoryId);
+    
+    List<Event> searchByDate(String date);
+    
+    List<Event> searchByCity(String city);
+    
+    List<Event> filterByPrice(double maxPrice);
+    
+    List<Event> filterByAvailability();
 
 }

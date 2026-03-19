@@ -35,7 +35,7 @@ public class UserMenu {
 	    CategoryDao categoryDao = new CategoryDaoImpl();
 	    TicketDao ticketDao = new TicketDaoImpl();
 
-	    while (true) {
+	    while (true) {	
 	        System.out.println("\nUser Menu"
 	                + "\n\nEnter your choice:\n"
 	                + "1. Browse available events\r\n"
@@ -69,13 +69,81 @@ public class UserMenu {
 	                    searchByCategory(categoryDao);
 	                    break;
 	                case 2:
+	                    System.out.print("Enter date (yyyy-mm-dd): ");
+	                    String date = scanner.nextLine();
+
+	                    List<Event> events = eventDao.searchByDate(date);
+
+	                    if (events.isEmpty()) {
+	                        System.out.println("❌ No events found on this date");
+	                        break;
+	                    }
+
+	                    System.out.println("\n===== Events Found =====");
+
+	                    for (Event event : events) {
+	                        System.out.println("ID: " + event.getEventId());
+	                        System.out.println("Title: " + event.getTitle());
+	                        System.out.println("Start: " + formatDateTime(event.getStartDateTime()));
+	                        System.out.println("-----------------------------------");
+	                    }
 	                    break;
 	                case 3:
+	                    System.out.print("Enter city: ");
+	                    String city = scanner.nextLine();
+
+	                    List<Event> eventsByCity = eventDao.searchByCity(city);
+
+	                    if (eventsByCity.isEmpty()) {
+	                        System.out.println("❌ No events found in this city");
+	                        break;
+	                    }
+
+	                    System.out.println("\n===== Events Found =====");
+
+	                    for (Event event : eventsByCity) {
+	                        System.out.println("ID: " + event.getEventId());
+	                        System.out.println("Title: " + event.getTitle());
+	                        System.out.println("Start: " + formatDateTime(event.getStartDateTime()));
+	                        System.out.println("-----------------------------------");
+	                    }
 	                    break;
 	                case 4:
+	                    System.out.print("Enter max price: ");
+	                    double price = Double.parseDouble(scanner.nextLine());
+
+	                    List<Event> eventsByPrice = eventDao.filterByPrice(price);
+
+	                    if (eventsByPrice.isEmpty()) {
+	                        System.out.println(" No events found under this price");
+	                        break;
+	                    }
+
+	                    System.out.println("\n===== Events Found =====");
+
+	                    for (Event event : eventsByPrice) {
+	                        System.out.println("ID: " + event.getEventId());
+	                        System.out.println("Title: " + event.getTitle());
+	                        System.out.println("Start: " + formatDateTime(event.getStartDateTime()));
+	                        System.out.println("-----------------------------------");
+	                    }
 	                    break;
 	                case 5:
-	                    printAllAvailableEvents(eventDao, venueDao, categoryDao, ticketDao);
+	                    List<Event> availableEvents = eventDao.filterByAvailability();
+
+	                    if (availableEvents.isEmpty()) {
+	                        System.out.println("❌ No available events");
+	                        break;
+	                    }
+
+	                    System.out.println("\n===== Available Events =====");
+
+	                    for (Event event : availableEvents) {
+	                        System.out.println("ID: " + event.getEventId());
+	                        System.out.println("Title: " + event.getTitle());
+	                        System.out.println("Start: " + formatDateTime(event.getStartDateTime()));
+	                        System.out.println("-----------------------------------");
+	                    }
 	                    break;
 	                case 6:
 	                    exitFilter = true; // ✅ exits inner loop, back to User Menu
@@ -101,9 +169,44 @@ public class UserMenu {
 	        }
 	    }
 	}
-	private void searchByCategory(CategoryDao categoryDao) {
-		categoryDao.listAllCategory();
-		
+	private void searchByCategory(CategoryDao categoryDao) throws DataAccessException {
+
+	    EventDao eventDao = new EventDaoImpl();
+
+	    // Step 1: Get categories from DB
+	    List<Category> categories = categoryDao.getAllCategories();
+
+	    if (categories.isEmpty()) {
+	        System.out.println("No categories available");
+	        return;
+	    }
+
+	    // Step 2: Display categories
+	    System.out.println("\nAvailable Categories:");
+	    for (Category c : categories) {
+	        System.out.println(c.getCategoryId() + " - " + c.getName());
+	    }
+
+	    // Step 3: Take input
+	    int categoryId = InputValidationUtil.readInt(scanner, "Enter Category ID: ");
+
+	    // Step 4: Fetch events
+	    List<Event> events = eventDao.searchByCategory(categoryId);
+
+	    // Step 5: Display results
+	    if (events.isEmpty()) {
+	        System.out.println("❌ No events found for this category");
+	        return;
+	    }
+
+	    System.out.println("\n===== Events Found =====");
+
+	    for (Event event : events) {
+	        System.out.println("ID: " + event.getEventId());
+	        System.out.println("Title: " + event.getTitle());
+	        System.out.println("Start: " + formatDateTime(event.getStartDateTime()));
+	        System.out.println("-----------------------------------");
+	    }
 	}
 	
 

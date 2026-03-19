@@ -285,4 +285,186 @@ public class EventDaoImpl implements EventDao {
 
         return events;
     }
+    
+    @Override
+    public List<Event> searchByCategory(int categoryId) {
+
+        List<Event> events = new ArrayList<>();
+
+        try {
+
+            String query = "SELECT * FROM events WHERE category_id = ?";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setInt(1, categoryId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Event event = new Event();
+
+                event.setEventId(rs.getInt("event_id"));
+                event.setTitle(rs.getString("title"));
+                event.setCategoryId(rs.getInt("category_id"));
+                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+                event.setVenueId(rs.getInt("venue_id"));
+                event.setCapacity(rs.getInt("capacity"));
+
+                events.add(event);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return events;
+    }
+    
+    @Override
+    public List<Event> searchByDate(String date) {
+
+        List<Event> list = new ArrayList<>();
+
+        try (Connection con = DBConnectionUtil.getConnection()) {
+
+            String query = "SELECT * FROM events WHERE DATE(start_datetime) = ?";
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, date);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Event e = new Event();
+
+                e.setEventId(rs.getInt("event_id"));
+                e.setTitle(rs.getString("title"));
+                e.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+                e.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+                e.setVenueId(rs.getInt("venue_id"));
+                e.setCategoryId(rs.getInt("category_id"));
+                e.setCapacity(rs.getInt("capacity"));
+
+                list.add(e);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+    
+    @Override
+    public List<Event> searchByCity(String city) {
+
+        List<Event> list = new ArrayList<>();
+
+        try (Connection con = DBConnectionUtil.getConnection()) {
+
+            String query = "SELECT e.* FROM events e " +
+                           "JOIN venues v ON e.venue_id = v.venue_id " +
+                           "WHERE v.city = ?";
+
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setString(1, city);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Event e = new Event();
+
+                e.setEventId(rs.getInt("event_id"));
+                e.setTitle(rs.getString("title"));
+                e.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+                e.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+                e.setVenueId(rs.getInt("venue_id"));
+                e.setCategoryId(rs.getInt("category_id"));
+                e.setCapacity(rs.getInt("capacity"));
+
+                list.add(e);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+    
+    @Override
+    public List<Event> filterByPrice(double maxPrice) {
+
+        List<Event> list = new ArrayList<>();
+
+        try (Connection con = DBConnectionUtil.getConnection()) {
+
+            String query = "SELECT DISTINCT e.* FROM events e " +
+                           "JOIN tickets t ON e.event_id = t.event_id " +
+                           "WHERE t.price <= ?";
+
+            PreparedStatement ps = con.prepareStatement(query);
+            ps.setDouble(1, maxPrice);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Event e = new Event();
+
+                e.setEventId(rs.getInt("event_id"));
+                e.setTitle(rs.getString("title"));
+                e.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+                e.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+                e.setVenueId(rs.getInt("venue_id"));
+                e.setCategoryId(rs.getInt("category_id"));
+                e.setCapacity(rs.getInt("capacity"));
+
+                list.add(e);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+    
+    @Override
+    public List<Event> filterByAvailability() {
+
+        List<Event> list = new ArrayList<>();
+
+        try (Connection con = DBConnectionUtil.getConnection()) {
+
+            String query = "SELECT DISTINCT e.* FROM events e " +
+                           "JOIN tickets t ON e.event_id = t.event_id " +
+                           "WHERE t.available_quantity > 0";
+
+            PreparedStatement ps = con.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+
+                Event e = new Event();
+
+                e.setEventId(rs.getInt("event_id"));
+                e.setTitle(rs.getString("title"));
+                e.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+                e.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+                e.setVenueId(rs.getInt("venue_id"));
+                e.setCategoryId(rs.getInt("category_id"));
+                e.setCapacity(rs.getInt("capacity"));
+
+                list.add(e);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 }
