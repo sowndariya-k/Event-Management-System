@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.ems.dao.EventDao;
 import com.ems.enums.EventStatus;
-import com.ems.model.BookingDetail;
 import com.ems.model.Event;
 import com.ems.model.Ticket;
 import com.ems.util.DBConnectionUtil;
@@ -23,7 +22,6 @@ public class EventDaoImpl implements EventDao {
         }
     }
 
-    // 1 View Events
     @Override
     public List<Event> viewEvents() {
 
@@ -60,7 +58,7 @@ public class EventDaoImpl implements EventDao {
 
     // 2 View Event Details
     @Override
-    public Event viewEventDetails(int eventId) {
+    public Event getEventById(int eventId) {
 
         Event event = null;
 
@@ -114,7 +112,7 @@ public class EventDaoImpl implements EventDao {
 
  // 3 View Ticket Options
     @Override
-    public List<Ticket> viewTicketOptions(int eventId) {
+    public List<Ticket> getTicketsByEventId(int eventId) {
 
         List<Ticket> tickets = new ArrayList<>();
 
@@ -146,112 +144,7 @@ public class EventDaoImpl implements EventDao {
         return tickets;
     }
 
-    // 4 View Upcoming Events
-    @Override
-    public List<Event> viewUpcomingEvents() {
-
-        List<Event> events = new ArrayList<>();
-
-        try {
-
-            String query = "SELECT * FROM events WHERE start_datetime > NOW()";
-            PreparedStatement ps = con.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-
-                Event event = new Event();
-
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCapacity(rs.getInt("capacity"));
-                event.setStatus(EventStatus.valueOf(rs.getString("status")));
-
-                events.add(event);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return events;
-    }
-
-    // 5 View Past Events
-    @Override
-    public List<Event> viewPastEvents() {
-
-        List<Event> events = new ArrayList<>();
-
-        try {
-
-            String query = "SELECT * FROM events WHERE start_datetime < NOW()";
-            PreparedStatement ps = con.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-
-                Event event = new Event();
-
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCapacity(rs.getInt("capacity"));
-                event.setStatus(EventStatus.valueOf(rs.getString("status")));
-
-                events.add(event);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return events;
-    }
-
- // 6 View Booking Details
-    @Override
-    public List<BookingDetail> viewBookingDetails(int userId) {
-
-        List<BookingDetail> bookings = new ArrayList<>();
-
-        try {
-
-            String query = "SELECT r.registration_id, r.event_id, r.user_id, p.amount AS total_amount " +
-                           "FROM registrations r " +
-                           "LEFT JOIN payments p ON r.registration_id = p.registration_id " +
-                           "WHERE r.user_id = ?";
-
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setInt(1, userId);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-
-                BookingDetail booking = new BookingDetail();
-
-                booking.setBookingId(rs.getInt("registration_id"));
-                booking.setEventId(rs.getInt("event_id"));
-                booking.setUserId(rs.getInt("user_id"));
-                booking.setTotalAmount(rs.getDouble("total_amount"));
-
-                bookings.add(booking);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return bookings;
-    }
-
-    // 7 List Available Events
+    // 4 List Available Events
     @Override
     public List<Event> listAvailableEvents() {
 

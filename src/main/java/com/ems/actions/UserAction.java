@@ -1,44 +1,48 @@
 package com.ems.actions;
 
+import java.time.Instant;
+import java.util.Objects;
 import java.util.Scanner;
-
 
 import com.ems.enums.UserRole;
 import com.ems.exception.AuthenticationException;
 import com.ems.exception.AuthorizationException;
+import com.ems.exception.InvalidPasswordFormatException;
 import com.ems.model.User;
 import com.ems.service.UserService;
 import com.ems.util.InputValidationUtil;
+import com.ems.util.PasswordUtil;
 
 public class UserAction {
-	private Scanner scanner;
-	private final UserService userService;
 
-	public UserAction(UserService userService, Scanner scanner) {
-	    this.userService = userService;
-	    this.scanner = scanner;
-	}
+    private final Scanner scanner;
+    private final UserService userService;
 
-	public User login() throws AuthorizationException, AuthenticationException {
-	    String email =
-	        InputValidationUtil.readNonEmptyString(
-	            scanner,
-	            "Enter email: "
-	        );
-	    while (!email.matches(
-                "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")) {
-            email =
-                InputValidationUtil.readNonEmptyString(
-                    scanner,
-                    "Enter valid Email Address: "
-                );
+    public UserAction(UserService userService, Scanner scanner) {
+        this.userService = userService;
+        this.scanner = scanner;
+    }
+
+    /* ================= LOGIN ================= */
+
+    public User login() throws AuthorizationException, AuthenticationException {
+
+        String email = InputValidationUtil.readNonEmptyString(
+            scanner,
+            "Enter email: "
+        );
+
+        while (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")) {
+            email = InputValidationUtil.readNonEmptyString(
+                scanner,
+                "Enter valid Email Address: "
+            );
         }
 
-	    String password =
-	        InputValidationUtil.readNonEmptyString(
-	            scanner,
-	            "Enter password: "
-	        );
+        String password = InputValidationUtil.readNonEmptyString(
+            scanner,
+            "Enter password: "
+        );
 
         return userService.login(email, password);
     }
@@ -47,103 +51,230 @@ public class UserAction {
         return userService.getRole(user);
     }
 
-	public void createAccount(UserRole role) {
-	
-		String fullName;
-		do {
-		    fullName = InputValidationUtil.readNonEmptyString(
-		        scanner,
-		        "Enter Full Name (max 30 chars): "
-		    );
-		    if (fullName.length()<2 ||fullName.length() >= 30) {
-		        System.out.println("Error: Name must be minimum of 2 characters and a maximum of 30 characters.");
-		    }
-		} while (fullName.length() >= 30 || fullName.length()<2);
+    /* ================= CREATE ACCOUNT ================= */
 
-	
-	    String email;
-	    while (true) {
-	        email = InputValidationUtil.readNonEmptyString(
-	                scanner,
-	                "Enter Email (max 100 characters): "
-	            );
+    public void createAccount(UserRole role) {
 
-	        if (email.length() > 100) {
-	        	System.out.println("Error: Email too long. Database limit is 100 characters.");
-	        	continue;
-	        	} 
-	        if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")) {
-	            System.out.println("Invalid email format.\nExample: name@company.com");
-	            continue;
-	        }
-	        if (userExists(email)) {
-	            System.out.println("This email is already registered.\nPlease try a different email.\n");
-	            continue;
-	        }
-	
-	        break;
-	    }
-	
-	    String phone = InputValidationUtil.readString(
-	    	    scanner,
-	    	    "Enter phone number (optional): "
-	    	);
+        String fullName;
+        do {
+            fullName = InputValidationUtil.readNonEmptyString(
+                scanner,
+                "Enter Full Name (2-30 chars): "
+            );
 
-	    	if (phone != null && !phone.trim().isEmpty()) {
-	    	    phone = phone.replaceAll("\\D", "");
+            if (fullName.length() < 2 || fullName.length() > 30) {
+                System.out.println("Name must be between 2 and 30 characters.");
+            }
 
-	    	    // starts with 6-9 and has exactly 10 digits
-	    	    while (!phone.matches("^[6-9][0-9]{9}$")) {
-	    	        phone = InputValidationUtil.readString(
-	    	            scanner,
-	    	            "Enter valid 10-digit phone number starting with 6-9: "
-	    	        ).replaceAll("\\D", "");
-	    	    }
-	    	} else {
-	    	    phone = null;
-	    	}
+        } while (fullName.length() < 2 || fullName.length() > 30);
 
-	
-	    	String passwordPrompt =
-	    	        "Create a password:\n" +
-	    	        "Minimum 8 characters\n" +
-	    	        "At least 1 uppercase, 1 lowercase, 1 number, 1 special character\n";
-	    	
-	    	    String password = InputValidationUtil.readNonEmptyString(
-	    	        scanner,
-	    	        passwordPrompt
-	    	    );
-	    	
-	    	    while (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$")) {
-	    	        password = InputValidationUtil.readNonEmptyString(
-	    	            scanner,
-	    	            "Enter a valid password: "
-	    	        );
-	    	    }
-	
-	    int genderChoice;
-	    do {
-	        genderChoice = InputValidationUtil.readInt(
-	             scanner,
-	            "Enter your gender:\n1. Male\n2. Female\n3. Prefer not to say\n"
-	        );
-	    } while (genderChoice < 1 || genderChoice > 3);
-	
-	    String gender = (genderChoice == 1)
-	        ? "Male"
-	        : (genderChoice == 2)
-	            ? "Female"
-	            : "Opt-out";
-	    boolean isUserCreated = userService.createAccount(fullName, email, phone, password, gender, role);
-	    if(isUserCreated) {
-	    	System.out.println("\nAccount has been created successfully!\n");
-	    }else {
-	    	System.out.println("\nAccount creation failed!, Retry");
-	    }
-	}
-	
-	 public boolean userExists(String email) {
-	        return userService.checkUserExists(email);
-	    }
-	   
+        String email;
+        while (true) {
+
+            email = InputValidationUtil.readNonEmptyString(
+                scanner,
+                "Enter Email (max 100 chars): "
+            );
+
+            if (email.length() > 100) {
+                System.out.println("Email too long.");
+                continue;
+            }
+
+            if (!email.matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")) {
+                System.out.println("Invalid email format.");
+                continue;
+            }
+
+            if (userExists(email)) {
+                System.out.println("Email already registered.");
+                continue;
+            }
+
+            break;
+        }
+
+        String phone = InputValidationUtil.readString(
+            scanner,
+            "Enter phone (optional): "
+        );
+
+        if (phone != null && !phone.trim().isEmpty()) {
+
+            phone = phone.replaceAll("\\D", "");
+
+            while (!phone.matches("^[6-9][0-9]{9}$")) {
+                phone = InputValidationUtil.readString(
+                    scanner,
+                    "Enter valid 10-digit phone: "
+                ).replaceAll("\\D", "");
+            }
+
+        } else {
+            phone = null;
+        }
+
+        String passwordPrompt =
+            "Create password:\n" +
+            "Min 8 chars, 1 upper, 1 lower, 1 number, 1 special\n";
+
+        String password = InputValidationUtil.readNonEmptyString(
+            scanner,
+            passwordPrompt
+        );
+
+        while (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$")) {
+            password = InputValidationUtil.readNonEmptyString(
+                scanner,
+                "Enter valid password: "
+            );
+        }
+
+        int genderChoice;
+        do {
+            genderChoice = InputValidationUtil.readInt(
+                scanner,
+                "1. Male\n2. Female\n3. Prefer not to say\n"
+            );
+        } while (genderChoice < 1 || genderChoice > 3);
+
+        String gender = (genderChoice == 1)
+            ? "Male"
+            : (genderChoice == 2)
+            ? "Female"
+            : "Opt-out";
+
+        boolean created = userService.createAccount(
+            fullName, email, phone, password, gender, role
+        );
+
+        System.out.println(
+            created
+            ? "\nAccount created successfully!\n"
+            : "\nAccount creation failed!\n"
+        );
+    }
+
+    /* ================= UPDATE PROFILE ================= */
+
+    public boolean updateProfile(User user) {
+
+        System.out.println("\nUpdate Profile (press Enter to skip)");
+
+        String fullName = user.getFullName();
+        String phone = user.getPhone();
+        String passwordHash = user.getPasswordHash();
+
+        // NAME
+        String newName = InputValidationUtil.readString(
+            scanner,
+            "Name (" + fullName + "): "
+        );
+
+        if (newName != null && !newName.trim().isEmpty()) {
+
+            while (newName.length() < 2 || newName.length() > 30) {
+                newName = InputValidationUtil.readString(
+                    scanner,
+                    "Name must be 2-30 chars: "
+                );
+            }
+
+            fullName = newName;
+        }
+
+        // PHONE
+        String newPhone = InputValidationUtil.readString(
+            scanner,
+            "Phone (" + (phone == null ? "Not set" : phone) + "): "
+        );
+
+        if (newPhone != null && !newPhone.trim().isEmpty()) {
+
+            while (true) {
+                String cleaned = newPhone.replaceAll("\\D", "");
+
+                if (cleaned.matches("^[6-9][0-9]{9}$")) {
+                    phone = cleaned;
+                    break;
+                }
+
+                newPhone = InputValidationUtil.readString(
+                    scanner,
+                    "Enter valid phone or press Enter to skip: "
+                );
+
+                if (newPhone.trim().isEmpty()) break;
+            }
+        }
+
+        // PASSWORD
+        char change = InputValidationUtil.readChar(
+            scanner,
+            "Change password? (Y/N): "
+        );
+
+        if (Character.toUpperCase(change) == 'Y') {
+
+            while (true) {
+                String newPassword = InputValidationUtil.readNonEmptyString(
+                    scanner,
+                    "Enter new password: "
+                );
+
+                if (!newPassword.matches(
+                    "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$"
+                )) {
+                    System.out.println("Invalid password format.");
+                    continue;
+                }
+
+                try {
+                    passwordHash = PasswordUtil.hashPassword(newPassword);
+                    break;
+                } catch (InvalidPasswordFormatException e) {
+                    System.out.println("Password error. Retry.");
+                }
+            }
+        }
+
+        boolean changed =
+            !fullName.equals(user.getFullName()) ||
+            !Objects.equals(phone, user.getPhone()) ||
+            !passwordHash.equals(user.getPasswordHash());
+
+        if (!changed) {
+            System.out.println("No changes made.");
+            return false;
+        }
+
+        User updatedUser = new User(
+            user.getUserId(),
+            fullName,
+            user.getEmail(),
+            phone,
+            passwordHash,
+            user.getRoleId(),
+            user.getStatus(),
+            user.getCreatedAt(),
+            Instant.now(),
+            user.getGender(),
+            user.getFailedAttempts(),
+            user.getLastLogin()
+        );
+
+        boolean updated = userService.updateUserProfile(updatedUser);
+
+        System.out.println(
+            updated
+            ? "Profile updated. Please login again."
+            : "Update failed."
+        );
+
+        return updated;
+    }
+
+    public boolean userExists(String email) {
+        return userService.checkUserExists(email);
+    }
 }

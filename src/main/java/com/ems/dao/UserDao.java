@@ -80,5 +80,9 @@ public interface UserDao {
      * @throws DataAccessException
      */
     void incrementFailedAttempts(int userId) throws DataAccessException;
+
+	void resetFailedAttempts(int userId);
+
+	boolean updateUser(User user)  throws DataAccessException;
     
 }

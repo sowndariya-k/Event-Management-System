@@ -6,7 +6,8 @@ import com.ems.exception.AuthorizationException;
 import com.ems.model.User;
 
 public interface UserService {
-	// authentication
+
+    // authentication
     User login(String emailId, String password)
             throws AuthorizationException, AuthenticationException;
 
@@ -24,6 +25,7 @@ public interface UserService {
 
     // role
     UserRole getRole(User user);
-    
-	
+
+    // profile update
+    boolean updateUserProfile(User user);
 }

@@ -15,7 +15,7 @@ CREATE TABLE `roles` (
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`role_id`),
   UNIQUE KEY `role_name` (`role_name`)
-) 
+) ;
 
 -- Insert ems roles
 LOCK TABLES `roles` WRITE;
