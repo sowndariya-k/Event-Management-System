@@ -292,7 +292,6 @@ public class EventDaoImpl implements EventDao {
         List<Event> events = new ArrayList<>();
 
         try {
-
             String query = "SELECT * FROM events WHERE category_id = ?";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setInt(1, categoryId);
@@ -324,10 +323,9 @@ public class EventDaoImpl implements EventDao {
     @Override
     public List<Event> searchByDate(String date) {
 
-        List<Event> list = new ArrayList<>();
+        List<Event> events = new ArrayList<>();
 
-        try (Connection con = DBConnectionUtil.getConnection()) {
-
+        try {
             String query = "SELECT * FROM events WHERE DATE(start_datetime) = ?";
             PreparedStatement ps = con.prepareStatement(query);
             ps.setString(1, date);
@@ -336,33 +334,32 @@ public class EventDaoImpl implements EventDao {
 
             while (rs.next()) {
 
-                Event e = new Event();
+                Event event = new Event();
 
-                e.setEventId(rs.getInt("event_id"));
-                e.setTitle(rs.getString("title"));
-                e.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                e.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                e.setVenueId(rs.getInt("venue_id"));
-                e.setCategoryId(rs.getInt("category_id"));
-                e.setCapacity(rs.getInt("capacity"));
+                event.setEventId(rs.getInt("event_id"));
+                event.setTitle(rs.getString("title"));
+                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+                event.setVenueId(rs.getInt("venue_id"));
+                event.setCategoryId(rs.getInt("category_id"));
+                event.setCapacity(rs.getInt("capacity"));
 
-                list.add(e);
+                events.add(event);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return list;
+        return events;
     }
     
     @Override
     public List<Event> searchByCity(String city) {
 
-        List<Event> list = new ArrayList<>();
+        List<Event> events = new ArrayList<>();
 
-        try (Connection con = DBConnectionUtil.getConnection()) {
-
+        try {
             String query = "SELECT e.* FROM events e " +
                            "JOIN venues v ON e.venue_id = v.venue_id " +
                            "WHERE v.city = ?";
@@ -374,33 +371,32 @@ public class EventDaoImpl implements EventDao {
 
             while (rs.next()) {
 
-                Event e = new Event();
+                Event event = new Event();
 
-                e.setEventId(rs.getInt("event_id"));
-                e.setTitle(rs.getString("title"));
-                e.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                e.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                e.setVenueId(rs.getInt("venue_id"));
-                e.setCategoryId(rs.getInt("category_id"));
-                e.setCapacity(rs.getInt("capacity"));
+                event.setEventId(rs.getInt("event_id"));
+                event.setTitle(rs.getString("title"));
+                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+                event.setVenueId(rs.getInt("venue_id"));
+                event.setCategoryId(rs.getInt("category_id"));
+                event.setCapacity(rs.getInt("capacity"));
 
-                list.add(e);
+                events.add(event);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return list;
+        return events;
     }
     
     @Override
     public List<Event> filterByPrice(double maxPrice) {
 
-        List<Event> list = new ArrayList<>();
+        List<Event> events = new ArrayList<>();
 
-        try (Connection con = DBConnectionUtil.getConnection()) {
-
+        try {
             String query = "SELECT DISTINCT e.* FROM events e " +
                            "JOIN tickets t ON e.event_id = t.event_id " +
                            "WHERE t.price <= ?";
@@ -412,59 +408,59 @@ public class EventDaoImpl implements EventDao {
 
             while (rs.next()) {
 
-                Event e = new Event();
+                Event event = new Event();
 
-                e.setEventId(rs.getInt("event_id"));
-                e.setTitle(rs.getString("title"));
-                e.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                e.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                e.setVenueId(rs.getInt("venue_id"));
-                e.setCategoryId(rs.getInt("category_id"));
-                e.setCapacity(rs.getInt("capacity"));
+                event.setEventId(rs.getInt("event_id"));
+                event.setTitle(rs.getString("title"));
+                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+                event.setVenueId(rs.getInt("venue_id"));
+                event.setCategoryId(rs.getInt("category_id"));
+                event.setCapacity(rs.getInt("capacity"));
 
-                list.add(e);
+                events.add(event);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return list;
+        return events;
     }
     
     @Override
     public List<Event> filterByAvailability() {
 
-        List<Event> list = new ArrayList<>();
+        List<Event> events = new ArrayList<>();
 
-        try (Connection con = DBConnectionUtil.getConnection()) {
-
+        try {
             String query = "SELECT DISTINCT e.* FROM events e " +
                            "JOIN tickets t ON e.event_id = t.event_id " +
                            "WHERE t.available_quantity > 0";
 
             PreparedStatement ps = con.prepareStatement(query);
+
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
 
-                Event e = new Event();
+                Event event = new Event();
 
-                e.setEventId(rs.getInt("event_id"));
-                e.setTitle(rs.getString("title"));
-                e.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                e.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                e.setVenueId(rs.getInt("venue_id"));
-                e.setCategoryId(rs.getInt("category_id"));
-                e.setCapacity(rs.getInt("capacity"));
+                event.setEventId(rs.getInt("event_id"));
+                event.setTitle(rs.getString("title"));
+                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+                event.setVenueId(rs.getInt("venue_id"));
+                event.setCategoryId(rs.getInt("category_id"));
+                event.setCapacity(rs.getInt("capacity"));
 
-                list.add(e);
+                events.add(event);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return list;
+        return events;
     }
 }
