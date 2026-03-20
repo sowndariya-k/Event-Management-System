@@ -1,15 +1,23 @@
 package com.ems.dao.impl;
 
 import java.sql.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.ems.dao.EventDao;
 import com.ems.enums.EventStatus;
+import com.ems.exception.DataAccessException;
 import com.ems.model.BookingDetail;
 import com.ems.model.Event;
+import com.ems.model.Category;
+import com.ems.model.EventRevenueReport;
+import com.ems.model.OrganizerEventSummary;
 import com.ems.model.Ticket;
+import com.ems.model.UserEventRegistration;
 import com.ems.util.DBConnectionUtil;
+import com.ems.util.DateTimeUtil;
 
 public class EventDaoImpl implements EventDao {
 
@@ -23,7 +31,6 @@ public class EventDaoImpl implements EventDao {
         }
     }
 
-    // 1 View Events
     @Override
     public List<Event> viewEvents() {
 
@@ -60,7 +67,7 @@ public class EventDaoImpl implements EventDao {
 
     // 2 View Event Details
     @Override
-    public Event viewEventDetails(int eventId) {
+    public Event getEventById(int eventId) {
 
         Event event = null;
 
@@ -114,7 +121,7 @@ public class EventDaoImpl implements EventDao {
 
  // 3 View Ticket Options
     @Override
-    public List<Ticket> viewTicketOptions(int eventId) {
+    public List<Ticket> getTicketsByEventId(int eventId) {
 
         List<Ticket> tickets = new ArrayList<>();
 
@@ -146,321 +153,416 @@ public class EventDaoImpl implements EventDao {
         return tickets;
     }
 
-    // 4 View Upcoming Events
+    // 4 List Available Events
     @Override
-    public List<Event> viewUpcomingEvents() {
+	public List<Event> listAvailableEvents() throws DataAccessException {
+		List<Event> events = new ArrayList<>();
+		String sql = "select * from events e " +
+				"where e.status = ? " +
+				"and e.start_datetime > UTC_TIMESTAMP() " +
+				"and exists (select 1 from tickets t " +
+				"where t.event_id = e.event_id " +
+				"and t.available_quantity > 0)";
+
+		try (Connection con = DBConnectionUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setString(1, EventStatus.PUBLISHED.toString());
+			ResultSet rs = ps.executeQuery();
+			events = getEventList(rs);
+			rs.close();
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while fetching available events", e);
+		}
+		return events;
+	}
+
+ // Shared mapper to convert ResultSet into Event objects
+ 	public List<Event> getEventList(ResultSet rs) throws DataAccessException {
+ 		List<Event> events = new ArrayList<>();
+ 		try {
+ 			while (rs.next()) {
+ 				Event event = new Event();
+ 				event.setEventId(rs.getInt("event_id"));
+ 				event.setOrganizerId(rs.getInt("organizer_id"));
+ 				event.setTitle(rs.getString("title"));
+ 				String desc = rs.getString("description");
+ 				if (desc != null && !desc.isEmpty()) {
+ 					event.setDescription(desc);
+ 				}
+ 				event.setCategoryId(rs.getInt("category_id"));
+ 				event.setVenueId(rs.getInt("venue_id"));
+ 				event.setStartDateTime(DateTimeUtil.fromTimestamp(rs.getTimestamp("start_datetime")));
+ 				event.setEndDateTime(DateTimeUtil.fromTimestamp(rs.getTimestamp("end_datetime")));
+
+ 				Timestamp updatedAt = rs.getTimestamp("updated_at");
+ 				if (updatedAt != null)
+ 					event.setUpdatedAt(DateTimeUtil.fromTimestamp(updatedAt));
+
+ 				Timestamp approvedAt = rs.getTimestamp("approved_at");
+ 				if (approvedAt != null)
+ 					event.setApprovedAt(DateTimeUtil.fromTimestamp(approvedAt));
+
+ 				Timestamp createdAt = rs.getTimestamp("created_at");
+ 				if (createdAt != null)
+ 					event.setCreatedAt(DateTimeUtil.fromTimestamp(createdAt));
+
+ 				event.setCapacity(rs.getInt("capacity"));
+ 				try {
+ 					event.setStatus(EventStatus.valueOf(rs.getString("status")));
+ 				} catch (IllegalArgumentException e) {
+ 					event.setStatus(EventStatus.DRAFT);
+ 				}
+ 				Integer approvedBy = rs.getInt("approved_by");
+ 				if (approvedBy != 0) {
+ 					event.setApprovedBy(approvedBy);
+ 				}
+
+ 				events.add(event);
+ 			}
+ 			rs.close();
+ 		} catch (SQLException e) {
+ 			throw new DataAccessException("Error while fetching event list");
+ 		}
+
+ 		return events;
+ 	}
+
+
+	@Override
+	public List<Event> listAllEvents() throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Event> listEventsYetToApprove() throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean approveEvent(int eventId, int userId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean cancelEvent(int eventId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getOrganizerId(int eventId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public List<Event> listAvailableAndDraftEvents() throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void completeEvents() throws DataAccessException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<UserEventRegistration> getUserRegistrations(int userId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<BookingDetail> viewBookingDetails(int userId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, Integer> getOrganizerWiseEventCount() throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int createEvent(Event event) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean updateEventDetails(int eventId, String title, String description, int categoryId, int venueId)
+			throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean updateEventCapacity(int eventId, int capacity) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean updateEventStatus(int eventId, EventStatus status) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<Event> getEventsByOrganizer(int organizerId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<OrganizerEventSummary> getEventSummaryByOrganizer(int organizerId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<EventRevenueReport> getEventWiseRevenueReport() throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean updateEventSchedule(int eventId, Instant start, Instant end) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	
+
+	// ---------------------- SEARCH & FILTER METHODS ----------------------
+
+	@Override
+	public List<Event> searchByCategory(int categoryId) {
+
+	    List<Event> events = new ArrayList<>();
+
+	    try {
+	        String query = "SELECT * FROM events WHERE category_id = ?";
+	        PreparedStatement ps = con.prepareStatement(query);
+	        ps.setInt(1, categoryId);
+
+	        ResultSet rs = ps.executeQuery();
+
+	        while (rs.next()) {
+
+	            Event event = new Event();
+
+	            event.setEventId(rs.getInt("event_id"));
+	            event.setTitle(rs.getString("title"));
+	            event.setCategoryId(rs.getInt("category_id"));
+	            event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+	            event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+	            event.setVenueId(rs.getInt("venue_id"));
+	            event.setCapacity(rs.getInt("capacity"));
 
-        List<Event> events = new ArrayList<>();
+	            events.add(event);
+	        }
 
-        try {
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 
-            String query = "SELECT * FROM events WHERE start_datetime > NOW()";
-            PreparedStatement ps = con.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
+	    return events;
+	}
+	
+	@Override
+	public List<Category> getAllCategory() throws DataAccessException {
 
-            while (rs.next()) {
+	    List<Category> categories = new ArrayList<>();
 
-                Event event = new Event();
+	    String query = "SELECT * FROM categories";
+
+	    try (PreparedStatement ps = con.prepareStatement(query);
+	         ResultSet rs = ps.executeQuery()) {
 
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCapacity(rs.getInt("capacity"));
-                event.setStatus(EventStatus.valueOf(rs.getString("status")));
+	        while (rs.next()) {
+	            Category c = new Category(
+	                    rs.getInt("category_id"),
+	                    rs.getString("name")
+	            );
+	            categories.add(c);
+	        }
 
-                events.add(event);
-            }
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error fetching categories", e);
+	    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	    return categories;
+	}
 
-        return events;
-    }
+	@Override
+	public List<Event> searchByDate(String date) {
 
-    // 5 View Past Events
-    @Override
-    public List<Event> viewPastEvents() {
+	    List<Event> events = new ArrayList<>();
 
-        List<Event> events = new ArrayList<>();
+	    try {
+	        String query = "SELECT * FROM events WHERE DATE(start_datetime) = ?";
+	        PreparedStatement ps = con.prepareStatement(query);
+	        ps.setString(1, date);
 
-        try {
+	        ResultSet rs = ps.executeQuery();
 
-            String query = "SELECT * FROM events WHERE start_datetime < NOW()";
-            PreparedStatement ps = con.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
+	        while (rs.next()) {
 
-            while (rs.next()) {
+	            Event event = new Event();
 
-                Event event = new Event();
+	            event.setEventId(rs.getInt("event_id"));
+	            event.setTitle(rs.getString("title"));
+	            event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+	            event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+	            event.setVenueId(rs.getInt("venue_id"));
+	            event.setCategoryId(rs.getInt("category_id"));
+	            event.setCapacity(rs.getInt("capacity"));
 
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCapacity(rs.getInt("capacity"));
-                event.setStatus(EventStatus.valueOf(rs.getString("status")));
+	            events.add(event);
+	        }
 
-                events.add(event);
-            }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	    return events;
+	}
+	
+	@Override
+	public List<Event> searchByDateRange(String startDate, String endDate) throws DataAccessException {
 
-        return events;
-    }
+	    List<Event> events = new ArrayList<>();
 
- // 6 View Booking Details
-    @Override
-    public List<BookingDetail> viewBookingDetails(int userId) {
+	    String query = "SELECT * FROM events WHERE DATE(start_datetime) BETWEEN ? AND ?";
 
-        List<BookingDetail> bookings = new ArrayList<>();
+	    try (PreparedStatement ps = con.prepareStatement(query)) {
 
-        try {
+	        ps.setString(1, startDate);
+	        ps.setString(2, endDate);
 
-            String query = "SELECT r.registration_id, r.event_id, r.user_id, p.amount AS total_amount " +
-                           "FROM registrations r " +
-                           "LEFT JOIN payments p ON r.registration_id = p.registration_id " +
-                           "WHERE r.user_id = ?";
+	        ResultSet rs = ps.executeQuery();
 
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setInt(1, userId);
+	        events = getEventList(rs);
 
-            ResultSet rs = ps.executeQuery();
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error while searching events by date range", e);
+	    }
 
-            while (rs.next()) {
+	    return events;
+	}
 
-                BookingDetail booking = new BookingDetail();
+	@Override
+	public List<Event> searchByCity(String city) {
 
-                booking.setBookingId(rs.getInt("registration_id"));
-                booking.setEventId(rs.getInt("event_id"));
-                booking.setUserId(rs.getInt("user_id"));
-                booking.setTotalAmount(rs.getDouble("total_amount"));
+	    List<Event> events = new ArrayList<>();
 
-                bookings.add(booking);
-            }
+	    try {
+	        String query = "SELECT e.* FROM events e " +
+	                       "JOIN venues v ON e.venue_id = v.venue_id " +
+	                       "WHERE LOWER(TRIM(v.city)) = LOWER(TRIM(?))";
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	        PreparedStatement ps = con.prepareStatement(query);
+	        ps.setString(1, city);
 
-        return bookings;
-    }
+	        ResultSet rs = ps.executeQuery();
 
-    // 7 List Available Events
-    @Override
-    public List<Event> listAvailableEvents() {
+	        while (rs.next()) {
+	            Event event = new Event();
 
-        List<Event> events = new ArrayList<>();
+	            event.setEventId(rs.getInt("event_id"));
+	            event.setTitle(rs.getString("title"));
+	            event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+	            event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+	            event.setVenueId(rs.getInt("venue_id"));
+	            event.setCategoryId(rs.getInt("category_id"));
+	            event.setCapacity(rs.getInt("capacity"));
 
-        try {
+	            events.add(event);
+	        }
 
-            String query = "SELECT * FROM events WHERE status IN ('PUBLISHED', 'APPROVED') AND start_datetime > NOW()";
-            PreparedStatement ps = con.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 
-            while (rs.next()) {
+	    return events;
+	}
 
-                Event event = new Event();
+	@Override
+	public List<Event> filterByPrice(double maxPrice) {
 
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setDescription(rs.getString("description"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCapacity(rs.getInt("capacity"));
-                event.setStatus(EventStatus.valueOf(rs.getString("status")));
+	    List<Event> events = new ArrayList<>();
 
-                events.add(event);
-            }
+	    try {
+	        String query = "SELECT DISTINCT e.* FROM events e " +
+	                       "JOIN tickets t ON e.event_id = t.event_id " +
+	                       "WHERE t.price <= ?";
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	        PreparedStatement ps = con.prepareStatement(query);
+	        ps.setDouble(1, maxPrice);
 
-        return events;
-    }
-    
-    @Override
-    public List<Event> searchByCategory(int categoryId) {
+	        ResultSet rs = ps.executeQuery();
 
-        List<Event> events = new ArrayList<>();
+	        while (rs.next()) {
 
-        try {
-            String query = "SELECT * FROM events WHERE category_id = ?";
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setInt(1, categoryId);
+	            Event event = new Event();
 
-            ResultSet rs = ps.executeQuery();
+	            event.setEventId(rs.getInt("event_id"));
+	            event.setTitle(rs.getString("title"));
+	            event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+	            event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+	            event.setVenueId(rs.getInt("venue_id"));
+	            event.setCategoryId(rs.getInt("category_id"));
+	            event.setCapacity(rs.getInt("capacity"));
 
-            while (rs.next()) {
+	            events.add(event);
+	        }
 
-                Event event = new Event();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setCategoryId(rs.getInt("category_id"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCapacity(rs.getInt("capacity"));
+	    return events;
+	}
 
-                events.add(event);
-            }
+	@Override
+	public List<Event> filterByAvailability() {
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	    List<Event> events = new ArrayList<>();
 
-        return events;
-    }
-    
-    @Override
-    public List<Event> searchByDate(String date) {
+	    try {
+	        String query = "SELECT DISTINCT e.* FROM events e " +
+	                       "JOIN tickets t ON e.event_id = t.event_id " +
+	                       "WHERE t.available_quantity > 0";
 
-        List<Event> events = new ArrayList<>();
+	        PreparedStatement ps = con.prepareStatement(query);
 
-        try {
-            String query = "SELECT * FROM events WHERE DATE(start_datetime) = ?";
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1, date);
+	        ResultSet rs = ps.executeQuery();
 
-            ResultSet rs = ps.executeQuery();
+	        while (rs.next()) {
 
-            while (rs.next()) {
+	            Event event = new Event();
 
-                Event event = new Event();
+	            event.setEventId(rs.getInt("event_id"));
+	            event.setTitle(rs.getString("title"));
+	            event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+	            event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+	            event.setVenueId(rs.getInt("venue_id"));
+	            event.setCategoryId(rs.getInt("category_id"));
+	            event.setCapacity(rs.getInt("capacity"));
 
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCategoryId(rs.getInt("category_id"));
-                event.setCapacity(rs.getInt("capacity"));
+	            events.add(event);
+	        }
 
-                events.add(event);
-            }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+	    return events;
+	}
 
-        return events;
-    }
-    
-    @Override
-    public List<Event> searchByCity(String city) {
-
-        List<Event> events = new ArrayList<>();
-
-        try {
-            String query = "SELECT e.* FROM events e " +
-                           "JOIN venues v ON e.venue_id = v.venue_id " +
-                           "WHERE v.city = ?";
-
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setString(1, city);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-
-                Event event = new Event();
-
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCategoryId(rs.getInt("category_id"));
-                event.setCapacity(rs.getInt("capacity"));
-
-                events.add(event);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return events;
-    }
-    
-    @Override
-    public List<Event> filterByPrice(double maxPrice) {
-
-        List<Event> events = new ArrayList<>();
-
-        try {
-            String query = "SELECT DISTINCT e.* FROM events e " +
-                           "JOIN tickets t ON e.event_id = t.event_id " +
-                           "WHERE t.price <= ?";
-
-            PreparedStatement ps = con.prepareStatement(query);
-            ps.setDouble(1, maxPrice);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-
-                Event event = new Event();
-
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCategoryId(rs.getInt("category_id"));
-                event.setCapacity(rs.getInt("capacity"));
-
-                events.add(event);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return events;
-    }
-    
-    @Override
-    public List<Event> filterByAvailability() {
-
-        List<Event> events = new ArrayList<>();
-
-        try {
-            String query = "SELECT DISTINCT e.* FROM events e " +
-                           "JOIN tickets t ON e.event_id = t.event_id " +
-                           "WHERE t.available_quantity > 0";
-
-            PreparedStatement ps = con.prepareStatement(query);
-
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-
-                Event event = new Event();
-
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCategoryId(rs.getInt("category_id"));
-                event.setCapacity(rs.getInt("capacity"));
-
-                events.add(event);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return events;
-    }
 }

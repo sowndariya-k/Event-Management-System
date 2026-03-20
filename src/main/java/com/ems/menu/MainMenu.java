@@ -2,7 +2,9 @@ package com.ems.menu;
 
 import java.util.Scanner;
 
+import com.ems.actions.EventRegistrationAction;
 import com.ems.actions.UserAction;
+import com.ems.actions.UserRegistrationAction;
 import com.ems.dao.impl.RoleDaoImpl;
 import com.ems.dao.impl.UserDaoImpl;
 import com.ems.enums.UserRole;
@@ -12,6 +14,7 @@ import com.ems.exception.DataAccessException;
 import com.ems.model.User;
 import com.ems.service.UserService;
 import com.ems.service.impl.UserServiceImpl;
+import com.ems.util.ApplicationUtil;
 import com.ems.util.InputValidationUtil;
 
 public class MainMenu {
@@ -59,15 +62,30 @@ public class MainMenu {
 
 	                        switch (role) {
 	                        case ADMIN:
-	                            new AdminMenu(scanner, user);
+	                        	AdminMenu adminMenu = new AdminMenu(scanner, user);
+	                        	adminMenu.start();
 	                            break;
 
 	                        case ATTENDEE:
-	                            new UserMenu(scanner, user);
+	                            UserMenu userMenu = new UserMenu(
+	                                scanner,
+	                                user,
+	                                userAction,
+	                                ApplicationUtil.eventService(),                     // EventService
+	                                ApplicationUtil.offerService(),                     // OfferService
+	                                new UserRegistrationAction(ApplicationUtil.eventService()), // UserRegistrationAction
+	                                new EventRegistrationAction(
+	                                    ApplicationUtil.eventService(), 
+	                                    ApplicationUtil.offerService(),               // Pass the real OfferService here
+	                                    scanner
+	                                ) // EventRegistrationAction
+	                            );
+	                            userMenu.start();
 	                            break;
 
 	                        case ORGANIZER:
-	                            new OrganizerMenu(scanner, user);
+	                        	OrganizerMenu organizerMenu = new OrganizerMenu(scanner, user);
+	                        	organizerMenu.start();
 	                            break;
 
 	                        default:
@@ -89,7 +107,8 @@ public class MainMenu {
 	                    break;
 
 	                case 4:
-	                    new GuestMenu(scanner);
+	                	GuestMenu guestMenu = new GuestMenu(scanner);
+	                	guestMenu.start();
 	                    break;
 
 	                default:

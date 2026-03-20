@@ -1,270 +1,265 @@
 package com.ems.menu;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Scanner;
 
-import com.ems.dao.*;
-import com.ems.dao.impl.*;
-import com.ems.exception.DataAccessException;
-import com.ems.model.Category;
-import com.ems.model.Event;
-import com.ems.model.Ticket;
-import com.ems.model.User;
-import com.ems.util.InputValidationUtil;
 import com.ems.actions.EventBrowsingAction;
-
+import com.ems.actions.EventRegistrationAction;
+import com.ems.actions.EventSearchAction;
+import com.ems.actions.FeedbackAction;
+import com.ems.actions.NotificationAction;
+import com.ems.actions.UserAction;
+import com.ems.actions.UserRegistrationAction;
+import com.ems.exception.DataAccessException;
+import com.ems.model.User;
+import com.ems.service.EventService;
+import com.ems.service.OfferService;
+import com.ems.util.InputValidationUtil;
 
 public class UserMenu {
-	Scanner scanner;
-	User loggedInUser;
-	
-	public UserMenu(Scanner scanner, User user) throws DataAccessException {
+
+	private final Scanner scanner;
+	private final User loggedInUser;
+
+	private final NotificationAction notificationAction;
+	private final EventBrowsingAction eventBrowsingAction;
+	private final EventRegistrationAction eventRegistrationAction;
+	private final UserRegistrationAction userRegistrationAction;
+	private final EventSearchAction eventSearchAction;
+	private final FeedbackAction feedbackAction;
+	private final UserAction userAction;
+
+	public UserMenu(Scanner scanner, User user, UserAction userAction, EventService eventService,
+			OfferService offerService, UserRegistrationAction userRegistrationAction,
+			EventRegistrationAction eventRegistrationAction) {
+
 		this.scanner = scanner;
 		this.loggedInUser = user;
-		this.start();
+		this.userAction = userAction;
+
+		this.notificationAction = new NotificationAction();
+		this.eventBrowsingAction = new EventBrowsingAction(scanner, eventService);
+		this.eventRegistrationAction = eventRegistrationAction;
+		this.userRegistrationAction = userRegistrationAction;
+
+		// ✅ FIXED HERE
+		this.eventSearchAction = new EventSearchAction(eventService, scanner);
+
+		this.feedbackAction = new FeedbackAction();
 	}
 
-	private void start() throws DataAccessException {
-	    UserDao userDao = new UserDaoImpl();
-	    EventDao eventDao = new EventDaoImpl();
-	    VenueDao venueDao = new VenueDaoImpl();
-	    CategoryDao categoryDao = new CategoryDaoImpl();
-	    TicketDao ticketDao = new TicketDaoImpl();
+	public void start() throws DataAccessException {
 
-	    while (true) {	
-	        System.out.println("\nUser Menu"
-	                + "\n\nEnter your choice:\n"
-	                + "1. Browse available events\r\n"
-	                + "2. Search and filter events\r\n"
-	                + "3. View my registrations\r\n"
-	                + "4. View my notifications\r\n"
-	                + "5. Register for an event\r\n"
-	                + "6. Logout"
-	                + "\n>");
-	        int input = InputValidationUtil.readInt(scanner, "");
+		// show unread notifications once
+		notificationAction.displayUnreadNotifications(loggedInUser.getUserId());
 
-	        switch (input) {
-	        case 1:
-	        	new EventBrowsingAction().execute();
-	            break; // ✅ THIS WAS MISSING — was falling through into case 2
+		while (true) {
+			System.out.println("\nUser Menu\n" 
+		            + "1. Browse events\n" 
+					+ "2. Search and filter events\n"
+					+ "3. My registrations\n" 
+					+ "4. Notifications\n" 
+					+ "5. Feedback\n" 
+					+ "6. Update profile\n"
+					+ "7. Logout\n" 
+					+ "Choice:");
 
-	        case 2:
-	            boolean exitFilter = false;
-	            while (!exitFilter) { // ✅ use a flag instead of return
-	                System.out.println("\nEnter your choice:\n"
-	                        + "1. Search by category\r\n"
-	                        + "2. Search by date\r\n"
-	                        + "3. Search by city\r\n"
-	                        + "4. Filter by price\r\n"
-	                        + "5. Filter by availability\r\n"
-	                        + "6. Exit to user menu"
-	                        + "\n>");
-	                int filterChoice = InputValidationUtil.readInt(scanner, "");
-	                switch (filterChoice) {
-	                case 1:
-	                    searchByCategory(categoryDao);
-	                    break;
-	                case 2:
-	                    System.out.print("Enter date (yyyy-mm-dd): ");
-	                    String date = scanner.nextLine();
+			int choice = InputValidationUtil.readInt(scanner, "");
 
-	                    List<Event> events = eventDao.searchByDate(date);
+			switch (choice) {
+			case 1:
+				browseEventsMenu();
+				break;
 
-	                    if (events.isEmpty()) {
-	                        System.out.println("❌ No events found on this date");
-	                        break;
-	                    }
+			case 2:
+				searchEventsMenu();
+				break;
 
-	                    System.out.println("\n===== Events Found =====");
+			case 3:
+				registrationMenu();
+				break;
 
-	                    for (Event event : events) {
-	                        System.out.println("ID: " + event.getEventId());
-	                        System.out.println("Title: " + event.getTitle());
-	                        System.out.println("Start: " + formatDateTime(event.getStartDateTime()));
-	                        System.out.println("-----------------------------------");
-	                    }
-	                    break;
-	                case 3:
-	                    System.out.print("Enter city: ");
-	                    String city = scanner.nextLine();
+			case 4:
+				notificationAction.displayAllNotifications(loggedInUser.getUserId());
+				break;
 
-	                    List<Event> eventsByCity = eventDao.searchByCity(city);
+			case 5:
+				feedbackMenu();
+				break;
 
-	                    if (eventsByCity.isEmpty()) {
-	                        System.out.println("❌ No events found in this city");
-	                        break;
-	                    }
+			case 6:
+				boolean updated = userAction.updateProfile(loggedInUser);
+				if (updated)
+					return;
+				break;
 
-	                    System.out.println("\n===== Events Found =====");
+			case 7:
+				if (confirmLogout()) {
+					System.out.println("Logging out...");
+					return;
+				}
+				break;
 
-	                    for (Event event : eventsByCity) {
-	                        System.out.println("ID: " + event.getEventId());
-	                        System.out.println("Title: " + event.getTitle());
-	                        System.out.println("Start: " + formatDateTime(event.getStartDateTime()));
-	                        System.out.println("-----------------------------------");
-	                    }
-	                    break;
-	                case 4:
-	                    System.out.print("Enter max price: ");
-	                    double price = Double.parseDouble(scanner.nextLine());
-
-	                    List<Event> eventsByPrice = eventDao.filterByPrice(price);
-
-	                    if (eventsByPrice.isEmpty()) {
-	                        System.out.println(" No events found under this price");
-	                        break;
-	                    }
-
-	                    System.out.println("\n===== Events Found =====");
-
-	                    for (Event event : eventsByPrice) {
-	                        System.out.println("ID: " + event.getEventId());
-	                        System.out.println("Title: " + event.getTitle());
-	                        System.out.println("Start: " + formatDateTime(event.getStartDateTime()));
-	                        System.out.println("-----------------------------------");
-	                    }
-	                    break;
-	                case 5:
-	                    List<Event> availableEvents = eventDao.filterByAvailability();
-
-	                    if (availableEvents.isEmpty()) {
-	                        System.out.println("❌ No available events");
-	                        break;
-	                    }
-
-	                    System.out.println("\n===== Available Events =====");
-
-	                    for (Event event : availableEvents) {
-	                        System.out.println("ID: " + event.getEventId());
-	                        System.out.println("Title: " + event.getTitle());
-	                        System.out.println("Start: " + formatDateTime(event.getStartDateTime()));
-	                        System.out.println("-----------------------------------");
-	                    }
-	                    break;
-	                case 6:
-	                    exitFilter = true; // ✅ exits inner loop, back to User Menu
-	                    break;
-	                default:
-	                    exitFilter = true;
-	                    break;
-	                }
-	            }
-	            break; // ✅ back to outer while loop
-
-	        case 3:
-	            break;
-	        case 4:
-	            break;
-	        case 5:
-	            break;
-	        case 6:
-	            System.out.println("Logout - Going back to main menu");
-	            return;
-	        default:
-	            return;
-	        }
-	    }
-	}
-	private void searchByCategory(CategoryDao categoryDao) throws DataAccessException {
-
-	    EventDao eventDao = new EventDaoImpl();
-
-	    // Step 1: Get categories from DB
-	    List<Category> categories = categoryDao.getAllCategories();
-
-	    if (categories.isEmpty()) {
-	        System.out.println("No categories available");
-	        return;
-	    }
-
-	    // Step 2: Display categories
-	    System.out.println("\nAvailable Categories:");
-	    for (Category c : categories) {
-	        System.out.println(c.getCategoryId() + " - " + c.getName());
-	    }
-
-	    // Step 3: Take input
-	    int categoryId = InputValidationUtil.readInt(scanner, "Enter Category ID: ");
-
-	    // Step 4: Fetch events
-	    List<Event> events = eventDao.searchByCategory(categoryId);
-
-	    // Step 5: Display results
-	    if (events.isEmpty()) {
-	        System.out.println("❌ No events found for this category");
-	        return;
-	    }
-
-	    System.out.println("\n===== Events Found =====");
-
-	    for (Event event : events) {
-	        System.out.println("ID: " + event.getEventId());
-	        System.out.println("Title: " + event.getTitle());
-	        System.out.println("Start: " + formatDateTime(event.getStartDateTime()));
-	        System.out.println("-----------------------------------");
-	    }
-	}
-	
-
-	private void printAllAvailableEvents(EventDao eventDao, VenueDao venueDao, CategoryDao categoryDao, TicketDao ticketDao) throws DataAccessException {
-		List<Event> events = eventDao.listAvailableEvents();
-		for (Event event : events) {
-
-			Category category = categoryDao.getCategory(event.getCategoryId());
-	        String venueName = venueDao.getVenueName(event.getVenueId());
-	        String venueAddress = venueDao.getVenueAddress(event.getVenueId());
-	        int totalAvailable = ticketDao.getAvailableTickets(event.getEventId());
-	        List<Ticket> tickets = ticketDao.getTicketTypes(event.getEventId());
-
-	        System.out.println("\n==============================================");
-	        System.out.println("Event ID        : " + event.getEventId());
-	        System.out.println("Title           : " + event.getTitle());
-
-	        if (event.getDescription() != null) {
-	            System.out.println("Description     : " + event.getDescription());
-	        }
-
-	        System.out.println("Category        : " + category);
-	        System.out.println("Duration        : "
-	                + formatDateTime(event.getStartDateTime())
-	                + " to "
-	                + formatDateTime(event.getEndDateTime()));
-
-	        System.out.println("Total Tickets   : " + totalAvailable);
-
-	        System.out.println("\nTicket Types");
-	        System.out.println("----------------------------------------------");
-
-	        for (Ticket ticket : tickets) {
-	            System.out.println("• "
-	                    + ticket.getTicketType()
-	                    + " | Price: ₹"
-	                    + ticket.getPrice()
-	                    + " | Available: "
-	                    + ticket.getAvailableQuantity());
-	        }
-
-	        System.out.println("\nVenue");
-	        System.out.println("----------------------------------------------");
-	        System.out.println("Name            : " + venueName);
-	        System.out.println("Address         : " + venueAddress);
-
-	        System.out.println("==============================================");
-	    }
+			default:
+				System.out.println("Invalid choice. Try again.");
+			}
+		}
 	}
 
-	private String formatDateTime(Instant dateTime) {
-	    if (dateTime == null) {
-	        return "N/A";
-	    }
-	    LocalDateTime localDateTime = LocalDateTime.ofInstant(dateTime, ZoneId.systemDefault());
-	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
-	    return localDateTime.format(formatter);
+	/* ===================== SUB MENUS ===================== */
+
+	private void browseEventsMenu() throws DataAccessException {
+		while (true) {
+			System.out.println(""
+					+ "\nBrowse Events\n" 
+		            + "1. View all events\n" 
+					+ "2. View event details\n"
+					+ "3. View ticket options\n" 
+					+ "4. Register for event\n" 
+					+ "5. Back\n" 
+					+ "Choice:");
+
+			int choice = InputValidationUtil.readInt(scanner, "");
+
+			switch (choice) {
+			case 1:
+				eventBrowsingAction.printAllAvailableEvents();
+				break;
+
+			case 2:
+				eventBrowsingAction.viewEventDetails();
+				break;
+
+			case 3:
+				eventBrowsingAction.viewTicketOptions();
+				break;
+
+			case 4:
+				eventRegistrationAction.registerForAvailableEvent(loggedInUser.getUserId());
+				break;
+
+			case 5:
+				return;
+
+			default:
+				System.out.println("Invalid choice. Try again.");
+			}
+		}
 	}
 
-	
+	private void searchEventsMenu() {
+		while (true) {
+			System.out.println(""
+					+ "\nSearch & Filter Events\n" 
+					+ "1. Search by category\n" 
+					+ "2. Search by date\n"
+					+ "3. Search by date range\n" 
+					+ "4. Search by city\n" 
+					+ "5. Filter by price\n"
+					+ "6. View all events\n" 
+					+ "7. Back\n" 
+					+ "Choice:");
+
+			int choice = InputValidationUtil.readInt(scanner, "");
+
+			switch (choice) {
+			case 1:
+				eventSearchAction.handleSearchByCategory();
+				break;
+
+			case 2:
+				eventSearchAction.handleSearchByDate();
+				break;
+
+			case 3:
+				eventSearchAction.handleSearchByDateRange();
+				break;
+
+			case 4:
+				eventSearchAction.handleSearchByCity();
+				break;
+
+			case 5:
+				eventSearchAction.handleFilterByPrice();
+				break;
+
+			case 6:
+				eventBrowsingAction.printAllAvailableEvents();
+				break;
+
+			case 7:
+				return;
+
+			default:
+				System.out.println("Invalid choice. Try again.");
+			}
+		}
+	}
+
+	private void registrationMenu() {
+		while (true) {
+			System.out.println(""
+					+ "\nMy Registrations\n" 
+					+ "1. Upcoming events\n" 
+					+ "2. Past events\n"
+					+ "3. Booking details\n" 
+					+ "4. Cancel registration\n" 
+					+ "5. Back\n" 
+					+ "Choice:");
+
+			int choice = InputValidationUtil.readInt(scanner, "");
+
+			switch (choice) {
+			case 1:
+				userRegistrationAction.listUpcomingEvents(loggedInUser.getUserId());
+				break;
+
+			case 2:
+				userRegistrationAction.listPastEvents(loggedInUser.getUserId());
+				break;
+
+			case 3:
+				userRegistrationAction.viewBookingDetails(loggedInUser.getUserId());
+				break;
+
+			case 4:
+				eventRegistrationAction.cancelRegistration(loggedInUser.getUserId());
+				break;
+
+			case 5:
+				return;
+
+			default:
+				System.out.println("Invalid choice. Try again.");
+			}
+		}
+	}
+
+	private void feedbackMenu() {
+		while (true) {
+			System.out.println(""
+					+ "\nFeedback\n" 
+					+ "1. Submit rating\n" 
+					+ "2. Back\n" 
+					+ "Choice:");
+
+			int choice = InputValidationUtil.readInt(scanner, "");
+
+			switch (choice) {
+			case 1:
+				feedbackAction.submitRating(loggedInUser.getUserId());
+				break;
+
+			case 2:
+				return;
+
+			default:
+				System.out.println("Invalid choice. Try again.");
+			}
+		}
+	}
+
+	private boolean confirmLogout() {
+		char choice = InputValidationUtil.readChar(scanner, "Are you sure you want to logout? (Y/N): ");
+		return Character.toUpperCase(choice) == 'Y';
+	}
 }

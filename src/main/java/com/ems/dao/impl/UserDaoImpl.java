@@ -12,6 +12,14 @@ import com.ems.exception.DataAccessException;
 import com.ems.model.User;
 import com.ems.util.DBConnectionUtil;
 
+/*
+ * Handles database operations related to users.
+ *
+ * Responsibilities:
+ * - Persist and retrieve user accounts
+ * - Update user status and authentication related data
+ * - Fetch user information for administrative workflows
+ */
 public class UserDaoImpl implements UserDao {
 
 	@Override
@@ -189,6 +197,18 @@ public class UserDaoImpl implements UserDao {
 		} catch (SQLException e) {
 			throw new DataAccessException("Error while updating the failed attempts");
 		}
+	}
+
+	@Override
+	public void resetFailedAttempts(int userId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean updateUser(User user) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
