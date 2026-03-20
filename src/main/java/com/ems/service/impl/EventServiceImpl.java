@@ -94,8 +94,8 @@ public class EventServiceImpl implements EventService {
 	 }
 
 	 @Override
-	 public List<Event> searchByCity(String city) throws DataAccessException {
-	     return eventDao.searchByCity(city);
+	 public List<Event> searchByCity(int venueId) throws DataAccessException {
+	     return eventDao.searchByCity(venueId);
 	 }
 
 	@Override

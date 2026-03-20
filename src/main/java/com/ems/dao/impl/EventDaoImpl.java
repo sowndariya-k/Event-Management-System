@@ -337,6 +337,12 @@ public class EventDaoImpl implements EventDao {
 		return false;
 	}
 
+	@Override
+	public List<EventRevenueReport> getEventWiseRevenueReportByOrganizer(int organizerId)
+	        throws DataAccessException {
+
+	    return null;
+	}
 	
 
 	// ---------------------- SEARCH & FILTER METHODS ----------------------
@@ -453,17 +459,15 @@ public class EventDaoImpl implements EventDao {
 	// ---------------------- SEARCH BY CITY ----------------------
 
 	@Override
-	public List<Event> searchByCity(String city) {
+	public List<Event> searchByCity(int venueId) {
 
 	    List<Event> events = new ArrayList<>();
 
 	    try {
-	        String query = "SELECT e.* FROM events e " +
-	                       "JOIN venues v ON e.venue_id = v.venue_id " +
-	                       "WHERE LOWER(TRIM(v.city)) = LOWER(TRIM(?))";
+	        String query = "SELECT * FROM events WHERE venue_id = ?";
 
 	        PreparedStatement ps = con.prepareStatement(query);
-	        ps.setString(1, city);
+	        ps.setInt(1, venueId);
 
 	        ResultSet rs = ps.executeQuery();
 

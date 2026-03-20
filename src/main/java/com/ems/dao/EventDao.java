@@ -118,7 +118,7 @@ public interface EventDao {
      * @throws DataAccessException
      */
 
-    List<Event> searchByCity(String city) throws DataAccessException;
+    List<Event> searchByCity(int cityId) throws DataAccessException;
     
     /**
      * Filters events by price
@@ -273,4 +273,15 @@ public interface EventDao {
      */
     List<EventRevenueReport> getEventWiseRevenueReportByOrganizer(int organizerId)
                     throws DataAccessException;
+
+    /**
+     * Get all the categories using category id
+     * 
+     * @param categoryId
+     * @return list of categories
+     * @throws DataAccessException
+     */
+	List<Category> getAllCategories() throws DataAccessException;
+
+	
 }

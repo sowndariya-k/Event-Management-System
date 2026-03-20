@@ -84,21 +84,17 @@ public class EventSearchAction {
 
     // ================= CITY =================
     public void handleSearchByCity() {
+
         try {
-            System.out.print("Enter city name: ");
-            String city = scanner.nextLine().trim();
+            System.out.print("Enter Venue ID: ");
+            int venueId = Integer.parseInt(scanner.nextLine());
 
-            if (city.isEmpty()) {
-                System.out.println("City cannot be empty");
-                return;
-            }
-
-            List<Event> events = eventService.searchByCity(city);
+            List<Event> events = eventService.searchByCity(venueId);
 
             printEvents(events);
 
-        } catch (DataAccessException e) {
-            System.out.println("Error fetching events: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error while searching by venue");
         }
     }
 
