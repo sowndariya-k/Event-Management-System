@@ -5,10 +5,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
+import com.ems.exception.DataAccessException;
 import com.ems.model.Event;
 import com.ems.model.Ticket;
 import com.ems.service.EventService;
-import com.ems.service.impl.EventServiceImpl;
 
 public class EventBrowsingAction {
 
@@ -16,9 +16,9 @@ public class EventBrowsingAction {
     private final Scanner scanner;
 
     // inject scanner from UserMenu
-    public EventBrowsingAction(Scanner scanner) {
+    public EventBrowsingAction(Scanner scanner, EventService eventService) {
         this.scanner = scanner;
-        this.eventService = new EventServiceImpl();
+        this.eventService = eventService;
     }
 
     public void printAllAvailableEvents() {
@@ -51,7 +51,7 @@ public class EventBrowsingAction {
     }
 
     // 2. View event details
-    public void viewEventDetails() {
+    public void viewEventDetails() throws DataAccessException {
 
         System.out.print("Enter Event ID: ");
         int eventId = scanner.nextInt();
@@ -74,7 +74,7 @@ public class EventBrowsingAction {
     }
 
     // 3. View ticket options
-    public void viewTicketOptions() {
+    public void viewTicketOptions() throws DataAccessException {
 
         System.out.print("Enter Event ID: ");
         int eventId = scanner.nextInt();

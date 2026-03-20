@@ -12,6 +12,14 @@ import com.ems.exception.DataAccessException;
 import com.ems.model.User;
 import com.ems.util.DBConnectionUtil;
 
+/*
+ * Handles database operations related to users.
+ *
+ * Responsibilities:
+ * - Persist and retrieve user accounts
+ * - Update user status and authentication related data
+ * - Fetch user information for administrative workflows
+ */
 public class UserDaoImpl implements UserDao {
 
 	@Override
