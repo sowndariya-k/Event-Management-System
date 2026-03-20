@@ -25,13 +25,14 @@ public interface EventService {
  	// event filtering
  	List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException;
 
- 	List<Event> searchByCity(int venueId) throws DataAccessException;
+    // event searching
+ 	List<Event> searchByCity(String city) throws DataAccessException;
 
  	List<Event> searchByDate(LocalDate localDate) throws DataAccessException;
 
  	List<Event> searchByDateRange(LocalDate startDate, LocalDate endDate) throws DataAccessException;
 
- 	List<Event> searchBycategory(int selectedCategoryId) throws DataAccessException;
+ 	List<Event> searchByCategory(int categoryId) throws DataAccessException;
 
  	// event registration and booking
  	boolean registerForEvent(
@@ -67,7 +68,7 @@ public interface EventService {
  	// Category & city lookups
  	Category getCategory(int eventId) throws DataAccessException;
 
- 	List<Category> getAllCategory() throws DataAccessException;
+ 	List<Category> getAllCategories() throws DataAccessException;
 
  	Map<Integer, String> getAllCities() throws DataAccessException;
 
