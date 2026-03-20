@@ -1,14 +1,22 @@
 package com.ems.dao.impl;
 
 import java.sql.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.ems.dao.EventDao;
 import com.ems.enums.EventStatus;
+import com.ems.exception.DataAccessException;
+import com.ems.model.BookingDetail;
 import com.ems.model.Event;
+import com.ems.model.EventRevenueReport;
+import com.ems.model.OrganizerEventSummary;
 import com.ems.model.Ticket;
+import com.ems.model.UserEventRegistration;
 import com.ems.util.DBConnectionUtil;
+import com.ems.util.DateTimeUtil;
 
 public class EventDaoImpl implements EventDao {
 
@@ -146,36 +154,190 @@ public class EventDaoImpl implements EventDao {
 
     // 4 List Available Events
     @Override
-    public List<Event> listAvailableEvents() {
+	public List<Event> listAvailableEvents() throws DataAccessException {
+		List<Event> events = new ArrayList<>();
+		String sql = "select * from events e " +
+				"where e.status = ? " +
+				"and e.start_datetime > UTC_TIMESTAMP() " +
+				"and exists (select 1 from tickets t " +
+				"where t.event_id = e.event_id " +
+				"and t.available_quantity > 0)";
 
-        List<Event> events = new ArrayList<>();
+		try (Connection con = DBConnectionUtil.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setString(1, EventStatus.PUBLISHED.toString());
+			ResultSet rs = ps.executeQuery();
+			events = getEventList(rs);
+			rs.close();
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while fetching available events", e);
+		}
+		return events;
+	}
 
-        try {
+ // Shared mapper to convert ResultSet into Event objects
+ 	public List<Event> getEventList(ResultSet rs) throws DataAccessException {
+ 		List<Event> events = new ArrayList<>();
+ 		try {
+ 			while (rs.next()) {
+ 				Event event = new Event();
+ 				event.setEventId(rs.getInt("event_id"));
+ 				event.setOrganizerId(rs.getInt("organizer_id"));
+ 				event.setTitle(rs.getString("title"));
+ 				String desc = rs.getString("description");
+ 				if (desc != null && !desc.isEmpty()) {
+ 					event.setDescription(desc);
+ 				}
+ 				event.setCategoryId(rs.getInt("category_id"));
+ 				event.setVenueId(rs.getInt("venue_id"));
+ 				event.setStartDateTime(DateTimeUtil.fromTimestamp(rs.getTimestamp("start_datetime")));
+ 				event.setEndDateTime(DateTimeUtil.fromTimestamp(rs.getTimestamp("end_datetime")));
 
-            String query = "SELECT * FROM events WHERE status IN ('PUBLISHED', 'APPROVED') AND start_datetime > NOW()";
-            PreparedStatement ps = con.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
+ 				Timestamp updatedAt = rs.getTimestamp("updated_at");
+ 				if (updatedAt != null)
+ 					event.setUpdatedAt(DateTimeUtil.fromTimestamp(updatedAt));
 
-            while (rs.next()) {
+ 				Timestamp approvedAt = rs.getTimestamp("approved_at");
+ 				if (approvedAt != null)
+ 					event.setApprovedAt(DateTimeUtil.fromTimestamp(approvedAt));
 
-                Event event = new Event();
+ 				Timestamp createdAt = rs.getTimestamp("created_at");
+ 				if (createdAt != null)
+ 					event.setCreatedAt(DateTimeUtil.fromTimestamp(createdAt));
 
-                event.setEventId(rs.getInt("event_id"));
-                event.setTitle(rs.getString("title"));
-                event.setDescription(rs.getString("description"));
-                event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-                event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-                event.setVenueId(rs.getInt("venue_id"));
-                event.setCapacity(rs.getInt("capacity"));
-                event.setStatus(EventStatus.valueOf(rs.getString("status")));
+ 				event.setCapacity(rs.getInt("capacity"));
+ 				try {
+ 					event.setStatus(EventStatus.valueOf(rs.getString("status")));
+ 				} catch (IllegalArgumentException e) {
+ 					event.setStatus(EventStatus.DRAFT);
+ 				}
+ 				Integer approvedBy = rs.getInt("approved_by");
+ 				if (approvedBy != 0) {
+ 					event.setApprovedBy(approvedBy);
+ 				}
 
-                events.add(event);
-            }
+ 				events.add(event);
+ 			}
+ 			rs.close();
+ 		} catch (SQLException e) {
+ 			throw new DataAccessException("Error while fetching event list");
+ 		}
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+ 		return events;
+ 	}
 
-        return events;
-    }
+
+	@Override
+	public List<Event> listAllEvents() throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Event> listEventsYetToApprove() throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean approveEvent(int eventId, int userId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean cancelEvent(int eventId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public int getOrganizerId(int eventId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public List<Event> listAvailableAndDraftEvents() throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void completeEvents() throws DataAccessException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<UserEventRegistration> getUserRegistrations(int userId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<BookingDetail> viewBookingDetails(int userId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Map<String, Integer> getOrganizerWiseEventCount() throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int createEvent(Event event) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean updateEventDetails(int eventId, String title, String description, int categoryId, int venueId)
+			throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean updateEventCapacity(int eventId, int capacity) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean updateEventStatus(int eventId, EventStatus status) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<Event> getEventsByOrganizer(int organizerId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<OrganizerEventSummary> getEventSummaryByOrganizer(int organizerId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<EventRevenueReport> getEventWiseRevenueReport() throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean updateEventSchedule(int eventId, Instant start, Instant end) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<EventRevenueReport> getEventWiseRevenueReportByOrganizer(int organizerId) throws DataAccessException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

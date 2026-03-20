@@ -184,6 +184,19 @@ UNLOCK TABLES;
 
 -- Check inserted data
 SELECT * FROM `events`;
+-- see published event
+SELECT * FROM events WHERE status = 'PUBLISHED';
+
+-- for registration show published event ticket 
+
+SELECT * FROM events e
+WHERE e.status = 'PUBLISHED'
+AND e.start_datetime > UTC_TIMESTAMP()
+AND EXISTS (
+    SELECT 1 FROM tickets t 
+    WHERE t.event_id = e.event_id 
+    AND t.available_quantity > 0
+);
 -- 
 -- event table structure
 --
@@ -340,7 +353,7 @@ UNLOCK TABLES;
 SELECT * FROM `offer_usages`;
 
 --
--- ticket table strructure
+-- ticket table structure
 --
 -- Drop table if exists
 DROP TABLE IF EXISTS `tickets`;
@@ -365,10 +378,13 @@ INSERT INTO `tickets` (`ticket_id`, `event_id`, `ticket_type`, `price`, `total_q
 (2,41,'General Admission',799.00,2000,2000),
 (3,1,'Delegate Pass',999.00,500,500);
 UNLOCK TABLES;
-
+-- for ticket registration
+INSERT INTO tickets (event_id, ticket_type, price, total_quantity, available_quantity)
+VALUES 
+(39, 'Regular', 500, 100, 100),
+(39, 'VIP', 1000, 50, 50);
 -- Reference query to check data
 SELECT * FROM `tickets`;
-
 --
 -- registration ticket table strructure
 --
