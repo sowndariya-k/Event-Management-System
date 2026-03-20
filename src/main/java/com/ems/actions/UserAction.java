@@ -165,7 +165,8 @@ public class UserAction {
         String phone = user.getPhone();
         String passwordHash = user.getPasswordHash();
 
-        // NAME
+        /* ================= FULL NAME ================= */
+
         String newName = InputValidationUtil.readString(
             scanner,
             "Name (" + fullName + "): "
@@ -183,7 +184,7 @@ public class UserAction {
             fullName = newName;
         }
 
-        // PHONE
+        /* ================= PHONE ================= */
         String newPhone = InputValidationUtil.readString(
             scanner,
             "Phone (" + (phone == null ? "Not set" : phone) + "): "
@@ -208,13 +209,13 @@ public class UserAction {
             }
         }
 
-        // PASSWORD
-        char change = InputValidationUtil.readChar(
+        /* ================= PASSWORD ================= */
+        char changePassword = InputValidationUtil.readChar(
             scanner,
             "Change password? (Y/N): "
         );
 
-        if (Character.toUpperCase(change) == 'Y') {
+        if (Character.toUpperCase(changePassword) == 'Y') {
 
             while (true) {
                 String newPassword = InputValidationUtil.readNonEmptyString(
@@ -248,6 +249,7 @@ public class UserAction {
             return false;
         }
 
+        /* ================= CREATE NEW USER OBJECT ================= */
         User updatedUser = new User(
             user.getUserId(),
             fullName,
@@ -263,17 +265,19 @@ public class UserAction {
             user.getLastLogin()
         );
 
-        boolean updated = userService.updateUserProfile(updatedUser);
-
-        System.out.println(
-            updated
-            ? "Profile updated. Please login again."
-            : "Update failed."
-        );
-
-        return updated;
-    }
-
+        /* ================= SAVE ================= */
+    	
+	    boolean updated = userService.updateUserProfile(updatedUser);
+	
+	    if (updated) {
+	        System.out.println("\nProfile updated successfully. \n");
+	        System.out.println("For security reasons, please log in again.\n");
+	    } else {
+	        System.out.println("\nProfile update failed.\n");
+	    }
+		return updated;
+	}
+	
     public boolean userExists(String email) {
         return userService.checkUserExists(email);
     }

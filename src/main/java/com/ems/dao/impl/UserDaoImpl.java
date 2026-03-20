@@ -11,6 +11,7 @@ import com.ems.enums.UserStatus;
 import com.ems.exception.DataAccessException;
 import com.ems.model.User;
 import com.ems.util.DBConnectionUtil;
+import com.ems.util.DateTimeUtil;
 
 /*
  * Handles database operations related to users.
@@ -200,15 +201,48 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public void resetFailedAttempts(int userId) {
-		// TODO Auto-generated method stub
-		
+	public void resetFailedAttempts(int userId)
+			throws DataAccessException {
+
+		// Resets security counters after successful login
+
+		String sql = "update users set failed_attempts = 0, last_login = utc_timestamp() where user_id = ?";
+
+		try (Connection con = DBConnectionUtil.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+			ps.setInt(1, userId);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while updating the failed attempts");
+		}
 	}
 
 	@Override
 	public boolean updateUser(User user) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return false;
+
+		String sql = "UPDATE users SET full_name = ?, phone = ?, password_hash = ?, " +
+				"updated_at = ? WHERE user_id = ?";
+
+		try (Connection con = DBConnectionUtil.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps.setString(1, user.getFullName());
+			ps.setString(2, user.getPhone());
+
+			ps.setString(3, user.getPasswordHash());
+
+			ps.setTimestamp(
+					4,
+					DateTimeUtil.toTimestamp(
+							DateTimeUtil.toUtcInstant(LocalDateTime.now())));
+
+			ps.setInt(5, user.getUserId());
+
+			return ps.executeUpdate() > 0;
+
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while updating user profile");
+		}
 	}
 
 }
