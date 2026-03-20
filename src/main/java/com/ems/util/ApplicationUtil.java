@@ -56,7 +56,7 @@ public final class ApplicationUtil {
 		// Services
 		notificationService = new NotificationServiceImpl(notificationDao, registrationDao);
 		paymentService = new PaymentServiceImpl(paymentDao, notificationDao, eventDao);
-		eventService = new EventServiceImpl(eventDao, ticketDao, categoryDao, registrationDao, paymentDao, paymentService,
+		eventService = new EventServiceImpl(eventDao, ticketDao, registrationDao, paymentDao, paymentService,
 			    feedbackDao, notificationDao);
 		userService = new UserServiceImpl(userDao, roleDao);
 		adminService = new AdminServiceImpl();
