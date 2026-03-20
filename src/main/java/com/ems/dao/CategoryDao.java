@@ -64,5 +64,5 @@ public interface CategoryDao {
 	 */
 	void activateCategory(int categoryId) throws DataAccessException;
 
-	
+	void listAllCategory();
 }

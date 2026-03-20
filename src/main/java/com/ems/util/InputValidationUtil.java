@@ -11,16 +11,18 @@ public class InputValidationUtil {
 	}
 
 	public static int readInt(Scanner scanner, String message) {
-	    while (true) {
-	        try {
-	            System.out.print(message);
-	            String input = scanner.nextLine();   // read full line
-	            return Integer.parseInt(input);      // convert safely
-	        } catch (NumberFormatException e) {
-	            System.out.println("Invalid input. Please enter an integer.");
-	        }
-	    }
-	}
+        while (true) {
+            System.out.print(message);
+            if (scanner.hasNextInt()) {
+                int value = scanner.nextInt();
+                scanner.nextLine();
+                return value;
+            } else {
+                System.out.println("Invalid input. Please enter an integer.");
+                scanner.nextLine();
+            }
+        }
+    }
 
 	public static String readNonEmptyString(Scanner scanner, String message) {
 		 String input;
