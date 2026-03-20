@@ -40,7 +40,10 @@ public class UserMenu {
 		this.eventBrowsingAction = new EventBrowsingAction(scanner, eventService);
 		this.eventRegistrationAction = eventRegistrationAction;
 		this.userRegistrationAction = userRegistrationAction;
-		this.eventSearchAction = new EventSearchAction();
+
+		// ✅ FIXED HERE
+		this.eventSearchAction = new EventSearchAction(eventService, scanner);
+
 		this.feedbackAction = new FeedbackAction();
 	}
 
