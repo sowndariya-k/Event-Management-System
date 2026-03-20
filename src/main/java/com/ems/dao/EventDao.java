@@ -8,18 +8,15 @@ import com.ems.enums.EventStatus;
 import com.ems.exception.DataAccessException;
 import com.ems.model.BookingDetail;
 import com.ems.model.Event;
-import com.ems.model.Category;
 import com.ems.model.EventRevenueReport;
 import com.ems.model.OrganizerEventSummary;
 import com.ems.model.Ticket;
 import com.ems.model.UserEventRegistration;
 
 public interface EventDao {
-
-    List<Event> viewEvents();  
+	List<Event> viewEvents();  
 
     List<Ticket> getTicketsByEventId(int eventId); 
-
     /**
      * Lists all published future events that still have available tickets
      *
@@ -79,65 +76,6 @@ public interface EventDao {
      * @throws DataAccessException
      */
     List<Event> listAvailableAndDraftEvents() throws DataAccessException;
-
-    /**
-     * Searches events by category 
-     *
-     * @param categoryId
-     * @return list of category
-     * @throws DataAccessException
-     */
-    
-    List<Event> searchByCategory(int categoryId) throws DataAccessException;
-    
-    /**
-     * Searches events on given date 
-     *
-     * @param date
-     * @return list of events
-     * @throws DataAccessException
-     */
-
-    List<Event> searchByDate(String date) throws DataAccessException;
-    
-    /**
-     * Searches events between given date range
-     *
-     * @param startDate
-     * @param endDate
-     * @return list of events
-     * @throws DataAccessException
-     */
-    List<Event> searchByDateRange(String startDate, String endDate) throws DataAccessException;
-    
-    /**
-     * Searches events by given city 
-     *
-     * @param city
-     * @return list of events
-     * @throws DataAccessException
-     */
-
-    List<Event> searchByCity(String city) throws DataAccessException;
-    
-    /**
-     * Filters events by price
-     *
-     * @param maxPrice
-     * @return list of events
-     * @throws DataAccessException
-     */
-
-    List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException;
-    
-    /**
-     * Filters events by availability
-     *
-     * @return list of events
-     * @throws DataAccessException
-     */	
-
-    List<Event> filterByAvailability() throws DataAccessException;
 
     /**
      * Fetches full event details by id
