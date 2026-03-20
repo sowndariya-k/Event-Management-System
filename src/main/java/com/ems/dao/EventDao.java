@@ -79,8 +79,6 @@ public interface EventDao {
      * @throws DataAccessException
      */
     List<Event> listAvailableAndDraftEvents() throws DataAccessException;
-    
-    List<Category> getAllCategory() throws DataAccessException;
 
     /**
      * Searches events by category 
@@ -130,14 +128,14 @@ public interface EventDao {
      * @throws DataAccessException
      */
 
-    List<Event> filterByPrice(double maxPrice) throws DataAccessException;
+    List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException;
     
     /**
      * Filters events by availability
      *
      * @return list of events
      * @throws DataAccessException
-     */
+     */	
 
     List<Event> filterByAvailability() throws DataAccessException;
 

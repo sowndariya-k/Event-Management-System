@@ -71,7 +71,7 @@ public class CategoryDaoImpl implements CategoryDao {
 	        }
 
 	    } catch (Exception e) {
-	        e.printStackTrace(); // 👈 ADD THIS
+	        e.printStackTrace(); //  ADD THIS
 	        throw new DataAccessException("Error fetching categories", e);
 	    }
 

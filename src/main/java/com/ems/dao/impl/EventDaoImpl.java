@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ems.dao.EventDao;
+import com.ems.dao.CategoryDao;
 import com.ems.enums.EventStatus;
 import com.ems.exception.DataAccessException;
 import com.ems.model.BookingDetail;
@@ -375,7 +376,7 @@ public class EventDaoImpl implements EventDao {
 	}
 	
 	@Override
-	public List<Category> getAllCategory() throws DataAccessException {
+	public List<Category> getAllCategories() throws DataAccessException {
 
 	    List<Category> categories = new ArrayList<>();
 
@@ -411,27 +412,14 @@ public class EventDaoImpl implements EventDao {
 
 	        ResultSet rs = ps.executeQuery();
 
-	        while (rs.next()) {
-
-	            Event event = new Event();
-
-	            event.setEventId(rs.getInt("event_id"));
-	            event.setTitle(rs.getString("title"));
-	            event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-	            event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-	            event.setVenueId(rs.getInt("venue_id"));
-	            event.setCategoryId(rs.getInt("category_id"));
-	            event.setCapacity(rs.getInt("capacity"));
-
-	            events.add(event);
-	        }
+	        events = getEventList(rs); // ✅ reuse
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
 
 	    return events;
-	}
+	}	
 	
 	@Override
 	public List<Event> searchByDateRange(String startDate, String endDate) throws DataAccessException {
@@ -471,19 +459,7 @@ public class EventDaoImpl implements EventDao {
 
 	        ResultSet rs = ps.executeQuery();
 
-	        while (rs.next()) {
-	            Event event = new Event();
-
-	            event.setEventId(rs.getInt("event_id"));
-	            event.setTitle(rs.getString("title"));
-	            event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-	            event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-	            event.setVenueId(rs.getInt("venue_id"));
-	            event.setCategoryId(rs.getInt("category_id"));
-	            event.setCapacity(rs.getInt("capacity"));
-
-	            events.add(event);
-	        }
+	        events = getEventList(rs); // reuse mapper
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
@@ -493,37 +469,26 @@ public class EventDaoImpl implements EventDao {
 	}
 
 	@Override
-	public List<Event> filterByPrice(double maxPrice) {
+	public List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException {
 
 	    List<Event> events = new ArrayList<>();
 
-	    try {
-	        String query = "SELECT DISTINCT e.* FROM events e " +
-	                       "JOIN tickets t ON e.event_id = t.event_id " +
-	                       "WHERE t.price <= ?";
+	    String query = "SELECT DISTINCT e.* FROM events e " +
+	                   "JOIN tickets t ON e.event_id = t.event_id " +
+	                   "WHERE t.price >= ? AND t.price <= ?";
 
-	        PreparedStatement ps = con.prepareStatement(query);
-	        ps.setDouble(1, maxPrice);
+	    try (PreparedStatement ps = con.prepareStatement(query)) {
+
+	        ps.setDouble(1, minPrice);
+	        ps.setDouble(2, maxPrice);
 
 	        ResultSet rs = ps.executeQuery();
 
-	        while (rs.next()) {
+	        // ✅ USE COMMON MAPPER (IMPORTANT FIX)
+	        events = getEventList(rs);
 
-	            Event event = new Event();
-
-	            event.setEventId(rs.getInt("event_id"));
-	            event.setTitle(rs.getString("title"));
-	            event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-	            event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-	            event.setVenueId(rs.getInt("venue_id"));
-	            event.setCategoryId(rs.getInt("category_id"));
-	            event.setCapacity(rs.getInt("capacity"));
-
-	            events.add(event);
-	        }
-
-	    } catch (Exception e) {
-	        e.printStackTrace();
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error filtering events by price", e);
 	    }
 
 	    return events;
