@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import com.ems.dao.CategoryDao;
 import com.ems.dao.EventDao;
 import com.ems.dao.TicketDao;
 import com.ems.dao.impl.FeedbackDaoImpl;
@@ -25,17 +26,19 @@ import com.ems.service.PaymentService;
 public class EventServiceImpl implements EventService {
 	private final EventDao eventDao;
     private final TicketDao ticketDao;
+    private final CategoryDao categoryDao; 
     private final RegistrationDaoImpl registrationDao;
     private final PaymentDaoImpl paymentDao;
     private final PaymentService paymentService;
     private final FeedbackDaoImpl feedbackDao;
     private final NotificationDaoImpl notificationDao;
 
-    public EventServiceImpl(EventDao eventDao, TicketDao ticketDao, RegistrationDaoImpl registrationDao,
+    public EventServiceImpl(EventDao eventDao, TicketDao ticketDao, CategoryDao categoryDao, RegistrationDaoImpl registrationDao,
                             PaymentDaoImpl paymentDao, PaymentService paymentService,
                             FeedbackDaoImpl feedbackDao, NotificationDaoImpl notificationDao) {
         this.eventDao = eventDao;
         this.ticketDao = ticketDao;
+        this.categoryDao = categoryDao;
         this.registrationDao = registrationDao;
         this.paymentDao = paymentDao;
         this.paymentService = paymentService;
@@ -85,31 +88,32 @@ public class EventServiceImpl implements EventService {
 	                normalizedOfferCode);
 	    }
 
-	@Override
-	public List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException {
-		return null;
-	}
+	 @Override
+	 public List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException {
+	     return eventDao.filterByPrice(minPrice, maxPrice);
+	 }
+
+	 @Override
+	 public List<Event> searchByCity(int venueId) throws DataAccessException {
+	     return eventDao.searchByCity(venueId);
+	 }
 
 	@Override
-	public List<Event> searchByCity(int venueId) throws DataAccessException {
-		return null;
-	}
-
-	@Override
-	public List<Event> searchByDate(LocalDate localDate) throws DataAccessException {
-		return null;
+	public List<Event> searchByDate(LocalDate date) throws DataAccessException {
+	    return eventDao.searchByDate(date.toString());
 	}
 
 	@Override
 	public List<Event> searchByDateRange(LocalDate startDate, LocalDate endDate) throws DataAccessException {
-		return null;
+
+	    return eventDao.searchByDateRange(startDate.toString(), endDate.toString());
 	}
 
 	@Override
-	public List<Event> searchBycategory(int selectedCategoryId) throws DataAccessException {
-		return null;
+	public List<Event> searchByCategory(int categoryId) throws DataAccessException {
+	    return eventDao.searchByCategory(categoryId);
 	}
-
+	
 	@Override
 	public List<BookingDetail> viewBookingDetails(int userId) throws DataAccessException {
 		return null;
@@ -160,9 +164,8 @@ public class EventServiceImpl implements EventService {
 		return null;
 	}
 	@Override
-	public List<Category> getAllCategory() throws DataAccessException {
-		// TODO Auto-generated method stub
-		return null;
+	public List<Category> getAllCategories() throws DataAccessException {
+		return categoryDao.getAllCategories();
 	}
 	@Override
 	public Map<Integer, String> getAllCities() throws DataAccessException {
