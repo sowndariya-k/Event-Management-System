@@ -71,14 +71,14 @@ public class MainMenu {
 	                                scanner,
 	                                user,
 	                                userAction,
-	                                ApplicationUtil.eventService(),                     // EventService
-	                                ApplicationUtil.offerService(),                     // OfferService
-	                                new UserRegistrationAction(ApplicationUtil.eventService()), // UserRegistrationAction
+	                                ApplicationUtil.eventService(),                     
+	                                ApplicationUtil.offerService(),                     
+	                                new UserRegistrationAction(ApplicationUtil.eventService()), 
 	                                new EventRegistrationAction(
 	                                    ApplicationUtil.eventService(), 
-	                                    ApplicationUtil.offerService(),               // Pass the real OfferService here
+	                                    ApplicationUtil.offerService(),               
 	                                    scanner
-	                                ) // EventRegistrationAction
+	                                ) 
 	                            );
 	                            userMenu.start();
 	                            break;
