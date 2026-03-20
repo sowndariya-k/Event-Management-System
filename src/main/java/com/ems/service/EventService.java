@@ -25,6 +25,7 @@ public interface EventService {
  	// event filtering
  	List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException;
 
+    // event searching
  	List<Event> searchByCity(String city) throws DataAccessException;
 
  	List<Event> searchByDate(LocalDate localDate) throws DataAccessException;

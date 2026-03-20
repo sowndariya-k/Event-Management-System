@@ -340,6 +340,8 @@ public class EventDaoImpl implements EventDao {
 	
 
 	// ---------------------- SEARCH & FILTER METHODS ----------------------
+	
+	// ---------------------- SEARCH BY CATEGORY ----------------------
 
 	@Override
 	public List<Event> searchByCategory(int categoryId) {
@@ -400,6 +402,8 @@ public class EventDaoImpl implements EventDao {
 	    return categories;
 	}
 
+	// ---------------------- SEARCH BY DATE ----------------------
+	
 	@Override
 	public List<Event> searchByDate(String date) {
 
@@ -420,6 +424,8 @@ public class EventDaoImpl implements EventDao {
 
 	    return events;
 	}	
+	
+	// ---------------------- SEARCH BY DATE RANGE ----------------------
 	
 	@Override
 	public List<Event> searchByDateRange(String startDate, String endDate) throws DataAccessException {
@@ -443,6 +449,8 @@ public class EventDaoImpl implements EventDao {
 
 	    return events;
 	}
+	
+	// ---------------------- SEARCH BY CITY ----------------------
 
 	@Override
 	public List<Event> searchByCity(String city) {
@@ -467,6 +475,8 @@ public class EventDaoImpl implements EventDao {
 
 	    return events;
 	}
+	
+	// ---------------------- FILTER BY PRICE ----------------------
 
 	@Override
 	public List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException {
@@ -494,6 +504,8 @@ public class EventDaoImpl implements EventDao {
 	    return events;
 	}
 
+	// ---------------------- FILTER BY AVAILABILITY ----------------------
+	
 	@Override
 	public List<Event> filterByAvailability() {
 
