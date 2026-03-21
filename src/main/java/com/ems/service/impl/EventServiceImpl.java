@@ -2,25 +2,19 @@ package com.ems.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.ems.dao.*;
 import com.ems.dao.impl.FeedbackDaoImpl;
 import com.ems.dao.impl.NotificationDaoImpl;
 import com.ems.dao.impl.PaymentDaoImpl;
 import com.ems.dao.impl.RegistrationDaoImpl;
-import com.ems.enums.NotificationType;
 import com.ems.enums.PaymentMethod;
-import com.ems.enums.RegistrationStatus;
 import com.ems.exception.DataAccessException;
 import com.ems.model.BookingDetail;
 import com.ems.model.Event;
-import com.ems.model.Registration;
-import com.ems.model.RegistrationTicket;
 import com.ems.model.Ticket;
 import com.ems.model.Category;
 import com.ems.model.UserEventRegistration;

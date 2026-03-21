@@ -1,14 +1,14 @@
 package com.ems.actions;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
 import com.ems.exception.DataAccessException;
+import com.ems.model.Category;
 import com.ems.model.Event;
 import com.ems.model.Ticket;
 import com.ems.service.EventService;
+import com.ems.util.DateTimeUtil;
 
 public class EventBrowsingAction {
 
@@ -22,32 +22,44 @@ public class EventBrowsingAction {
     }
 
     public void printAllAvailableEvents() {
+
         List<Event> events = eventService.viewEvents();
 
-        if (events.isEmpty()) {
+        if (events == null || events.isEmpty()) {
             System.out.println("No events available.");
             return;
         }
 
-        // Header for table
-        System.out.printf("%-10s %-40s %-25s%n", "Event ID", "Title", "Date & Time");
-        System.out.println("--------------------------------------------------------------------------");
-
-        // Formatter for Instant
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                                                       .withZone(ZoneId.systemDefault());
+        System.out.println("\nEVENT LIST");
+        System.out.println("=========================================================================================================");
+        System.out.printf("%-6s %-40s %-25s %-22s %-10s%n",
+                "ID", "TITLE", "CATEGORY", "START DATE", "TICKETS");
+        System.out.println("---------------------------------------------------------------------------------------------------------");
 
         for (Event e : events) {
-            String formattedDate = formatter.format(e.getStartDateTime());
 
-            System.out.printf("%-10d %-40s %-25s%n",
+            String category = "Unknown";
+            int available = 0;
+
+            try {
+            	Category cat = eventService.getCategory(e.getCategoryId());
+            	if (cat != null) {
+            	    category = cat.getName();
+            	}
+
+                available = eventService.getAvailableTickets(e.getEventId());
+
+            } catch (DataAccessException ex) {
+                System.out.println("Error fetching event extra data");
+            }
+
+            System.out.printf("%-6d %-40s %-25s %-22s %-10d%n",
                     e.getEventId(),
                     e.getTitle(),
-                    formattedDate
-            );
+                    category,
+                    DateTimeUtil.formatForDisplay(e.getStartDateTime()),
+                    available);
         }
-
-        System.out.println("--------------------------------------------------------------------------");
     }
 
     // 2. View event details
@@ -63,14 +75,37 @@ public class EventBrowsingAction {
             return;
         }
 
-        System.out.println("\n===== EVENT DETAILS =====");
-        System.out.println("Title       : " + event.getTitle());
-        System.out.println("Description : " + event.getDescription());
-        System.out.println("Start       : " + event.getStartDateTime());
-        System.out.println("End         : " + event.getEndDateTime());
-        System.out.println("Venue ID    : " + event.getVenueId());
-        System.out.println("Category ID : " + event.getCategoryId());
-        System.out.println("==========================");
+        String category = "Unknown";
+        Category category1 = eventService.getCategory(event.getCategoryId());
+        if (category1 != null) {
+            category = category1.getName();
+        }
+        String venueName = eventService.getVenueName(event.getVenueId());
+        String venueAddress = eventService.getVenueAddress(event.getVenueId());
+        int totalAvailable = eventService.getAvailableTickets(event.getEventId());
+        List<Ticket> tickets = eventService.getTicketTypes(event.getEventId());
+
+        System.out.println("\n==============================================");
+        System.out.println("Title           : " + event.getTitle());
+        System.out.println("Description     : " + (event.getDescription() != null ? event.getDescription() : "-"));
+        System.out.println("Category        : " + category);
+        System.out.println("Start           : " + DateTimeUtil.formatForDisplay(event.getStartDateTime()));
+        System.out.println("End             : " + DateTimeUtil.formatForDisplay(event.getEndDateTime()));
+        System.out.println("Total Tickets   : " + totalAvailable);
+
+        System.out.println("\nTicket Types");
+        System.out.println("----------------------------------------------");
+        for (Ticket ticket : tickets) {
+            System.out.println("• " + ticket.getTicketType()
+                    + " | Price: ₹" + ticket.getPrice()
+                    + " | Available: " + ticket.getAvailableQuantity());
+        }
+
+        System.out.println("\nVenue");
+        System.out.println("----------------------------------------------");
+        System.out.println("Name            : " + venueName);
+        System.out.println("Address         : " + venueAddress);
+        System.out.println("==============================================");
     }
 
     // 3. View ticket options

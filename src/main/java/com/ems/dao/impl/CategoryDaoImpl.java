@@ -15,8 +15,27 @@ public class CategoryDaoImpl implements CategoryDao {
 
 	@Override
 	public Category getCategory(int categoryId) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return null;
+
+	    String sql = "SELECT category_id, name FROM categories WHERE category_id = ?";
+
+	    try (Connection con = DBConnectionUtil.getConnection();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+
+	        ps.setInt(1, categoryId);
+	        ResultSet rs = ps.executeQuery();
+
+	        if (rs.next()) {
+	            return new Category(
+	                rs.getInt("category_id"),
+	                rs.getString("name")
+	            );
+	        }
+
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error fetching category", e);
+	    }
+
+	    return null;
 	}
 
 	@Override

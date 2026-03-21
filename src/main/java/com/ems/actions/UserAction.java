@@ -74,7 +74,7 @@ public class UserAction {
             email = InputValidationUtil.readNonEmptyString(
                 scanner,
                 "Enter Email (max 100 chars): "
-            );
+            ).trim().toLowerCase();
 
             if (email.length() > 100) {
                 System.out.println("Email too long.");
