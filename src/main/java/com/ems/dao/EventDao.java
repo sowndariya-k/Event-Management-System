@@ -1,6 +1,7 @@
 package com.ems.dao;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -98,7 +99,7 @@ public interface EventDao {
      * @throws DataAccessException
      */
 
-    List<Event> searchByDate(String date) throws DataAccessException;
+    List<Event> searchByDate(LocalDate date) throws DataAccessException;
     
     /**
      * Searches events between given date range
@@ -108,7 +109,7 @@ public interface EventDao {
      * @return list of events
      * @throws DataAccessException
      */
-    List<Event> searchByDateRange(String startDate, String endDate) throws DataAccessException;
+    List<Event> searchByDateRange(LocalDate startDate, LocalDate endDate) throws DataAccessException;
     
     /**
      * Searches events by given city 
