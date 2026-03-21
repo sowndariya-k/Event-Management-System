@@ -37,85 +37,91 @@ public class MainMenu {
 	}
 
 	public void start() {
-		 while (true) {
-	            System.out.println("\nMain Menu"
-	                    + "\n\nEnter your choice:"
-	                    + "\n1. Login"
-	                    + "\n2. Register as User"
-	                    + "\n3. Register as Organizer"
-	                    + "\n4. Continue as Guest"
-	                    + "\nAny other number to Exit Application");
+		while (true) {
+			System.out.println(
+				    "\nMain menu\n" +
+				    "1 Login\n" +
+				    "2 Register as attendee\n" +
+				    "3 Register as organizer\n" +
+				    "4 Continue as guest\n" +
+				    "5 Exit\n\n" +
+				    "Choice:"
+				);
 
-	            int input = InputValidationUtil.readInt(scanner, "");
-	            switch (input) {
-	                case 1:
-	                    String email = InputValidationUtil.readString(scanner, "Enter the email address: ").trim().toLowerCase();
-	                    String password = InputValidationUtil.readString(scanner, "Enter the password: ");
+			int input = InputValidationUtil.readInt(scanner, "");
+			switch (input) {
+			case 1:
+				String email = InputValidationUtil.readString(scanner, "Enter the email address: ");
+				String password = InputValidationUtil.readString(scanner, "Enter the password: ");
 
-	                    try {
-	                        User user = userService.login(email, password);
-	                        if(user == null) {
-	                            System.out.println("Login failed. Please try again.");
-	                            break;
-	                        }
-	                        UserRole role = userService.getRole(user);
+				try {
+					User user = userService.login(email, password);
+					if (user == null) {
+						System.out.println("Login failed. Please try again.");
+						break;
+					}
+					UserRole role = userService.getRole(user);
 
-	                        switch (role) {
-	                        case ADMIN:
-	                        	AdminMenu adminMenu = new AdminMenu(scanner, user);
-	                        	adminMenu.start();
-	                            break;
+					switch (role) {
+					case ADMIN:
+						AdminMenu adminMenu = new AdminMenu(scanner, user);
+						adminMenu.start();
+						break;
 
-	                        case ATTENDEE:
-	                            UserMenu userMenu = new UserMenu(
-	                                scanner,
-	                                user,
-	                                userAction,
-	                                ApplicationUtil.eventService(),                     
-	                                ApplicationUtil.offerService(),                     
-	                                new UserRegistrationAction(ApplicationUtil.eventService()), 
-	                                new EventRegistrationAction(
-	                                    ApplicationUtil.eventService(), 
-	                                    ApplicationUtil.offerService(),               
-	                                    scanner
-	                                ) 
-	                            );
-	                            userMenu.start();
-	                            break;
+					case ATTENDEE:
+						UserMenu userMenu = new UserMenu(scanner,
+								user,
+								userAction,
+								ApplicationUtil.eventService(),
+								ApplicationUtil.offerService(),
+								new UserRegistrationAction(ApplicationUtil.eventService()),
+								new EventRegistrationAction(ApplicationUtil.eventService(), ApplicationUtil.offerService(), scanner));
+						userMenu.start();
+						break;
 
-	                        case ORGANIZER:
-	                        	OrganizerMenu organizerMenu = new OrganizerMenu(scanner, user);
-	                        	organizerMenu.start();
-	                            break;
+					case ORGANIZER:
+						OrganizerMenu organizerMenu = new OrganizerMenu(scanner, user);
+						organizerMenu.start();
+						break;
 
-	                        default:
-	                            System.out.println("Unexpected role. Cannot proceed.");
-	                    }
+					default:
+						System.out.println("Unexpected role. Cannot proceed.");
+					}
 
-	                    } catch (AuthorizationException | AuthenticationException | DataAccessException e) {
-	                        System.out.println("Error: " + e.getMessage());
-	                    }
+				} catch (AuthorizationException | AuthenticationException | DataAccessException e) {
+					System.out.println("Error: " + e.getMessage());
+				}
 
-	                    break;
+				break;
 
-	                case 2:
-	                    userAction.createAccount(UserRole.ATTENDEE);
-	                    break;
+			case 2:
+				userAction.createAccount(UserRole.ATTENDEE);
+				break;
 
-	                case 3:
-	                    userAction.createAccount(UserRole.ORGANIZER);
-	                    break;
+			case 3:
+				userAction.createAccount(UserRole.ORGANIZER);
+				break;
 
-	                case 4:
-	                	GuestMenu guestMenu = new GuestMenu(scanner);
-	                	guestMenu.start();
-	                    break;
+			case 4:
+				GuestMenu guestMenu = new GuestMenu(scanner);
+				guestMenu.start();
+				break;
 
-	                default:
-	                    System.out.println("Thank you for using our event management system.");
-	                    return;
+			case 5:
+				if (confirmLogout()) {
+					System.out.println("Exiting the app...");
+					return;
+				}
+				break;
+			default:
+				System.out.println("Invalid choice. Please select a number between 1 and 5.");
 			}
 		}
+	}
+
+	private boolean confirmLogout() {
+		char choice = InputValidationUtil.readChar(scanner, "Are you sure you want to exit? (Y/N): ");
+		return Character.toUpperCase(choice) == 'Y';
 	}
 
 }

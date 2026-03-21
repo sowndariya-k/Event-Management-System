@@ -56,6 +56,7 @@ public class EventDaoImpl implements EventDao {
                 event.setOrganizerId(rs.getInt("organizer_id"));
                 event.setCapacity(rs.getInt("capacity"));
                 event.setStatus(EventStatus.valueOf(rs.getString("status")));
+                event.setCategoryId(rs.getInt("category_id"));
 
                 events.add(event);
             }

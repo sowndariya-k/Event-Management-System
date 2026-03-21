@@ -57,7 +57,7 @@ public class UserMenu {
 					+ "4. Notifications\n" 
 					+ "5. Feedback\n" 
 					+ "6. Update profile\n"
-					+ "7. Logout\n" 
+					+ "7. Logout\n\n" 
 					+ "Choice:");
 
 			int choice = InputValidationUtil.readInt(scanner, "");
@@ -112,7 +112,7 @@ public class UserMenu {
 					+ "2. View event details\n"
 					+ "3. View ticket options\n" 
 					+ "4. Register for event\n" 
-					+ "5. Back\n" 
+					+ "5. Back\n\n" 
 					+ "Choice:");
 
 			int choice = InputValidationUtil.readInt(scanner, "");
@@ -153,7 +153,7 @@ public class UserMenu {
 					+ "4. Search by city\n" 
 					+ "5. Filter by price\n"
 					+ "6. View all events\n" 
-					+ "7. Back\n" 
+					+ "7. Back\n\n" 
 					+ "Choice:");
 
 			int choice = InputValidationUtil.readInt(scanner, "");
@@ -200,7 +200,7 @@ public class UserMenu {
 					+ "2. Past events\n"
 					+ "3. Booking details\n" 
 					+ "4. Cancel registration\n" 
-					+ "5. Back\n" 
+					+ "5. Back\n\n" 
 					+ "Choice:");
 
 			int choice = InputValidationUtil.readInt(scanner, "");
@@ -236,7 +236,7 @@ public class UserMenu {
 			System.out.println(""
 					+ "\nFeedback\n" 
 					+ "1. Submit rating\n" 
-					+ "2. Back\n" 
+					+ "2. Back\n\n" 
 					+ "Choice:");
 
 			int choice = InputValidationUtil.readInt(scanner, "");

@@ -72,4 +72,5 @@ public final class InputValidationUtil {
         System.out.print(message);
         return scanner.nextLine();
     }
+    
 }
