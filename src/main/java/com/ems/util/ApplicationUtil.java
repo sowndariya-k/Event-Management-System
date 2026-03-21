@@ -68,8 +68,15 @@ public final class ApplicationUtil {
 			    notificationDao
 			);
 		userService = new UserServiceImpl(userDao, roleDao);
-		adminService = new AdminServiceImpl();
-		offerService = new OfferServiceImpl();
+		adminService = new AdminServiceImpl(
+				userDao,
+                eventDao,
+                notificationDao,
+                registrationDao,
+                categoryDao,
+                venueDao,
+                notificationService);
+		offerService = new OfferServiceImpl(offerDao);
 		organizerService = new OrganizerServiceImpl(eventDao, ticketDao, registrationDao, notificationService);
 	}
 

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
+import com.ems.dao.impl.OfferDaoImpl;
 import com.ems.model.Offer;
 import com.ems.service.OfferService;
 
@@ -17,6 +18,11 @@ import com.ems.service.OfferService;
  */
 public class OfferServiceImpl implements OfferService {
 
+	public OfferServiceImpl(OfferDaoImpl offerDao) {
+		// TODO Auto-generated constructor stub
+	}
+
+	
 	@Override
 	public List<Offer> getAllOffers() {
 		// TODO Auto-generated method stub
