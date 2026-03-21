@@ -12,7 +12,7 @@ import com.ems.model.Ticket;
 
 public interface OrganizerService {
 
-    // event creation & management
+	 // event creation & management
     int createEvent(Event event) throws DataAccessException;
 
     boolean updateEventDetails(int eventId, String title, String description, int categoryId, int venueId)

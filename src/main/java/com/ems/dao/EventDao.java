@@ -182,7 +182,9 @@ public interface EventDao {
      */
     Map<String, Integer> getOrganizerWiseEventCount() throws DataAccessException;
 
-    // organizer functions
+    
+    
+    //-- organizer functions
 
     /**
      * Creates a new event and returns the generated event id
@@ -227,6 +229,7 @@ public interface EventDao {
      */
     boolean updateEventStatus(int eventId, EventStatus status) throws DataAccessException;
 
+    //----
     /**
      * Fetches all events created by the organizer
      * 

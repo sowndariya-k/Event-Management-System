@@ -296,35 +296,59 @@ public class EventDaoImpl implements EventDao {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
+	
+	// ----------------------organizer functions----------------------
 
 	@Override
 	public int createEvent(Event event) throws DataAccessException {
-		// TODO Auto-generated method stub
+		
 		return 0;
+	}
+	
+	@Override
+	public boolean updateEventSchedule(int eventId, Instant start, Instant end) throws DataAccessException {
+		String sql = "update events set start_datetime=?, end_datetime=?, updated_at=? where event_id=?";
+		try (Connection con = DBConnectionUtil.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps.setTimestamp(1, DateTimeUtil.toTimestamp(start));
+			ps.setTimestamp(2, DateTimeUtil.toTimestamp(end));
+			Instant now = DateTimeUtil.nowUtc();
+			ps.setTimestamp(3, Timestamp.from(now));
+
+			ps.setInt(4, eventId);
+			return ps.executeUpdate() > 0;
+		} catch (Exception e) {
+			throw new DataAccessException("Failed to update the event schedule");
+		}
 	}
 
 	@Override
 	public boolean updateEventDetails(int eventId, String title, String description, int categoryId, int venueId)
 			throws DataAccessException {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean updateEventCapacity(int eventId, int capacity) throws DataAccessException {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
 
 	@Override
 	public boolean updateEventStatus(int eventId, EventStatus status) throws DataAccessException {
-		// TODO Auto-generated method stub
+		
 		return false;
 	}
+	
+	//----------------------end
 
 	@Override
 	public List<Event> getEventsByOrganizer(int organizerId) throws DataAccessException {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 
@@ -340,11 +364,7 @@ public class EventDaoImpl implements EventDao {
 		return null;
 	}
 
-	@Override
-	public boolean updateEventSchedule(int eventId, Instant start, Instant end) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 
 	@Override
 	public List<EventRevenueReport> getEventWiseRevenueReportByOrganizer(int organizerId)

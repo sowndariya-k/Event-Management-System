@@ -157,10 +157,10 @@ public class EventServiceImpl implements EventService {
 	public Category getCategory(int categoryId) throws DataAccessException {
 		return categoryDao.getCategory(categoryId);
 	}
-	@Override
-	public List<Category> getAllCategories() throws DataAccessException {
-		return categoryDao.getActiveCategories();
-	}
+	 @Override
+	    public List<Category> getAllCategories() throws DataAccessException {
+	        return categoryDao.getActiveCategories();
+	    }
 	@Override
 	public Map<Integer, String> getAllCities() throws DataAccessException {
 		 Map<Integer, String> cities = venueDao.getAllCities();
