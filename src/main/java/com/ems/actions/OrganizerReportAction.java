@@ -22,65 +22,13 @@ public class OrganizerReportAction {
 	 */
 	 
 	public void getRevenueSummary(int userId) {
-		try {
-	        List<EventRevenueReport> reports = organizerService.getRevenueReport(userId);
-
-	        if (reports == null || reports.isEmpty()) {
-	            System.out.println("No revenue data available.");
-	            return;
-	        }
-
-	        double totalRevenue = 0;
-
-	        System.out.println("\n===== Revenue Summary =====");
-
-	        for (EventRevenueReport r : reports) {
-	            System.out.println("Event ID   : " + r.getEventId());
-	            System.out.println("Event Name : " + r.getEventName());
-	            System.out.println("Revenue    : " + r.getRevenue());
-	            System.out.println("---------------------------");
-
-	            totalRevenue += r.getRevenue();
-	        }
-
-	        System.out.println("Total Revenue: " + totalRevenue);
-
-	    } catch (Exception e) {
-	        System.out.println("Error fetching revenue summary");
-	        e.printStackTrace();
-	    }
+		
 		
 		
 	}
 
 	public void getEventSummary(int userId) {
-		try {
-	        List<EventRevenueReport> reports = organizerService.getRevenueReport(userId);
-
-	        if (reports == null || reports.isEmpty()) {
-	            System.out.println("No revenue data available.");
-	            return;
-	        }
-
-	        double totalRevenue = 0;
-
-	        System.out.println("\n===== Revenue Summary =====");
-
-	        for (EventRevenueReport r : reports) {
-	            System.out.println("Event ID   : " + r.getEventId());
-	            System.out.println("Event Name : " + r.getEventName());
-	            System.out.println("Revenue    : " + r.getRevenue());
-	            System.out.println("---------------------------");
-
-	            totalRevenue += r.getRevenue();
-	        }
-
-	        System.out.println("Total Revenue: " + totalRevenue);
-
-	    } catch (Exception e) {
-	        System.out.println("Error fetching revenue summary");
-	        e.printStackTrace();
-	    }
+		
 		
 		
 	}

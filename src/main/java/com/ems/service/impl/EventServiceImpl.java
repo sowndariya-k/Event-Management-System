@@ -6,16 +6,17 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import com.ems.dao.*;
 import com.ems.dao.impl.FeedbackDaoImpl;
 import com.ems.dao.impl.NotificationDaoImpl;
 import com.ems.dao.impl.PaymentDaoImpl;
 import com.ems.dao.impl.RegistrationDaoImpl;
 import com.ems.enums.PaymentMethod;
+import com.ems.enums.RegistrationStatus;
 import com.ems.exception.DataAccessException;
 import com.ems.model.BookingDetail;
 import com.ems.model.Event;
+import com.ems.model.Registration;
 import com.ems.model.Ticket;
 import com.ems.model.Category;
 import com.ems.model.UserEventRegistration;
@@ -29,16 +30,13 @@ public class EventServiceImpl implements EventService {
     private final TicketDao ticketDao;
     private final CategoryDao categoryDao; 
     private final VenueDao venueDao;
-    
     private final RegistrationDaoImpl registrationDao;
     private final PaymentDaoImpl paymentDao;
     private final PaymentService paymentService;
     private final FeedbackDaoImpl feedbackDao;
     private final NotificationDaoImpl notificationDao;
 
-
     public EventServiceImpl(EventDao eventDao, TicketDao ticketDao, CategoryDao categoryDao,VenueDao venueDao, RegistrationDaoImpl registrationDao,
-
                             PaymentDaoImpl paymentDao, PaymentService paymentService,
                             FeedbackDaoImpl feedbackDao, NotificationDaoImpl notificationDao) {
         this.eventDao = eventDao;
@@ -96,58 +94,72 @@ public class EventServiceImpl implements EventService {
 
 	 @Override
 	 public List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException {
-
 		 return eventDao.filterByPrice(minPrice, maxPrice);
-
 	 }
 
 	 @Override
 	 public List<Event> searchByCity(int venueId) throws DataAccessException {
-
 		 return eventDao.searchByCity(venueId);
-
 	 }
 
 	@Override
 	public List<Event> searchByDate(LocalDate date) throws DataAccessException {
-
 		return eventDao.searchByDate(date);
-
 	}
 
 	@Override
 	public List<Event> searchByDateRange(LocalDate startDate, LocalDate endDate) throws DataAccessException {
-
 		return eventDao.searchByDateRange(startDate, endDate);
-
 	}
 
 	@Override
 	public List<Event> searchByCategory(int categoryId) throws DataAccessException {
 	    return eventDao.searchByCategory(categoryId);
 	}
-
+	
 	// my registration
-
 	@Override
 	public List<BookingDetail> viewBookingDetails(int userId) throws DataAccessException {
-		return null;
+	    return eventDao.viewBookingDetails(userId);
 	}
 
 	@Override
 	public List<UserEventRegistration> viewUpcomingEvents(int userId) throws DataAccessException {
-		return null;
+	    return eventDao.getUserRegistrations(userId)
+	            .stream()
+	            .filter(reg -> reg.getStartDateTime() != null
+	                    && reg.getStartDateTime().isAfter(java.time.Instant.now()))
+	            .collect(java.util.stream.Collectors.toList());
 	}
 
 	@Override
 	public List<UserEventRegistration> viewPastEvents(int userId) throws DataAccessException {
-		return null;
+	    return eventDao.getUserRegistrations(userId)
+	            .stream()
+	            .filter(reg -> reg.getStartDateTime() != null
+	                    && reg.getStartDateTime().isBefore(java.time.Instant.now()))
+	            .collect(java.util.stream.Collectors.toList());
 	}
 
 
 	@Override
 	public boolean cancelRegistration(int userId, int registrationId) throws DataAccessException {
-		return false;
+	    Registration registration = registrationDao.getById(registrationId);
+
+	    if (registration == null) {
+	        throw new DataAccessException("Registration not found.");
+	    }
+
+	    if (registration.getUserId() != userId) {
+	        throw new DataAccessException("Registration not found.");
+	    }
+
+	    if (registration.getStatus() == RegistrationStatus.CANCELLED) {
+	        throw new DataAccessException("Registration is already cancelled.");
+	    }
+
+	    registrationDao.updateStatus(registrationId, RegistrationStatus.CANCELLED);
+	    return true;
 	}
 	
 	//Ticket availability
@@ -168,10 +180,8 @@ public class EventServiceImpl implements EventService {
 		return eventDao.listAvailableAndDraftEvents();
 	}
 	@Override
-
 	public Category getCategory(int categoryId) throws DataAccessException {
 		return categoryDao.getCategory(categoryId);
-
 	}
 	 @Override
 	    public List<Category> getAllCategories() throws DataAccessException {
@@ -235,5 +245,5 @@ public class EventServiceImpl implements EventService {
 	public boolean isRatingAlreadySubmitted(int eventId, int userId) throws DataAccessException {
 		return feedbackDao.isRatingAlreadySubmitted(eventId, userId);
 	}
-
+ 
 }

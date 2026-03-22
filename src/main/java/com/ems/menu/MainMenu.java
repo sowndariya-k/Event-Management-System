@@ -74,7 +74,7 @@ public class MainMenu {
 								userAction,
 								ApplicationUtil.eventService(),
 								ApplicationUtil.offerService(),
-								new UserRegistrationAction(ApplicationUtil.eventService()),
+								new UserRegistrationAction(ApplicationUtil.eventService(), scanner),
 								new EventRegistrationAction(ApplicationUtil.eventService(), ApplicationUtil.offerService(), scanner));
 						userMenu.start();
 						break;
