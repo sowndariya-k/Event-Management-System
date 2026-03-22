@@ -4,40 +4,68 @@ import java.time.LocalDateTime;
 
 public class Feedback {
 
-    public Feedback() {
-    }
+	private int feedbackId;
+	private int eventId;
+	private int userId;
+	private int rating;
+	private String comments;
+	private LocalDateTime submittedAt;
 
-    private int feedbackId;
-    private int eventId;
-    private int userId;
-    private int rating;
-    private String comments;
-    private LocalDateTime submittedAt;
+	public Feedback(int feedbackId, int eventId, int userId, int rating, String comments, LocalDateTime submittedAt) {
+		this.feedbackId = feedbackId;
+		this.eventId = eventId;
+		this.userId = userId;
+		this.rating = rating;
+		this.comments = comments;
+		this.submittedAt = submittedAt;
+	}
 
-    public Feedback(int feedbackId, int eventId, int userId, int rating, String comments, LocalDateTime submittedAt) {
-        this.feedbackId = feedbackId;
-        this.eventId = eventId;
-        this.userId = userId;
-        this.rating = rating;
-        this.comments = comments;
-        this.submittedAt = submittedAt;
-    }
+	public int getFeedbackId() {
+		return feedbackId;
+	}
 
-    public int getFeedbackId() { return feedbackId; }
-    public void setFeedbackId(int feedbackId) { this.feedbackId = feedbackId; }
+	public void setFeedbackId(int feedbackId) {
+		this.feedbackId = feedbackId;
+	}
 
-    public int getEventId() { return eventId; }
-    public void setEventId(int eventId) { this.eventId = eventId; }
+	public int getEventId() {
+		return eventId;
+	}
 
-    public int getUserId() { return userId; }
-    public void setUserId(int userId) { this.userId = userId; }
+	public void setEventId(int eventId) {
+		this.eventId = eventId;
+	}
 
-    public int getRating() { return rating; }
-    public void setRating(int rating) { this.rating = rating; }
+	public int getUserId() {
+		return userId;
+	}
 
-    public String getComments() { return comments; }
-    public void setComments(String comments) { this.comments = comments; }
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
 
-    public LocalDateTime getSubmittedAt() { return submittedAt; }
-    public void setSubmittedAt(LocalDateTime submittedAt) { this.submittedAt = submittedAt; }
+	public int getRating() {
+		return rating;
+	}
+
+	public void setRating(int rating) {
+		this.rating = rating;
+	}
+
+	public String getComments() {
+		return comments;
+	}
+
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+
+	public LocalDateTime getSubmittedAt() {
+		return submittedAt;
+	}
+
+	public void setSubmittedAt(LocalDateTime submittedAt) {
+		this.submittedAt = submittedAt;
+	}
+
 }
