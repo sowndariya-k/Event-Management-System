@@ -34,4 +34,5 @@ public class BookingDetail {
     public String getTicketType() { return ticketType; }
     public int getQuantity() { return quantity; }
     public double getTotalCost() { return totalCost; }
+    
 }

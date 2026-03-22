@@ -94,7 +94,7 @@ public class UserRegistrationAction {
 	        if (bookings == null || bookings.isEmpty()) {
 	            System.out.println("No booking details found.");
 	            return;
-	        }
+	        } 
 	        System.out.println("\nBooking Details:");
 	        System.out.println("==============================================");
 	        for (BookingDetail b : bookings) {

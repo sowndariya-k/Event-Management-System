@@ -127,7 +127,7 @@ public class EventRegistrationAction {
 	 *
 	 * @param userId the ID of the user
 	 */
-
+ 
 	public void cancelRegistration(int userId) {
 	    try {
 	        System.out.print("Enter Registration ID to cancel: ");

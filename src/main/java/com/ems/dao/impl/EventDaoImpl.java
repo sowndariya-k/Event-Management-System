@@ -253,7 +253,7 @@ public class EventDaoImpl implements EventDao {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+ 
 	@Override
 	public boolean cancelEvent(int eventId) throws DataAccessException {
 		// TODO Auto-generated method stub

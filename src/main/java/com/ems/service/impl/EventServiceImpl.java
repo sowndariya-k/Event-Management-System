@@ -245,5 +245,5 @@ public class EventServiceImpl implements EventService {
 	public boolean isRatingAlreadySubmitted(int eventId, int userId) throws DataAccessException {
 		return feedbackDao.isRatingAlreadySubmitted(eventId, userId);
 	}
-
+ 
 }

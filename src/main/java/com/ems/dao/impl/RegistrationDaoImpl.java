@@ -92,6 +92,7 @@ public class RegistrationDaoImpl implements RegistrationDao {
 	public List<RegistrationTicket> getRegistrationTickets(int registrationId) throws DataAccessException {
 		// TODO Auto-generated method stub
 		return null;
+		
 	}
 
 }
