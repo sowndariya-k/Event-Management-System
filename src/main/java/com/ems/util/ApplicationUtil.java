@@ -54,7 +54,7 @@ public final class ApplicationUtil {
 		OfferDaoImpl offerDao = new OfferDaoImpl();
 
 		// Services
-		notificationService = new NotificationServiceImpl();
+		notificationService = new NotificationServiceImpl(notificationDao, registrationDao);
 		paymentService = new PaymentServiceImpl(paymentDao, notificationDao, eventDao);
 		eventService = new EventServiceImpl(
 			    eventDao,       
