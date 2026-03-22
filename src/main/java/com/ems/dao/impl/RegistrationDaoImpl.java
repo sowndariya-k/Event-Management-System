@@ -1,5 +1,9 @@
 package com.ems.dao.impl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import com.ems.dao.RegistrationDao;
@@ -8,6 +12,7 @@ import com.ems.exception.DataAccessException;
 import com.ems.model.EventRegistrationReport;
 import com.ems.model.Registration;
 import com.ems.model.RegistrationTicket;
+import com.ems.util.DBConnectionUtil;
 
 /*
  * Handles database operations related to event registrations.
@@ -39,22 +44,55 @@ public class RegistrationDaoImpl implements RegistrationDao {
 
 	@Override
 	public Registration getById(int registrationId) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return null;
+	    String sql = "SELECT registration_id, user_id, event_id, registration_date, status " +
+	                 "FROM registrations WHERE registration_id = ?";
+	    try (Connection con = DBConnectionUtil.getConnection();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+	        ps.setInt(1, registrationId);
+	        ResultSet rs = ps.executeQuery();
+	        if (rs.next()) {
+	            Registration reg = new Registration();
+	            reg.setRegistrationId(rs.getInt("registration_id"));
+	            reg.setUserId(rs.getInt("user_id"));
+	            reg.setEventId(rs.getInt("event_id"));
+	            reg.setRegistrationDate(rs.getTimestamp("registration_date").toInstant());
+
+	            // FIXED — safely parse status enum
+	            String statusStr = rs.getString("status");
+	            if (statusStr != null) {
+	                reg.setStatus(RegistrationStatus.valueOf(statusStr.trim().toUpperCase()));
+	            }
+
+	            rs.close();
+	            return reg;
+	        }
+	        rs.close();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw new DataAccessException("Error fetching registration by ID: " + registrationId, e);
+	    }
+	    return null;
 	}
 
 	@Override
 	public void updateStatus(int registrationId, RegistrationStatus status) throws DataAccessException {
-		// TODO Auto-generated method stub
-		
+	    String sql = "UPDATE registrations SET status = ? WHERE registration_id = ?";
+	    try (Connection con = DBConnectionUtil.getConnection();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+	        ps.setString(1, status.name());
+	        ps.setInt(2, registrationId);
+	        int rows = ps.executeUpdate();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw new DataAccessException("Error updating registration status for ID: " + registrationId, e);
+	    }
 	}
 
 	@Override
 	public List<RegistrationTicket> getRegistrationTickets(int registrationId) throws DataAccessException {
 		// TODO Auto-generated method stub
 		return null;
+		
 	}
-
-	
 
 }

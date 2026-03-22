@@ -127,35 +127,32 @@ public class EventRegistrationAction {
 	 *
 	 * @param userId the ID of the user
 	 */
-
+ 
 	public void cancelRegistration(int userId) {
-		try {
-            System.out.print("Enter Registration ID to cancel: ");
-            int registrationId = Integer.parseInt(scanner.nextLine().trim());
+	    try {
+	        System.out.print("Enter Registration ID to cancel: ");
+	        int registrationId = Integer.parseInt(scanner.nextLine().trim());
 
-            System.out.print("Are you sure you want to cancel registration #"
-                    + registrationId + "? (y/n): ");
-            char confirm = scanner.nextLine().trim().toLowerCase().charAt(0);
+	        System.out.print("Are you sure you want to cancel registration #"
+	                + registrationId + "? (y/n): ");
+	        char confirm = scanner.nextLine().trim().toLowerCase().charAt(0);
 
-            if (confirm != 'y') {
-                System.out.println("Cancellation aborted.");
-                return;
-            }
+	        if (confirm != 'y') {
+	            System.out.println("Cancellation aborted.");
+	            return;
+	        }
 
-            boolean success = eventService.cancelRegistration(userId, registrationId);
-            if (success) {
-                System.out.println("Registration #" + registrationId + " cancelled successfully.");
-            } else {
-                System.out.println("Cancellation failed. Registration not found or already cancelled.");
-            }
+	        boolean success = eventService.cancelRegistration(userId, registrationId);
+	        if (success) {
+	            System.out.println("Registration #" + registrationId + " cancelled successfully.");
+	        }
 
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid registration ID.");
-        } catch (DataAccessException e) {
-            System.out.println("Error during cancellation: " + e.getMessage());
-        }
+	    } catch (NumberFormatException e) {
+	        System.out.println("Invalid registration ID.");
+	    } catch (DataAccessException e) {
+	        System.out.println(e.getMessage()); // shows exact message from service
+	    }
 	}
-	
 	
 	private int readInt(String prompt, int min, int max) {
 		int value;

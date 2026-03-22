@@ -253,7 +253,7 @@ public class EventDaoImpl implements EventDao {
 		// TODO Auto-generated method stub
 		return false;
 	}
-
+ 
 	@Override
 	public boolean cancelEvent(int eventId) throws DataAccessException {
 		// TODO Auto-generated method stub
@@ -330,7 +330,7 @@ public class EventDaoImpl implements EventDao {
 	@Override
 	public List<BookingDetail> viewBookingDetails(int userId) throws DataAccessException {
 	    List<BookingDetail> bookings = new ArrayList<>();
-	    String sql = "SELECT e.title, e.start_datetime, v.name AS venue_name, v.city, " +
+	    String sql = "SELECT r.registration_id, e.title, e.start_datetime, v.name AS venue_name, v.city, " +
 	                 "t.ticket_type, rt.quantity, p.amount AS total_cost " +
 	                 "FROM registrations r " +
 	                 "JOIN events e ON r.event_id = e.event_id " +
@@ -345,6 +345,7 @@ public class EventDaoImpl implements EventDao {
 	        ResultSet rs = ps.executeQuery();
 	        while (rs.next()) {
 	            BookingDetail booking = new BookingDetail(
+	            	rs.getInt("registration_id"), 	
 	                rs.getString("title"),
 	                rs.getTimestamp("start_datetime").toInstant(),
 	                rs.getString("venue_name"),
@@ -580,5 +581,4 @@ public class EventDaoImpl implements EventDao {
 	    }
 	    return events;
 	}
-
 }

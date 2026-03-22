@@ -116,6 +116,7 @@ public class EventServiceImpl implements EventService {
 	public List<Event> searchByCategory(int categoryId) throws DataAccessException {
 	    return eventDao.searchByCategory(categoryId);
 	}
+	
 	// my registration
 	@Override
 	public List<BookingDetail> viewBookingDetails(int userId) throws DataAccessException {
@@ -144,9 +145,19 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public boolean cancelRegistration(int userId, int registrationId) throws DataAccessException {
 	    Registration registration = registrationDao.getById(registrationId);
-	    if (registration == null || registration.getUserId() != userId) {
-	        return false;
+
+	    if (registration == null) {
+	        throw new DataAccessException("Registration not found.");
 	    }
+
+	    if (registration.getUserId() != userId) {
+	        throw new DataAccessException("Registration not found.");
+	    }
+
+	    if (registration.getStatus() == RegistrationStatus.CANCELLED) {
+	        throw new DataAccessException("Registration is already cancelled.");
+	    }
+
 	    registrationDao.updateStatus(registrationId, RegistrationStatus.CANCELLED);
 	    return true;
 	}
@@ -234,5 +245,5 @@ public class EventServiceImpl implements EventService {
 	public boolean isRatingAlreadySubmitted(int eventId, int userId) throws DataAccessException {
 		return feedbackDao.isRatingAlreadySubmitted(eventId, userId);
 	}
-
+ 
 }

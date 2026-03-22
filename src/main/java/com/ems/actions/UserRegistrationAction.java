@@ -13,7 +13,7 @@ public class UserRegistrationAction {
     private final EventService eventService;
     private final Scanner scanner;
 
-   
+    // Constructor injection: require EventService
     public UserRegistrationAction(EventService eventService, Scanner scanner) {
         this.eventService = eventService;
         this.scanner = scanner;
@@ -94,10 +94,11 @@ public class UserRegistrationAction {
 	        if (bookings == null || bookings.isEmpty()) {
 	            System.out.println("No booking details found.");
 	            return;
-	        }
+	        } 
 	        System.out.println("\nBooking Details:");
 	        System.out.println("==============================================");
 	        for (BookingDetail b : bookings) {
+	        	System.out.println("Registration ID : " + b.getRegistrationId());
 	            System.out.println("Event Name   : " + b.getEventName());
 	            System.out.println("Start Date   : " + b.getStartDateTime());
 	            System.out.println("Venue        : " + b.getVenueName());
@@ -144,5 +145,3 @@ public class UserRegistrationAction {
         return eventService.viewPastEvents(userId);
     }
 }
-
-
