@@ -2,6 +2,7 @@ package com.ems.dao.impl;
 
 import java.sql.*;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class EventDaoImpl implements EventDao {
                 event.setOrganizerId(rs.getInt("organizer_id"));
                 event.setCapacity(rs.getInt("capacity"));
                 event.setStatus(EventStatus.valueOf(rs.getString("status")));
+                event.setCategoryId(rs.getInt("category_id"));
 
                 events.add(event);
             }
@@ -228,11 +230,18 @@ public class EventDaoImpl implements EventDao {
  	}
 
 
-	@Override
-	public List<Event> listAllEvents() throws DataAccessException {
-		// TODO Auto-generated method stub
-		return null;
-	}
+ 	@Override
+ 	public List<Event> listAllEvents() throws DataAccessException {
+ 	    List<Event> events = new ArrayList<>();
+ 	    String query = "SELECT * FROM events"; // get everything, ignore filters
+ 	    try (PreparedStatement ps = con.prepareStatement(query);
+ 	         ResultSet rs = ps.executeQuery()) {
+ 	        events = getEventList(rs); // reuse your mapper
+ 	    } catch (SQLException e) {
+ 	        throw new DataAccessException("Error fetching all events", e);
+ 	    }
+ 	    return events;
+ 	}
 
 	@Override
 	public List<Event> listEventsYetToApprove() throws DataAccessException {
@@ -248,8 +257,14 @@ public class EventDaoImpl implements EventDao {
 
 	@Override
 	public boolean cancelEvent(int eventId) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return false;
+		 String sql = "UPDATE events SET status=? WHERE event_id=?";
+		    try (PreparedStatement ps = con.prepareStatement(sql)) {
+		        ps.setString(1, EventStatus.CANCELLED.toString());
+		        ps.setInt(2, eventId);
+		        return ps.executeUpdate() > 0;
+		    } catch (Exception e) {
+		        throw new DataAccessException("Error cancelling event", e);
+		    }
 	}
 
 	@Override
@@ -287,36 +302,130 @@ public class EventDaoImpl implements EventDao {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
+	
+	// ----------------------organizer functions----------------------
 
 	@Override
 	public int createEvent(Event event) throws DataAccessException {
-		// TODO Auto-generated method stub
+		String sql = "INSERT INTO events (organizer_id, title, description, category_id, venue_id, start_datetime, end_datetime, capacity, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+	    try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+	    	ps.setInt(1, event.getOrganizerId());
+	    	ps.setString(2, event.getTitle());
+	    	ps.setString(3, event.getDescription());
+	    	ps.setInt(4, event.getCategoryId());
+	    	ps.setInt(5, event.getVenueId());
+	    	ps.setTimestamp(6, DateTimeUtil.toTimestamp(event.getStartDateTime()));
+	    	ps.setTimestamp(7, DateTimeUtil.toTimestamp(event.getEndDateTime()));
+	    	ps.setInt(8, event.getCapacity());
+	    	ps.setString(9, "DRAFT");
+	    	ps.setTimestamp(10, Timestamp.from(java.time.Instant.now()));
+
+	        ps.executeUpdate();
+
+	        ResultSet rs = ps.getGeneratedKeys();
+	        if (rs.next()) return rs.getInt(1);
+
+	    } catch (Exception e) {
+	        throw new DataAccessException("Error creating event", e);
+	    }
 		return 0;
+	}
+	
+	@Override
+	public boolean updateEventSchedule(int eventId, Instant start, Instant end) throws DataAccessException {
+		String sql = "update events set start_datetime=?, end_datetime=?, updated_at=? where event_id=?";
+		try (Connection con = DBConnectionUtil.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps.setTimestamp(1, DateTimeUtil.toTimestamp(start));
+			ps.setTimestamp(2, DateTimeUtil.toTimestamp(end));
+			Instant now = DateTimeUtil.nowUtc();
+			ps.setTimestamp(3, Timestamp.from(now));
+
+			ps.setInt(4, eventId);
+			return ps.executeUpdate() > 0;
+		} catch (Exception e) {
+			throw new DataAccessException("Failed to update the event schedule");
+		}
 	}
 
 	@Override
 	public boolean updateEventDetails(int eventId, String title, String description, int categoryId, int venueId)
 			throws DataAccessException {
-		// TODO Auto-generated method stub
-		return false;
+		
+		String sql = "UPDATE events SET title=?, description=?, category_id=?, venue_id=? WHERE event_id=?";
+	    try (PreparedStatement ps = con.prepareStatement(sql)) {
+
+	        ps.setString(1, title);
+	        ps.setString(2, description);
+	        ps.setInt(3, categoryId);
+	        ps.setInt(4, venueId);
+	        ps.setInt(5, eventId);
+
+	        return ps.executeUpdate() > 0;
+
+	    } catch (Exception e) {
+	        throw new DataAccessException("Error updating event", e);
+	    }
 	}
 
 	@Override
 	public boolean updateEventCapacity(int eventId, int capacity) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return false;
+		
+		 String sql = "UPDATE events SET capacity=? WHERE event_id=?";
+		    try (PreparedStatement ps = con.prepareStatement(sql)) {
+
+		        ps.setInt(1, capacity);
+		        ps.setInt(2, eventId);
+
+		        return ps.executeUpdate() > 0;
+
+		    } catch (Exception e) {
+		    	e.printStackTrace(); 
+		        throw new DataAccessException("Error updating capacity", e);
+		    }
 	}
 
 	@Override
 	public boolean updateEventStatus(int eventId, EventStatus status) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return false;
+		
+		 String sql = "UPDATE events SET status=? WHERE event_id=?";
+		    try (PreparedStatement ps = con.prepareStatement(sql)) {
+
+		        ps.setString(1, status.toString());
+		        ps.setInt(2, eventId);
+
+		        return ps.executeUpdate() > 0;
+
+		    } catch (Exception e) {
+		        throw new DataAccessException("Error updating status", e);
+		    }
 	}
+	
+	//----------------------end
 
 	@Override
 	public List<Event> getEventsByOrganizer(int organizerId) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		List<Event> events = new ArrayList<>();
+	    String sql = "SELECT * FROM events WHERE organizer_id=?";
+
+	    try (PreparedStatement ps = con.prepareStatement(sql)) {
+
+	        ps.setInt(1, organizerId);
+	        ResultSet rs = ps.executeQuery();
+
+	        events = getEventList(rs);
+
+	    } catch (Exception e) {
+	        throw new DataAccessException("Error fetching events", e);
+	    }
+
+	    return events;
+
 	}
 
 	@Override
@@ -331,11 +440,7 @@ public class EventDaoImpl implements EventDao {
 		return null;
 	}
 
-	@Override
-	public boolean updateEventSchedule(int eventId, Instant start, Instant end) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	
 
 	@Override
 	public List<EventRevenueReport> getEventWiseRevenueReportByOrganizer(int organizerId)
@@ -350,34 +455,17 @@ public class EventDaoImpl implements EventDao {
 	// ---------------------- SEARCH BY CATEGORY ----------------------
 
 	@Override
-	public List<Event> searchByCategory(int categoryId) {
 
+	public List<Event> searchByCategory(int categoryId) throws DataAccessException {
 	    List<Event> events = new ArrayList<>();
-
-	    try {
-	        String query = "SELECT * FROM events WHERE category_id = ?";
-	        PreparedStatement ps = con.prepareStatement(query);
+	    String query = "SELECT * FROM events WHERE category_id = ?";
+	    try (PreparedStatement ps = con.prepareStatement(query)) {
 	        ps.setInt(1, categoryId);
-
-	        ResultSet rs = ps.executeQuery();
-
-	        while (rs.next()) {
-
-	            Event event = new Event();
-
-	            event.setEventId(rs.getInt("event_id"));
-	            event.setTitle(rs.getString("title"));
-	            event.setCategoryId(rs.getInt("category_id"));
-	            event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-	            event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-	            event.setVenueId(rs.getInt("venue_id"));
-	            event.setCapacity(rs.getInt("capacity"));
-
-	            events.add(event);
+	        try (ResultSet rs = ps.executeQuery()) {
+	            events = getEventList(rs);
 	        }
-
-	    } catch (Exception e) {
-	        e.printStackTrace();
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error searching by category", e);
 	    }
 
 	    return events;
@@ -411,46 +499,36 @@ public class EventDaoImpl implements EventDao {
 	// ---------------------- SEARCH BY DATE ----------------------
 	
 	@Override
-	public List<Event> searchByDate(String date) {
 
+	public List<Event> searchByDate(LocalDate date) throws DataAccessException {
+	    if (date == null) return new ArrayList<>();
 	    List<Event> events = new ArrayList<>();
-
-	    try {
-	        String query = "SELECT * FROM events WHERE DATE(start_datetime) = ?";
-	        PreparedStatement ps = con.prepareStatement(query);
-	        ps.setString(1, date);
-
-	        ResultSet rs = ps.executeQuery();
-
-	        events = getEventList(rs); // ✅ reuse
-
-	    } catch (Exception e) {
-	        e.printStackTrace();
+	    String query = "SELECT * FROM events WHERE DATE(start_datetime) = ?";
+	    try (PreparedStatement ps = con.prepareStatement(query)) {
+	        ps.setString(1, date.toString());
+	        try (ResultSet rs = ps.executeQuery()) {
+	            events = getEventList(rs);
+	        }
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error searching by date", e);
 	    }
-
 	    return events;
-	}	
-	
+	}
 	// ---------------------- SEARCH BY DATE RANGE ----------------------
 	
 	@Override
-	public List<Event> searchByDateRange(String startDate, String endDate) throws DataAccessException {
-
+	public List<Event> searchByDateRange(LocalDate startDate, LocalDate endDate) throws DataAccessException {
+	    if (startDate == null || endDate == null || startDate.isAfter(endDate)) return new ArrayList<>();
 	    List<Event> events = new ArrayList<>();
-
 	    String query = "SELECT * FROM events WHERE DATE(start_datetime) BETWEEN ? AND ?";
-
 	    try (PreparedStatement ps = con.prepareStatement(query)) {
-
-	        ps.setString(1, startDate);
-	        ps.setString(2, endDate);
-
-	        ResultSet rs = ps.executeQuery();
-
-	        events = getEventList(rs);
-
+	        ps.setString(1, startDate.toString());
+	        ps.setString(2, endDate.toString());
+	        try (ResultSet rs = ps.executeQuery()) {
+	            events = getEventList(rs);
+	        }
 	    } catch (SQLException e) {
-	        throw new DataAccessException("Error while searching events by date range", e);
+	        throw new DataAccessException("Error searching by date range", e);
 	    }
 
 	    return events;
@@ -459,26 +537,22 @@ public class EventDaoImpl implements EventDao {
 	// ---------------------- SEARCH BY CITY ----------------------
 
 	@Override
-	public List<Event> searchByCity(int venueId) {
 
+	public List<Event> searchByCity(int venueId) throws DataAccessException {
 	    List<Event> events = new ArrayList<>();
-
-	    try {
-	        String query = "SELECT * FROM events WHERE venue_id = ?";
-
-	        PreparedStatement ps = con.prepareStatement(query);
+	    String query = "SELECT * FROM events WHERE venue_id = ?";
+	    try (PreparedStatement ps = con.prepareStatement(query)) {
 	        ps.setInt(1, venueId);
-
-	        ResultSet rs = ps.executeQuery();
-
-	        events = getEventList(rs); // reuse mapper
-
-	    } catch (Exception e) {
-	        e.printStackTrace();
+	        try (ResultSet rs = ps.executeQuery()) {
+	            events = getEventList(rs);
+	        }
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error searching by city", e);
 	    }
-
 	    return events;
 	}
+
+
 	
 	// ---------------------- FILTER BY PRICE ----------------------
 
@@ -486,23 +560,17 @@ public class EventDaoImpl implements EventDao {
 	public List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException {
 
 	    List<Event> events = new ArrayList<>();
-
 	    String query = "SELECT DISTINCT e.* FROM events e " +
 	                   "JOIN tickets t ON e.event_id = t.event_id " +
-	                   "WHERE t.price >= ? AND t.price <= ?";
-
+	                   "WHERE t.price BETWEEN ? AND ?";
 	    try (PreparedStatement ps = con.prepareStatement(query)) {
-
 	        ps.setDouble(1, minPrice);
 	        ps.setDouble(2, maxPrice);
-
-	        ResultSet rs = ps.executeQuery();
-
-	        // ✅ USE COMMON MAPPER (IMPORTANT FIX)
-	        events = getEventList(rs);
-
+	        try (ResultSet rs = ps.executeQuery()) {
+	            events = getEventList(rs);
+	        }
 	    } catch (SQLException e) {
-	        throw new DataAccessException("Error filtering events by price", e);
+	        throw new DataAccessException("Error filtering by price", e);
 	    }
 
 	    return events;
@@ -511,36 +579,17 @@ public class EventDaoImpl implements EventDao {
 	// ---------------------- FILTER BY AVAILABILITY ----------------------
 	
 	@Override
-	public List<Event> filterByAvailability() {
 
+	public List<Event> filterByAvailability() throws DataAccessException {
 	    List<Event> events = new ArrayList<>();
-
-	    try {
-	        String query = "SELECT DISTINCT e.* FROM events e " +
-	                       "JOIN tickets t ON e.event_id = t.event_id " +
-	                       "WHERE t.available_quantity > 0";
-
-	        PreparedStatement ps = con.prepareStatement(query);
-
-	        ResultSet rs = ps.executeQuery();
-
-	        while (rs.next()) {
-
-	            Event event = new Event();
-
-	            event.setEventId(rs.getInt("event_id"));
-	            event.setTitle(rs.getString("title"));
-	            event.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-	            event.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-	            event.setVenueId(rs.getInt("venue_id"));
-	            event.setCategoryId(rs.getInt("category_id"));
-	            event.setCapacity(rs.getInt("capacity"));
-
-	            events.add(event);
-	        }
-
-	    } catch (Exception e) {
-	        e.printStackTrace();
+	    String query = "SELECT DISTINCT e.* FROM events e " +
+	                   "JOIN tickets t ON e.event_id = t.event_id " +
+	                   "WHERE t.available_quantity > 0";
+	    try (PreparedStatement ps = con.prepareStatement(query);
+	         ResultSet rs = ps.executeQuery()) {
+	        events = getEventList(rs);
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error filtering by availability", e);
 	    }
 
 	    return events;

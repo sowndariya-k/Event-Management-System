@@ -56,11 +56,29 @@ public final class ApplicationUtil {
 		// Services
 		notificationService = new NotificationServiceImpl(notificationDao, registrationDao);
 		paymentService = new PaymentServiceImpl(paymentDao, notificationDao, eventDao);
-		eventService = new EventServiceImpl(eventDao, ticketDao, categoryDao, registrationDao, paymentDao, paymentService,
-			    feedbackDao, notificationDao);
+
+		eventService = new EventServiceImpl(
+			    eventDao,       
+			    ticketDao,      
+			    categoryDao,    
+			    venueDao, 
+			    registrationDao,
+			    paymentDao,
+			    paymentService,
+			    feedbackDao,
+			    notificationDao
+			);
+
 		userService = new UserServiceImpl(userDao, roleDao);
-		adminService = new AdminServiceImpl();
-		offerService = new OfferServiceImpl();
+		adminService = new AdminServiceImpl(
+				userDao,
+                eventDao,
+                notificationDao,
+                registrationDao,
+                categoryDao,
+                venueDao,
+                notificationService);
+		offerService = new OfferServiceImpl(offerDao);
 		organizerService = new OrganizerServiceImpl(eventDao, ticketDao, registrationDao, notificationService);
 	}
 

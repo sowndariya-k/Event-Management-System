@@ -29,6 +29,10 @@ public class Venue {
 		this.updateAt = updateAt;
 	}
 
+	public Venue() {
+		
+	}
+
 	public int getVenueId() {
 		return venueId;
 	}

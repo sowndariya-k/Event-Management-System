@@ -1,10 +1,15 @@
 package com.ems.dao.impl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 import com.ems.dao.TicketDao;
 import com.ems.exception.DataAccessException;
 import com.ems.model.Ticket;
+import com.ems.util.DBConnectionUtil;
 /*
  * Handles database operations related to tickets.
  *
@@ -16,10 +21,24 @@ import com.ems.model.Ticket;
 public class TicketDaoImpl implements TicketDao {
 
 
-	@Override
-	public int getAvailableTickets(int eventId) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int getAvailableTickets(int eventId) throws DataAccessException {
+	    String sql = "SELECT SUM(available_quantity) FROM tickets WHERE event_id = ?";
+
+	    try (Connection con = DBConnectionUtil.getConnection();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+
+	        ps.setInt(1, eventId);
+	        ResultSet rs = ps.executeQuery();
+
+	        if (rs.next()) {
+	            return rs.getInt(1);
+	        }
+
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error fetching ticket count", e);
+	    }
+
+	    return 0;
 	}
 
 	@Override

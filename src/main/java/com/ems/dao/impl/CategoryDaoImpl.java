@@ -4,6 +4,8 @@ import java.util.List;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import java.util.ArrayList;
 import com.ems.util.DBConnectionUtil;
 import com.ems.dao.CategoryDao;
@@ -14,14 +16,52 @@ public class CategoryDaoImpl implements CategoryDao {
 
 	@Override
 	public Category getCategory(int categoryId) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return null;
+
+	    String sql = "SELECT category_id, name FROM categories WHERE category_id = ?";
+
+	    try (Connection con = DBConnectionUtil.getConnection();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+
+	        ps.setInt(1, categoryId);
+	        ResultSet rs = ps.executeQuery();
+
+	        if (rs.next()) {
+	            return new Category(
+	                rs.getInt("category_id"),
+	                rs.getString("name")
+	            );
+	        }
+
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error fetching category", e);
+	    }
+
+	    return null;
 	}
 
 	@Override
 	public List<Category> getActiveCategories() throws DataAccessException {
-		// TODO Auto-generated method stub
-		return null;
+		  // List only active categories sorted for UI consistency
+        String sql = "select category_id, name from categories where is_active = 1 order by name, category_id";
+        List<Category> categories = new ArrayList<>();
+
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                categories.add(
+                    new Category(
+                        rs.getInt("category_id"),
+                        rs.getString("name")
+                    )
+                );
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error while fetching categories", e);
+        }
+
+        return categories;
 	}
 
 	@Override
@@ -51,32 +91,33 @@ public class CategoryDaoImpl implements CategoryDao {
 	}
 
 
-	@Override
-	public List<Category> getAllCategories() throws DataAccessException {
 
-	    List<Category> list = new ArrayList<>();
+	 @Override
+	    public List<Category> getAllCategories() throws DataAccessException {
+	        // Includes both active and inactive records for admin views
+	        String sql = "select category_id, name, is_active from categories order by category_id";
+	        List<Category> categories = new ArrayList<>();
 
-	    try (Connection con = DBConnectionUtil.getConnection()) {
+	        try (Connection con = DBConnectionUtil.getConnection();
+	             PreparedStatement ps = con.prepareStatement(sql);
+	             ResultSet rs = ps.executeQuery()) {
 
-	        String query = "SELECT * FROM categories WHERE is_active = 1";
-	        PreparedStatement ps = con.prepareStatement(query);
-	        ResultSet rs = ps.executeQuery();
-
-	        while (rs.next()) {
-	            Category c = new Category(
-	                rs.getInt("category_id"),
-	                rs.getString("name")
-	            );
-	            list.add(c);
+	            while (rs.next()) {
+	                categories.add(
+	                    new Category(
+	                        rs.getInt("category_id"),
+	                        rs.getString("name"),
+	                        rs.getInt("is_active")
+	                    )
+	                );
+	            }
+	        } catch (SQLException e) {
+	            throw new DataAccessException("Error while fetching categories", e);
 	        }
 
-	    } catch (Exception e) {
-	        e.printStackTrace(); //  ADD THIS
-	        throw new DataAccessException("Error fetching categories", e);
+	        return categories;
 	    }
 
-	    return list;
-	}
 
 	
 

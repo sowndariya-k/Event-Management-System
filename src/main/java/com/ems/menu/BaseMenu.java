@@ -1,5 +1,6 @@
 package com.ems.menu;
 
+import com.ems.exception.DataAccessException;
 import com.ems.model.User;
 
 /*
@@ -18,5 +19,5 @@ public abstract class BaseMenu {
         this.loggedInUser = loggedInUser;
     }
 
-    public abstract void start();
+    public abstract void start() throws DataAccessException;
 }

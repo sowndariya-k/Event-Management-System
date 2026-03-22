@@ -1,5 +1,10 @@
 package com.ems.dao.impl;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ems.dao.RegistrationDao;
@@ -8,6 +13,7 @@ import com.ems.exception.DataAccessException;
 import com.ems.model.EventRegistrationReport;
 import com.ems.model.Registration;
 import com.ems.model.RegistrationTicket;
+import com.ems.util.DBConnectionUtil;
 
 /*
  * Handles database operations related to event registrations.
@@ -21,8 +27,27 @@ public class RegistrationDaoImpl implements RegistrationDao {
 
 	@Override
 	public List<EventRegistrationReport> getEventWiseRegistrations(int eventId) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return null;
+		List<EventRegistrationReport> list = new ArrayList<>();
+
+	    String sql = "SELECT * FROM registrations WHERE event_id=?";
+
+	    try (Connection con = DBConnectionUtil.getConnection();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+
+	        ps.setInt(1, eventId);
+	        ResultSet rs = ps.executeQuery();
+
+	        while (rs.next()) {
+	            EventRegistrationReport r = new EventRegistrationReport();
+	            list.add(r);
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw new DataAccessException("Error fetching registrations", e);
+	    }
+
+	    return list;
 	}
 
 	@Override
