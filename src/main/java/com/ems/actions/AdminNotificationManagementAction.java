@@ -8,6 +8,7 @@ import com.ems.enums.UserRole;
 import com.ems.exception.DataAccessException;
 import com.ems.model.User;
 import com.ems.service.AdminService;
+import com.ems.util.AdminMenuHelper;
 import com.ems.util.ApplicationUtil;
 import com.ems.util.InputValidationUtil;
 
@@ -93,22 +94,21 @@ public class AdminNotificationManagementAction {
 			List<User> users = adminService.getAllUsers();
 
 			if (users.isEmpty()) {
-				System.out.println("No users available");
-				return;
+			    System.out.println("No users available");
+			    return;
 			}
-			  System.out.println("\nUsers:");
-	            for (int i = 0; i < users.size(); i++) {
-	                User u = users.get(i);
-	                System.out.println((i + 1) + ". " + u.getFullName() + " (ID: " + u.getUserId() + ")");
-	            }
-		int choice = InputValidationUtil.readInt(scanner,
-				"Select a user (1-" + users.size() + "): ");
 
-		while (choice < 1 || choice > users.size()) {
-			choice = InputValidationUtil.readInt(scanner, "Enter a valid choice: ");
-		}
+			// display using helper
+			AdminMenuHelper.printUsers(users, 1);
 
-		User selectedUser = users.get(choice - 1);
+			int choice = InputValidationUtil.readInt(scanner,
+			        "Select a user (1-" + users.size() + "): ");
+
+			while (choice < 1 || choice > users.size()) {
+			    choice = InputValidationUtil.readInt(scanner, "Enter a valid choice: ");
+			}
+
+			User selectedUser = users.get(choice - 1);
 
 		System.out.println("\nSelect notification type\n" + "1. SYSTEM\n" + "2. EVENT\n" + "3. PAYMENT\n>");
 

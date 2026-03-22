@@ -179,10 +179,10 @@ VALUES
 (39, 3, 'Sustainable Energy Summit', 'Panels and workshops on renewable energy, green tech, and sustainable business practices.', 2, 2, '2026-06-10 10:00:00', '2026-06-10 17:00:00', 300, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
 (40, 3, 'Startup Pitch Night', 'Early-stage startups pitch to investors, receive feedback and networking opportunities.', 3, 3, '2026-06-15 18:00:00', '2026-06-15 21:00:00', 150, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
 (41, 5, 'Madurai Literature Festival', 'Celebration of regional literature with author talks, book launches, and workshops.', 6, 5, '2026-06-20 09:00:00', '2026-06-21 18:00:00', 200, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
-(42, 3, 'Cybersecurity & Privacy Forum', 'Discussions on data privacy, ethical hacking, compliance, and corporate cybersecurity strategies.', 1, 2, '2026-06-25 09:00:00', '2026-06-25 17:00:00', 400, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP);
+(43, 6, 'Cybersecurity & Privacy Forum', 'Discussions on data privacy, ethical hacking, compliance, and corporate cybersecurity strategies.', 1, 2, '2026-01-05 09:00:00', '2026-02-25 17:00:00', 400, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP);
+-- Check inserted data
 UNLOCK TABLES;
 
--- Check inserted data
 SELECT * FROM `events`;
 -- see published event
 SELECT * FROM events WHERE status = 'PUBLISHED';
