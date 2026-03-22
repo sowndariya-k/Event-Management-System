@@ -13,7 +13,7 @@ public class UserRegistrationAction {
     private final EventService eventService;
     private final Scanner scanner;
 
-    // Constructor injection: require EventService
+   
     public UserRegistrationAction(EventService eventService, Scanner scanner) {
         this.eventService = eventService;
         this.scanner = scanner;

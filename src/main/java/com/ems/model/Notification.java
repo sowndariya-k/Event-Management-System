@@ -22,6 +22,11 @@ public class Notification {
 		this.readStatus = readStatus;
 	}
 
+	public Notification() {
+		
+	}
+
+
 	public int getNotificationId() {
 		return notificationId;
 	}

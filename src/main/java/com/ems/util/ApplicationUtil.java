@@ -40,7 +40,7 @@ public final class ApplicationUtil {
 	private static final OrganizerService organizerService;
 
 	static {
-		// DAOs
+		// DAO
 		NotificationDaoImpl notificationDao = new NotificationDaoImpl();
 		EventDaoImpl eventDao = new EventDaoImpl();
 		TicketDaoImpl ticketDao = new TicketDaoImpl();

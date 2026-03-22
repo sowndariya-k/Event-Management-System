@@ -156,6 +156,7 @@ public class EventRegistrationAction {
         }
 	}
 	
+	
 	private int readInt(String prompt, int min, int max) {
 		int value;
 		while (true) {
