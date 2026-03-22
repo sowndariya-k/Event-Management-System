@@ -144,9 +144,19 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public boolean cancelRegistration(int userId, int registrationId) throws DataAccessException {
 	    Registration registration = registrationDao.getById(registrationId);
-	    if (registration == null || registration.getUserId() != userId) {
-	        return false;
+
+	    if (registration == null) {
+			throw new DataAccessException("Registration not found.");
 	    }
+	    
+	    if (registration.getUserId() != userId) {
+	        throw new DataAccessException("Registration not found.");
+	    }
+
+	    if (registration.getStatus() == RegistrationStatus.CANCELLED) {
+	        throw new DataAccessException("Registration is already cancelled.");
+	    }
+
 	    registrationDao.updateStatus(registrationId, RegistrationStatus.CANCELLED);
 	    return true;
 	}

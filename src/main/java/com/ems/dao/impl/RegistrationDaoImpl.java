@@ -53,10 +53,16 @@ public class RegistrationDaoImpl implements RegistrationDao {
 	        if (rs.next()) {
 	            Registration reg = new Registration();
 	            reg.setRegistrationId(rs.getInt("registration_id"));
-	            reg.setUserId(rs.getInt("user_id"));                    // make sure this is set
+	            reg.setUserId(rs.getInt("user_id"));
 	            reg.setEventId(rs.getInt("event_id"));
 	            reg.setRegistrationDate(rs.getTimestamp("registration_date").toInstant());
-	            reg.setStatus(RegistrationStatus.valueOf(rs.getString("status")));
+
+	            // FIXED — safely parse status enum
+	            String statusStr = rs.getString("status");
+	            if (statusStr != null) {
+	                reg.setStatus(RegistrationStatus.valueOf(statusStr.trim().toUpperCase()));
+	            }
+
 	            rs.close();
 	            return reg;
 	        }
@@ -70,8 +76,16 @@ public class RegistrationDaoImpl implements RegistrationDao {
 
 	@Override
 	public void updateStatus(int registrationId, RegistrationStatus status) throws DataAccessException {
-		// TODO Auto-generated method stub
-		
+	    String sql = "UPDATE registrations SET status = ? WHERE registration_id = ?";
+	    try (Connection con = DBConnectionUtil.getConnection();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+	        ps.setString(1, status.name());
+	        ps.setInt(2, registrationId);
+	        int rows = ps.executeUpdate();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw new DataAccessException("Error updating registration status for ID: " + registrationId, e);
+	    }
 	}
 
 	@Override

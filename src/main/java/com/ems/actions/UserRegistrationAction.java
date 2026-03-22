@@ -98,6 +98,7 @@ public class UserRegistrationAction {
 	        System.out.println("\nBooking Details:");
 	        System.out.println("==============================================");
 	        for (BookingDetail b : bookings) {
+	        	System.out.println("Registration ID : " + b.getRegistrationId());
 	            System.out.println("Event Name   : " + b.getEventName());
 	            System.out.println("Start Date   : " + b.getStartDateTime());
 	            System.out.println("Venue        : " + b.getVenueName());

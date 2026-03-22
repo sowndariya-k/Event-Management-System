@@ -3,7 +3,8 @@ package com.ems.model;
 import java.time.Instant;
 
 public class BookingDetail {
-
+    
+	private int registrationId;
 	private String eventName;
 	private Instant startDateTime;
 	private String venueName;
@@ -17,8 +18,9 @@ public class BookingDetail {
     private int eventId;
     private double totalAmount;
 
-	public BookingDetail(String eventName, Instant startDateTime, String venueName, String city, String ticketType,
+	public BookingDetail(int registrationId,String eventName, Instant startDateTime, String venueName, String city, String ticketType,
 			int quantity, double totalCost) {
+		this.registrationId = registrationId;
 		this.eventName = eventName;
 		this.startDateTime = startDateTime;
 		this.venueName = venueName;
@@ -27,7 +29,10 @@ public class BookingDetail {
 		this.quantity = quantity;
 		this.totalCost = totalCost;
 	}
-
+	public int getRegistrationId() {
+		return registrationId; 
+	}
+	
 	public String getEventName() {
 		return eventName;
 	}
