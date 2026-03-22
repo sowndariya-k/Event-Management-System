@@ -30,6 +30,7 @@ public class OrganizerTicketManagementAction {
 		organizerService.createTicket(ticket);
 	}
 	
+	
 	/**
 	 * Updates the ticket price of the event
 	 * 
