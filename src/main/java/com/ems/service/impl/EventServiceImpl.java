@@ -12,9 +12,11 @@ import com.ems.dao.impl.NotificationDaoImpl;
 import com.ems.dao.impl.PaymentDaoImpl;
 import com.ems.dao.impl.RegistrationDaoImpl;
 import com.ems.enums.PaymentMethod;
+import com.ems.enums.RegistrationStatus;
 import com.ems.exception.DataAccessException;
 import com.ems.model.BookingDetail;
 import com.ems.model.Event;
+import com.ems.model.Registration;
 import com.ems.model.Ticket;
 import com.ems.model.Category;
 import com.ems.model.UserEventRegistration;
@@ -117,23 +119,36 @@ public class EventServiceImpl implements EventService {
 	// my registration
 	@Override
 	public List<BookingDetail> viewBookingDetails(int userId) throws DataAccessException {
-		return null;
+	    return eventDao.viewBookingDetails(userId);
 	}
 
 	@Override
 	public List<UserEventRegistration> viewUpcomingEvents(int userId) throws DataAccessException {
-		return null;
+	    return eventDao.getUserRegistrations(userId)
+	            .stream()
+	            .filter(reg -> reg.getStartDateTime() != null
+	                    && reg.getStartDateTime().isAfter(java.time.Instant.now()))
+	            .collect(java.util.stream.Collectors.toList());
 	}
 
 	@Override
 	public List<UserEventRegistration> viewPastEvents(int userId) throws DataAccessException {
-		return null;
+	    return eventDao.getUserRegistrations(userId)
+	            .stream()
+	            .filter(reg -> reg.getStartDateTime() != null
+	                    && reg.getStartDateTime().isBefore(java.time.Instant.now()))
+	            .collect(java.util.stream.Collectors.toList());
 	}
 
 
 	@Override
 	public boolean cancelRegistration(int userId, int registrationId) throws DataAccessException {
-		return false;
+	    Registration registration = registrationDao.getById(registrationId);
+	    if (registration == null || registration.getUserId() != userId) {
+	        return false;
+	    }
+	    registrationDao.updateStatus(registrationId, RegistrationStatus.CANCELLED);
+	    return true;
 	}
 	
 	//Ticket availability

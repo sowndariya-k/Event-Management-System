@@ -258,7 +258,15 @@ public class EventDaoImpl implements EventDao {
 	@Override
 	public boolean cancelEvent(int eventId) throws DataAccessException {
 		// TODO Auto-generated method stub
-		return false;
+		String sql = "UPDATE registrations SET status = 'CANCELLED' WHERE event_id = ? AND status = 'CONFIRMED'";
+	    try (Connection con = DBConnectionUtil.getConnection();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+	        ps.setInt(1, eventId);
+	        int rows = ps.executeUpdate();
+	        return rows > 0;
+	    } catch (SQLException e) {
+	        throw new DataAccessException("Error cancelling event registrations", e);
+	    }
 	}
 
 	@Override
@@ -282,13 +290,80 @@ public class EventDaoImpl implements EventDao {
 	@Override
 	public List<UserEventRegistration> getUserRegistrations(int userId) throws DataAccessException {
 		// TODO Auto-generated method stub
-		return null;
+		List<UserEventRegistration> registrations = new ArrayList<>();
+	    String sql = "SELECT r.registration_id, r.user_id, r.event_id, r.registration_date, r.status AS reg_status, " +
+	                 "e.title, e.start_datetime, e.end_datetime, " +
+	                 "c.name AS category_name, " +
+	                 "t.ticket_type, rt.quantity, p.amount " +
+	                 "FROM registrations r " +
+	                 "JOIN events e ON r.event_id = e.event_id " +
+	                 "JOIN categories c ON e.category_id = c.category_id " +
+	                 "LEFT JOIN registration_tickets rt ON r.registration_id = rt.registration_id " +
+	                 "LEFT JOIN tickets t ON rt.ticket_id = t.ticket_id " +
+	                 "LEFT JOIN payments p ON r.registration_id = p.registration_id " +
+	                 "WHERE r.user_id = ? AND r.status = 'CONFIRMED'";
+	    try (Connection con = DBConnectionUtil.getConnection();
+	         PreparedStatement ps = con.prepareStatement(sql)) {
+	        ps.setInt(1, userId);
+	        ResultSet rs = ps.executeQuery();
+	        while (rs.next()) {
+	            UserEventRegistration reg = new UserEventRegistration();
+	            reg.setRegistrationId(rs.getInt("registration_id"));
+	            reg.setEventId(rs.getInt("event_id"));
+	            reg.setTitle(rs.getString("title"));                                    // FIXED
+	            reg.setCategory(rs.getString("category_name"));                        // FIXED
+	            reg.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
+	            reg.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
+	            reg.setRegistrationDate(rs.getTimestamp("registration_date").toInstant());
+	            reg.setRegistrationStatus(rs.getString("reg_status"));                 // FIXED
+	            reg.setTicketType(rs.getString("ticket_type"));                        // FIXED
+	            reg.setTicketsPurchased(rs.getInt("quantity"));                        // FIXED
+	            reg.setAmountPaid(rs.getDouble("amount"));                             // FIXED
+	            registrations.add(reg);
+	        }
+	        rs.close();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	        throw new DataAccessException("Error fetching user registrations", e);
+	    }
+	    return registrations;
 	}
 
 	@Override
 	public List<BookingDetail> viewBookingDetails(int userId) throws DataAccessException {
 		// TODO Auto-generated method stub
-		return null;
+		 List<BookingDetail> bookings = new ArrayList<>();
+		    String sql = "SELECT e.title, e.start_datetime, v.name AS venue_name, v.city, " +
+		                 "t.ticket_type, rt.quantity, p.amount AS total_cost " +
+		                 "FROM registrations r " +
+		                 "JOIN events e ON r.event_id = e.event_id " +
+		                 "JOIN venues v ON e.venue_id = v.venue_id " +
+		                 "LEFT JOIN registration_tickets rt ON r.registration_id = rt.registration_id " +
+		                 "LEFT JOIN tickets t ON rt.ticket_id = t.ticket_id " +
+		                 "LEFT JOIN payments p ON r.registration_id = p.registration_id " +
+		                 "WHERE r.user_id = ? AND r.status = 'CONFIRMED'";
+		    try (Connection con = DBConnectionUtil.getConnection();
+		         PreparedStatement ps = con.prepareStatement(sql)) {
+		        ps.setInt(1, userId);
+		        ResultSet rs = ps.executeQuery();
+		        while (rs.next()) {
+		            BookingDetail booking = new BookingDetail(
+		                rs.getString("title"),
+		                rs.getTimestamp("start_datetime").toInstant(),
+		                rs.getString("venue_name"),
+		                rs.getString("city"),
+		                rs.getString("ticket_type"),
+		                rs.getInt("quantity"),
+		                rs.getDouble("total_cost")
+		            );
+		            bookings.add(booking);
+		        }
+		        rs.close();
+		    } catch (SQLException e) {
+		        e.printStackTrace();
+		        throw new DataAccessException("Error fetching booking details", e);
+		    }
+		    return bookings;
 	}
 
 	@Override
