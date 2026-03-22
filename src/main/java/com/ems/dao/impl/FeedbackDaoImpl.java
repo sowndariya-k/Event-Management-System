@@ -1,29 +1,56 @@
 package com.ems.dao.impl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 import com.ems.dao.FeedbackDao;
 import com.ems.exception.DataAccessException;
+import com.ems.util.DBConnectionUtil;
 
-/*
- * Handles database operations related to event feedback.
- *
- * Responsibilities:
- * - Validate user eligibility for feedback submission
- * - Persist ratings and comments for completed events
- */
 public class FeedbackDaoImpl implements FeedbackDao {
 
-	@Override
-	public boolean submitRating(int eventId, int userId, int rating, String comments) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean submitRating(int eventId, int userId, int rating, String comments) throws DataAccessException {
 
-	@Override
-	public boolean isRatingAlreadySubmitted(int eventId, int userId) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return false;
-	}
+        String query = "INSERT INTO feedback (event_id, user_id, rating, comments) VALUES (?, ?, ?, ?)";
 
-	
+        try (Connection conn = DBConnectionUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
 
+            ps.setInt(1, eventId);
+            ps.setInt(2, userId);
+            ps.setInt(3, rating);
+            ps.setString(4, comments);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            throw new DataAccessException("Error inserting feedback", e);
+        }
+    }
+
+    @Override
+    public boolean isRatingAlreadySubmitted(int eventId, int userId) throws DataAccessException {
+
+        String query = "SELECT COUNT(*) FROM feedback WHERE event_id = ? AND user_id = ?";
+
+        try (Connection conn = DBConnectionUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, eventId);
+            ps.setInt(2, userId);
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+
+            return false;
+
+        } catch (Exception e) {
+            throw new DataAccessException("Error checking feedback", e);
+        }
+    }
 }
