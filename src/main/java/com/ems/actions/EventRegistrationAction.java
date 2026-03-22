@@ -170,5 +170,4 @@ public class EventRegistrationAction {
 			System.out.println("Enter a number between " + min + " and " + max + ".");
 		}
 	}
-
 }

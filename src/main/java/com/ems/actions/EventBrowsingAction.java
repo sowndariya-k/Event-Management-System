@@ -130,5 +130,4 @@ public class EventBrowsingAction {
             System.out.println("----------------------");
         }
     }
-    
 }
