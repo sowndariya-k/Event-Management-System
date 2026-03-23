@@ -3,6 +3,7 @@ package com.ems.actions;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
@@ -44,65 +45,174 @@ public class OrganizerEventManagementAction {
 	public void createEvent(int userId) {
 		
 		try {
-	        System.out.println("\n===== Create Event =====");
+            System.out.println("\n===== Create Event =====");
 
-	        System.out.print("Enter Title: ");
-	        String title = scanner.nextLine();
+            // Title
+            String title;
+            while (true) {
+                System.out.print("Enter Title (15-150 chars): ");
+                title = scanner.nextLine();
+                if (title.length() >= 15 && title.length() <= 150) break;
+                System.out.println("Invalid title length");
+            }
 
-	        System.out.print("Enter Description: ");
-	        String description = scanner.nextLine();
+            // Description
+            String description;
+            while (true) {
+                System.out.print("Enter Description (≥150 chars): ");
+                description = scanner.nextLine();
+                if (description.length() >= 150) break;
+                System.out.println("Description must be at least 150 characters");
+            }
 
-	        // Category selection
-	        List<Category> categories = getAllCategories();
-	        for (Category c : categories) {
-	            System.out.println(c.getCategoryId() + " - " + c.getName());
-	        }
-	        System.out.print("Enter Category ID: ");
-	        int categoryId = Integer.parseInt(scanner.nextLine());
+            // Category
+            List<Category> categories = getAllCategories();
 
-	        // Venue selection
-	        List<Venue> venues = getAllVenues();
-	        for (Venue v : venues) {
-	            System.out.println(v.getVenueId() + " - " + v.getName());
-	        }
-	        System.out.print("Enter Venue ID: ");
-	        int venueId = Integer.parseInt(scanner.nextLine());
+            if (categories == null || categories.isEmpty()) {
+                System.out.println("No categories available. Cannot create event.");
+                return;
+            }
 
-	        System.out.print("Enter Start Date (yyyy-MM-dd): ");
-	        LocalDate startDate = LocalDate.parse(scanner.nextLine());
+            int categoryId = -1;
 
-	        System.out.print("Enter End Date (yyyy-MM-dd): ");
-	        LocalDate endDate = LocalDate.parse(scanner.nextLine());
-	        
-	        LocalDateTime start = startDate.atStartOfDay();
-	        LocalDateTime end = endDate.atTime(23, 59); 
+            while (true) {
+                System.out.println("Available Categories:");
+                for (Category c : categories) {
+                    System.out.println(c.getCategoryId() + " - " + c.getName());
+                }
 
-	        if (!isVenueAvailable(venueId, start, end)) {
-	            System.out.println("Venue not available for selected time.");
-	            return;
-	        }
+                System.out.print("Enter Category ID (1-10): ");
+                String input = scanner.nextLine().trim();
 
-	        System.out.print("Enter Capacity: ");
-	        int capacity = Integer.parseInt(scanner.nextLine());
+                try {
+                    categoryId = Integer.parseInt(input);
 
-	        Event event = new Event();
-	        event.setTitle(title);
-	        event.setDescription(description);
-	        event.setCategoryId(categoryId);
-	        event.setVenueId(venueId);
-	        event.setStartDateTime(start.atZone(ZoneId.systemDefault()).toInstant());
-	        event.setEndDateTime(end.atZone(ZoneId.systemDefault()).toInstant());
-	        event.setCapacity(capacity);
-	        event.setOrganizerId(userId);
+                    // Check if the entered ID exists in the categories list
+                    boolean valid = false;
+                    for (Category c : categories) {
+                        if (c.getCategoryId() == categoryId) {
+                            valid = true;
+                            break;
+                        }
+                    }
 
-	        int eventId = organizerService.createEvent(event);
+                    if (valid) break; // valid input
+                    else System.out.println("Enter valid category");
 
-	        System.out.println("Event created successfully. ID: " + eventId);
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter a numeric category ID");
+                }
+            }
+            
+            
+            // Venue
+            List<Venue> venues = getAllVenues();
 
-	    } catch (Exception e) {
-	    	e.printStackTrace();
-	        System.out.println("Error creating event");
-	    }
+            if (venues == null || venues.isEmpty()) {
+                System.out.println("No venues available. Cannot create event.");
+                return;
+            }
+
+            int venueId = -1;
+
+            while (true) {
+                System.out.println("Available Venues:");
+                for (Venue v : venues) {
+                    System.out.println(v.getVenueId() + " - " + v.getName());
+                }
+
+                System.out.print("Enter Venue ID: ");
+                String input = scanner.nextLine().trim();
+
+                try {
+                    venueId = Integer.parseInt(input);
+
+                    // Check if entered venue ID exists
+                    boolean valid = false;
+                    for (Venue v : venues) {
+                        if (v.getVenueId() == venueId) {
+                            valid = true;
+                            break;
+                        }
+                    }
+
+                    if (valid) break; // valid input
+                    else System.out.println("Please enter valid number");
+
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numeric value only");
+                }
+            }	
+
+            // Dates
+            LocalDateTime startDateTime = null;
+            LocalDateTime endDateTime = null;
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+
+            while (true) {
+                try {
+                    System.out.print("Enter Start Date (dd-MM-yyyy HH:mm): ");
+                    String startInput = scanner.nextLine().trim();
+                    startDateTime = LocalDateTime.parse(startInput, dateTimeFormatter);
+
+                    // Reject past dates
+                    if (startDateTime.isBefore(LocalDateTime.now())) {
+                        System.out.println("Start date/time cannot be in the past.");
+                        continue;
+                    }
+
+                    System.out.print("Enter End Date (dd-MM-yyyy HH:mm): ");
+                    String endInput = scanner.nextLine().trim();
+                    endDateTime = LocalDateTime.parse(endInput, dateTimeFormatter);
+
+                    // End date must be after start
+                    if (!endDateTime.isAfter(startDateTime)) {
+                        System.out.println("End date must be after start date");
+                        continue;
+                    }
+
+                    // Check venue availability
+                    if (!isVenueAvailable(venueId, startDateTime, endDateTime)) {
+                        System.out.println("Venue not available for selected time.");
+                        continue;
+                    }
+
+                    break; // valid dates
+                } catch (java.time.format.DateTimeParseException ex) {
+                    System.out.println("Invalid date/time format. Use dd-MM-yyyy HH:mm (e.g., 20-05-2026 12:50)");
+                }
+            }
+
+            // Capacity
+            int capacity;
+            int maxCapacity = getVenueById(venueId).getMaxCapacity();
+            while (true) {
+                System.out.print("Enter Capacity (≤ " + maxCapacity + "): ");
+                try {
+                    capacity = Integer.parseInt(scanner.nextLine());
+                    if (capacity > 0 && capacity <= maxCapacity) break;
+                } catch (Exception ignored) {}
+                System.out.println("Exceeds venue capacity");
+            }
+
+            // Create Event Object
+            Event event = new Event();
+            event.setTitle(title);
+            event.setDescription(description);
+            event.setCategoryId(categoryId);
+            event.setVenueId(venueId);
+            event.setStartDateTime(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            event.setEndDateTime(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            event.setCapacity(capacity);
+            event.setOrganizerId(userId);
+
+            int eventId = organizerService.createEvent(event);
+            System.out.println(title + " event has been submitted for approval. ID: " + eventId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error creating event");
+        }
 		
 	}
 	
@@ -114,39 +224,47 @@ public class OrganizerEventManagementAction {
      */
 	public void viewMyEventDetails(int userId) {
 		try {
-	        List<Event> events = getOrganizerEvents(userId);
+            List<Event> events = getOrganizerEvents(userId);
+            if (events == null || events.isEmpty()) {
+                System.out.println("No events found.");
+                return;
+            }
 
-	        if (events == null || events.isEmpty()) {
-	            System.out.println("No events found.");
-	            return;
-	        }
-	        
-	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	        
-	        
-	        for (Event e : events) {
-	        	
-	        	String startDate = e.getStartDateTime()
-		                .atZone(ZoneId.systemDefault())
-		                .toLocalDate()  
-		                .format(formatter);
-	        	
-	        	String endDate = e.getEndDateTime()
-	                    .atZone(ZoneId.systemDefault())
-	                    .toLocalDate()
-	                    .format(formatter);
-	        	
-	            System.out.println("ID: " + e.getEventId());
-	            System.out.println("Title: " + e.getTitle());
-	            System.out.println("Start: " + startDate);
-	            System.out.println("End Date  : " + endDate);
-	            System.out.println("Status: " + e.getStatus());
-	            System.out.println("------------------------");
-	        }
+            System.out.println("\nAVAILABLE EVENTS");
+            System.out.println("===================================================================================================================================");
+            System.out.printf("%-5s %-5s %-30s %-20s %-17s %-17s %-10s %-10s %-10s%n",
+                    "NO", "ID", "TITLE", "CATEGORY", "START DATE", "END DATE", "CAPACITY", "TICKETS", "STATUS");
+            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
 
-	    } catch (Exception e) {
-	        System.out.println("Error fetching events");
-	    }
+            int i = 1;
+            for (Event e : events) {
+                String title = e.getTitle().length() > 30 ? e.getTitle().substring(0, 27) + "..." : e.getTitle();
+                int category = e.getCategoryId();
+                ZonedDateTime startZdt = e.getStartDateTime().atZone(ZoneId.systemDefault());
+                String startDate = startZdt.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+
+                ZonedDateTime endZdt = e.getEndDateTime().atZone(ZoneId.systemDefault());
+                String endDate = endZdt.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+                int tickets = organizerService.viewEventRegistrations(e.getEventId());	
+                System.out.printf("%-5d %-5s %-30s %-20s %-17s %-17s %-10s %-10s %-10s%n",
+                        i,
+                        String.valueOf(e.getEventId()),
+                        title,
+                        category,
+                        startDate,
+                        endDate,
+                        String.valueOf(e.getCapacity()),
+                        String.valueOf(tickets),
+                        e.getStatus());
+                i++;
+            }
+
+            System.out.println("===================================================================================================================================");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error fetching events");
+        }
 		
 		
 	}
@@ -160,60 +278,76 @@ public class OrganizerEventManagementAction {
      */
 	public void updateEventDetails(int userId) {
 		
-		    try {
-		        viewMyEventDetails(userId);
+		try {
+	        viewMyEventDetails(userId);
 
-		        System.out.print("Enter Event ID to update: ");
-		        int eventId = Integer.parseInt(scanner.nextLine());
+	        System.out.print("Enter Event ID to update: ");
+	        int eventId = Integer.parseInt(scanner.nextLine());
 
-		        Event event = getOrganizerEventById(userId, eventId);
-		        if (event == null) {
-		            System.out.println("Invalid Event");
-		            return;
-		        }
+	        Event event = getOrganizerEventById(userId, eventId);
+	        if (event == null) {
+	            System.out.println("Invalid Event");
+	            return;
+	        }
 
-		        System.out.print("Enter new Title: ");
-		        String title = scanner.nextLine();
+	        System.out.print("Enter new Title: ");
+	        String title = scanner.nextLine();
 
-		        System.out.print("Enter new Description: ");
-		        String description = scanner.nextLine();
+	        System.out.print("Enter new Description: ");
+	        String description = scanner.nextLine();
 
-		        System.out.print("Enter new Category ID: ");
-		        int categoryId = Integer.parseInt(scanner.nextLine());
+	        System.out.print("Enter new Category ID: ");
+	        int categoryId = Integer.parseInt(scanner.nextLine());
 
-		        
-		        boolean updated = updateEventDetails(
-		                eventId,
-		                title,
-		                description,
-		                categoryId,
-		                event.getVenueId()
-		        );
+	        boolean updated = updateEventDetails(
+	                eventId,
+	                title,
+	                description,
+	                categoryId,
+	                event.getVenueId()
+	        );
 
-		        
-		        System.out.print("Do you want to update schedule? (Y/N): ");
-		        char ch = scanner.nextLine().toUpperCase().charAt(0);
+	        if (!updated) {
+	            System.out.println("Update failed");
+	            return;
+	        }
 
-		        if (ch == 'Y') {
-		            System.out.print("Enter new Start (yyyy-MM-ddTHH:mm): ");
-		            LocalDateTime start = LocalDateTime.parse(scanner.nextLine());
+	        System.out.print("Do you want to update schedule? (Y/N): ");
+	        char ch = scanner.nextLine().toUpperCase().charAt(0);
 
-		            System.out.print("Enter new End (yyyy-MM-ddTHH:mm): ");
-		            LocalDateTime end = LocalDateTime.parse(scanner.nextLine());
+	        if (ch == 'Y') {
 
-		            boolean scheduleUpdated =
-		                    organizerService.updateEventSchedule(eventId, start, end);
+	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
-		            if (!scheduleUpdated) {
-		                System.out.println("Schedule update failed");
-		            }
-		        }
+	            System.out.print("Enter new Start (dd-MM-yyyy HH:mm): ");
+	            LocalDateTime start = LocalDateTime.parse(scanner.nextLine(), formatter);
 
-		        System.out.println(updated ? "Updated successfully" : "Update failed");
+	            System.out.print("Enter new End (dd-MM-yyyy HH:mm): ");
+	            LocalDateTime end = LocalDateTime.parse(scanner.nextLine(), formatter);
 
-		    } catch (Exception e) {
-		        System.out.println("Error updating event");
-		    }
+	            // validation
+	            if (end.isBefore(start)) {
+	                System.out.println("End time cannot be before start time");
+	                return;
+	            }
+
+	            System.out.println("Start: " + start);
+	            System.out.println("End: " + end);
+
+	            boolean scheduleUpdated =
+	                    organizerService.updateEventSchedule(eventId, start, end);
+
+	            if (!scheduleUpdated) {
+	                System.out.println("Schedule update failed");
+	                return;
+	            }
+	        }
+
+	        System.out.println("Updated successfully");
+
+	    } catch (Exception e) {
+	        e.printStackTrace();  // VERY IMPORTANT for debugging
+	    }
 		
 		
 	}
