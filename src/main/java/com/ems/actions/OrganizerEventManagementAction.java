@@ -224,47 +224,79 @@ public class OrganizerEventManagementAction {
      */
 	public void viewMyEventDetails(int userId) {
 		try {
-            List<Event> events = getOrganizerEvents(userId);
-            if (events == null || events.isEmpty()) {
-                System.out.println("No events found.");
-                return;
-            }
+	        List<Event> events = getOrganizerEvents(userId);
 
-            System.out.println("\nAVAILABLE EVENTS");
-            System.out.println("===================================================================================================================================");
-            System.out.printf("%-5s %-5s %-30s %-20s %-17s %-17s %-10s %-10s %-10s%n",
-                    "NO", "ID", "TITLE", "CATEGORY", "START DATE", "END DATE", "CAPACITY", "TICKETS", "STATUS");
-            System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
+	        if (events == null || events.isEmpty()) {
+	            System.out.println("No events found.");
+	            return;
+	        }
 
-            int i = 1;
-            for (Event e : events) {
-                String title = e.getTitle().length() > 30 ? e.getTitle().substring(0, 27) + "..." : e.getTitle();
-                int category = e.getCategoryId();
-                ZonedDateTime startZdt = e.getStartDateTime().atZone(ZoneId.systemDefault());
-                String startDate = startZdt.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+	        System.out.println("\nAVAILABLE EVENTS");
+	        System.out.println("===================================================================================================================================");
+	        System.out.printf("%-5s %-5s %-30s %-20s %-17s %-17s %-10s %-10s %-10s%n",
+	                "NO", "ID", "TITLE", "CATEGORY", "START DATE", "END DATE", "CAPACITY", "TICKETS", "STATUS");
+	        System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
 
-                ZonedDateTime endZdt = e.getEndDateTime().atZone(ZoneId.systemDefault());
-                String endDate = endZdt.format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
-                int tickets = organizerService.viewEventRegistrations(e.getEventId());	
-                System.out.printf("%-5d %-5s %-30s %-20s %-17s %-17s %-10s %-10s %-10s%n",
-                        i,
-                        String.valueOf(e.getEventId()),
-                        title,
-                        category,
-                        startDate,
-                        endDate,
-                        String.valueOf(e.getCapacity()),
-                        String.valueOf(tickets),
-                        e.getStatus());
-                i++;
-            }
+	        int i = 1;
 
-            System.out.println("===================================================================================================================================");
+	        for (Event e : events) {
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error fetching events");
-        }
+	            // Skip CANCELLED events
+	            if (e.getStatus() != null && e.getStatus().toString().equalsIgnoreCase("CANCELLED")) {
+	                continue;
+	            }
+
+	            // Safe title
+	            String title = (e.getTitle() == null) ? "N/A" :
+	                    (e.getTitle().length() > 30 ? e.getTitle().substring(0, 27) + "..." : e.getTitle());
+
+	            // Category (currently ID)
+	            String category = String.valueOf(e.getCategoryId());
+
+	            // Safe date formatting
+	            String startDate = "N/A";
+	            String endDate = "N/A";
+
+	            if (e.getStartDateTime() != null) {
+	                startDate = e.getStartDateTime()
+	                        .atZone(ZoneId.systemDefault())
+	                        .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+	            }
+
+	            if (e.getEndDateTime() != null) {
+	                endDate = e.getEndDateTime()
+	                        .atZone(ZoneId.systemDefault())
+	                        .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+	            }
+
+	            // Tickets (safe)
+	            int tickets = 0;
+	            try {
+	                tickets = organizerService.viewEventRegistrations(e.getEventId());
+	            } catch (Exception ex) {
+	                tickets = 0;
+	            }
+
+	            System.out.printf("%-5d %-5d %-30s %-20s %-17s %-17s %-10d %-10d %-10s%n",
+	                    i,
+	                    e.getEventId(),
+	                    title,
+	                    category,
+	                    startDate,
+	                    endDate,
+	                    e.getCapacity(),
+	                    tickets,
+	                    e.getStatus());
+
+	            i++;
+	        }
+
+	        System.out.println("===================================================================================================================================");
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        System.out.println("Error fetching events");
+	    }
 		
 		
 	}
@@ -290,16 +322,53 @@ public class OrganizerEventManagementAction {
 	            return;
 	        }
 
-	        System.out.print("Enter new Title: ");
-	        String title = scanner.nextLine();
+	        String title = event.getTitle();
+	        String description = event.getDescription();
+	        int categoryId = event.getCategoryId();
+	        int capacity = event.getCapacity();
 
-	        System.out.print("Enter new Description: ");
-	        String description = scanner.nextLine();
+	        //  TITLE
+	        System.out.print("Update Title? (Y/N): ");
+	        if (scanner.nextLine().trim().equalsIgnoreCase("Y")) {
+	            System.out.print("Enter new Title: ");
+	            String input = scanner.nextLine();
+	            if (!input.trim().isEmpty()) {
+	                title = input;
+	            }
+	        }
 
-	        System.out.print("Enter new Category ID: ");
-	        int categoryId = Integer.parseInt(scanner.nextLine());
+	        //  DESCRIPTION
+	        System.out.print("Update Description? (Y/N): ");
+	        if (scanner.nextLine().trim().equalsIgnoreCase("Y")) {
+	            System.out.print("Enter new Description: ");
+	            String input = scanner.nextLine();
+	            if (!input.trim().isEmpty()) {
+	                description = input;
+	            }
+	        }
 
-	        boolean updated = updateEventDetails(
+	        //  CATEGORY
+	        System.out.print("Update Category? (Y/N): ");
+	        if (scanner.nextLine().trim().equalsIgnoreCase("Y")) {
+	            System.out.print("Enter new Category ID: ");
+	            String input = scanner.nextLine();
+	            if (!input.trim().isEmpty()) {
+	                categoryId = Integer.parseInt(input);
+	            }
+	        }
+
+	        //  CAPACITY
+	        System.out.print("Update Capacity? (Y/N): ");
+	        if (scanner.nextLine().trim().equalsIgnoreCase("Y")) {
+	            System.out.print("Enter new Capacity: ");
+	            String input = scanner.nextLine();
+	            if (!input.trim().isEmpty()) {
+	                capacity = Integer.parseInt(input);
+	            }
+	        }
+
+	        //  UPDATE BASIC DETAILS
+	        boolean updated = organizerService.updateEventDetails(
 	                eventId,
 	                title,
 	                description,
@@ -312,10 +381,12 @@ public class OrganizerEventManagementAction {
 	            return;
 	        }
 
-	        System.out.print("Do you want to update schedule? (Y/N): ");
-	        char ch = scanner.nextLine().toUpperCase().charAt(0);
+	        //  UPDATE CAPACITY
+	        organizerService.updateEventCapacity(eventId, capacity);
 
-	        if (ch == 'Y') {
+	        //  SCHEDULE
+	        System.out.print("Update Schedule? (Y/N): ");
+	        if (scanner.nextLine().trim().equalsIgnoreCase("Y")) {
 
 	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
@@ -325,14 +396,10 @@ public class OrganizerEventManagementAction {
 	            System.out.print("Enter new End (dd-MM-yyyy HH:mm): ");
 	            LocalDateTime end = LocalDateTime.parse(scanner.nextLine(), formatter);
 
-	            // validation
 	            if (end.isBefore(start)) {
 	                System.out.println("End time cannot be before start time");
 	                return;
 	            }
-
-	            System.out.println("Start: " + start);
-	            System.out.println("End: " + end);
 
 	            boolean scheduleUpdated =
 	                    organizerService.updateEventSchedule(eventId, start, end);
@@ -346,7 +413,7 @@ public class OrganizerEventManagementAction {
 	        System.out.println("Updated successfully");
 
 	    } catch (Exception e) {
-	        e.printStackTrace();  // VERY IMPORTANT for debugging
+	        e.printStackTrace(); // keep this for debugging
 	    }
 		
 		
