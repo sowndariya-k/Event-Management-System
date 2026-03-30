@@ -171,9 +171,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	
 	@Override
 	public List<EventRevenueReport> getRevenueReport(int organizerId) throws DataAccessException {
-
-
-		return null;
+		return eventDao.getEventWiseRevenueReportByOrganizer(organizerId);
 	}
 
 	/*
@@ -181,9 +179,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public List<OrganizerEventSummary> getOrganizerEventSummary(int organizerId) throws DataAccessException {
-
-
-		return null;
+		return eventDao.getEventSummaryByOrganizer(organizerId);
 	}
 	
 	// notifications
@@ -218,7 +214,10 @@ public class OrganizerServiceImpl implements OrganizerService {
 
 	@Override
 	public Event getOrganizerEventById(int organizerId, int eventId) throws DataAccessException {
-		// TODO Auto-generated method stub
+		Event event = eventDao.getEventById(eventId);
+		if (event != null && event.getOrganizerId() == organizerId) {
+			return event;
+		}
 		return null;
 	}
 
