@@ -43,15 +43,14 @@ public class AdminMenu extends BaseMenu {
 	    public AdminMenu(Scanner scanner, User user) {
 	        super(user);
 	        this.scanner = scanner;
-
-	        this.userManagementAction = new AdminUserManagementAction();
-	        this.eventManagementAction = new AdminEventManagementAction();
-	        this.categoryManagementAction = new AdminCategoryManagementAction();
-	        this.venueManagementAction = new AdminVenueManagementAction();
+	        this.userManagementAction = new AdminUserManagementAction(scanner);
+	        this.eventManagementAction = new AdminEventManagementAction(scanner);
+	        this.categoryManagementAction = new AdminCategoryManagementAction(scanner);
+	        this.venueManagementAction = new AdminVenueManagementAction(scanner);
 	        this.notificationManagementAction = new AdminNotificationManagementAction(scanner);
 	        this.reportAction = new AdminReportAction();
-	        this.offerManagementAction = new AdminOfferManagementAction();
-	        this.ticketManagementAction = new AdminTicketManagementAction();
+	        this.offerManagementAction = new AdminOfferManagementAction(scanner);
+	        this.ticketManagementAction = new AdminTicketManagementAction(scanner);
 	        this.notificationAction = new NotificationAction();
 	        this.userAction = new UserAction(ApplicationUtil.userService(), scanner);
 	    }
@@ -66,14 +65,13 @@ public class AdminMenu extends BaseMenu {
 				    "3 Category management\n" +
 				    "4 Venue management\n" +
 				    "5 Ticket and registration management\n" +
-				    "6 Payment and revenue management\n" +
-				    "7 Offer and promotion management\n" +
-				    "8 Reports and analytics\n" +
-				    "9 Notifications\n" +
-				    "10 Feedback moderation\n" +
-				    "11 Role management\n" + 
-				    "12 Update profile\n" +
-				    "13 Logout\n\n" +
+				    "6 Offer and promotion management\n" +
+				    "7 Reports and analytics\n" +
+				    "8 Notifications\n" +
+				    "9 Feedback moderation\n" +
+				    "10 Role management\n" + 
+				    "11 Update profile\n" +
+				    "12 Logout\n\n" +
 				    "Choice:"
 				);
 
@@ -97,30 +95,27 @@ public class AdminMenu extends BaseMenu {
 				ticketRegistrationManagementMenu();
 				break;
 			case 6:
-				paymentRevenueManagementMenu();
-				break;
-			case 7:
 				offerPromotionManagementMenu();
 				break;
-			case 8:
+			case 7:
 				reportsMenu();
 				break;
-			case 9:
+			case 8:
 				notificationMenu();
 				break;
-			case 10:
+			case 9:
 				feedbackModerationMenu();
 				break;
-			case 11:
+			case 10:
 				roleManagementMenu();
 				break;
-			case 12:
+			case 11:
 				boolean updated = userAction.updateProfile(loggedInUser);
 				if(updated) {
 					return;
 				}
 				break;
-			case 13:
+			case 12:
 				eventManagementAction.markCompletedEvents();
 				if (confirmLogout()) {
 					System.out.println("Logging out...");
@@ -447,10 +442,7 @@ public class AdminMenu extends BaseMenu {
 				    "1 View tickets by event\n" +
 				    "2 Ticket availability summary\n" +
 				    "3 Registrations by event\n" +
-				    "4 Registrations by user\n" +
-				    "5 Cancel registration\n" +
-				    "6 Restore registration\n" +
-				    "7 Back\n\n" +
+				    "4 Back\n\n" +
 				    "Choice:"
 				);
 
@@ -475,18 +467,6 @@ public class AdminMenu extends BaseMenu {
 			}
 
 			case 4:
-				System.out.println("Feature coming soon");
-				break;
-
-			case 5:
-				System.out.println("Cancellation flow will be added soon");
-				break;
-
-			case 6:
-				System.out.println("Restore flow will be added soon");
-				break;
-
-			case 7:
 				return;
 
 			default:
@@ -495,31 +475,7 @@ public class AdminMenu extends BaseMenu {
 		}
 	}
 
-	private void paymentRevenueManagementMenu() {
-		while (true) {
-			System.out.println(
-				    "\nPayment and revenue management\n" +
-				    "1 Payments by event\n" +
-				    "2 Payments by user\n" +
-				    "3 Failed payments\n" +
-				    "4 Payment summary\n" +
-				    "5 Initiate refund\n" +
-				    "6 Back\n\n" +
-				    "Choice:"
-				);
-
-
-			int choice = InputValidationUtil.readInt(scanner, "");
-
-			switch (choice) {
-			case 6:
-				return;
-
-			default:
-				System.out.println("This feature is under development and will be available soon.");
-			}
-		}
-	}
+	
 
 	private void offerPromotionManagementMenu() {
 		while (true) {

@@ -245,7 +245,7 @@ public class UserMenu {
 
 			switch (choice) {
 			case 1:
-				feedbackAction.submitRating(loggedInUser.getUserId());
+				feedbackAction.submitRating(loggedInUser.getUserId(), scanner);
 				break;
 
 			case 2:

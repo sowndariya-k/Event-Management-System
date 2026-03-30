@@ -57,7 +57,7 @@ public interface AdminService {
 	// Venue management
 	void addVenue(Venue venue) throws DataAccessException;
 
-	void updateVenue(Venue selectedVenue) throws DataAccessException;
+	void updateVenue(Venue venue) throws DataAccessException;
 
 	void removeVenue(int venueId) throws DataAccessException;
 
