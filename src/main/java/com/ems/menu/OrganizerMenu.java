@@ -235,15 +235,15 @@ public class OrganizerMenu extends BaseMenu {
 
     /* ================= NOTIFICATIONS ================= */
 
-    private void notificationMenu() throws DataAccessException {
+    private void notificationMenu() {
 
         while (true) {
             System.out.println(
                     "\nNotifications\n" +
-                    "1. Send event update\n" +
-                    "2. Send schedule change\n" +
-                    "3. View notifications\n" +
-                    "4. Back\n" +
+                    "1 Send event update\n" +
+                    "2 Send schedule change\n" +
+                    "3 View notifications\n" +
+                    "4 Back\n\n" +
                     "Choice:");
 
             int choice = InputValidationUtil.readInt(scanner, "");
@@ -252,52 +252,56 @@ public class OrganizerMenu extends BaseMenu {
 
                 case 1:
                 case 2:
-				List<Event> events =
-				        eventManagementAction.getOrganizerEvents(loggedInUser.getUserId());
+                    try {
+                        List<Event> events =
+                                eventManagementAction.getOrganizerEvents(loggedInUser.getUserId());
 
-				List<Event> validEvents = new ArrayList<>();
+                        List<Event> validEvents = new ArrayList<>();
 
-				for (Event e : events) {
-				    if (e.getStatus() == EventStatus.PUBLISHED &&
-				        e.getStartDateTime().isAfter(DateTimeUtil.nowUtc())) {
-				        validEvents.add(e);
-				    }
-				}
+                        // ✅ FIXED FILTER (correct enum comparison)
+                        for (Event e : events) {
+                            if (e.getStatus() == EventStatus.PUBLISHED &&
+                                    e.getStartDateTime().isAfter(DateTimeUtil.nowUtc())) {
+                                validEvents.add(e);
+                            }
+                        }
 
-				if (validEvents.isEmpty()) {
-				    System.out.println("No upcoming published events.");
-				    break;
-				}
+                        if (validEvents.isEmpty()) {
+                            System.out.println("No upcoming published events.");
+                            break;
+                        }
 
-				System.out.println("\nSelect Event:");
-				for (int i = 0; i < validEvents.size(); i++) {
-				    System.out.println((i + 1) + ". " + validEvents.get(i).getTitle());
-				}
+                        System.out.println("\nSelect Event:");
+                        for (int i = 0; i < validEvents.size(); i++) {
+                            System.out.println((i + 1) + ". " + validEvents.get(i).getTitle());
+                        }
 
-				int eventChoice = InputValidationUtil.readInt(
-				        scanner,
-				        "Enter choice: "
-				);
+                        int eventChoice = InputValidationUtil.readInt(scanner,
+                                "Enter choice: "
+                        );
 
-				if (eventChoice < 1 || eventChoice > validEvents.size()) {
-				    System.out.println("Invalid selection.");
-				    break;
-				}
+                        if (eventChoice < 1 || eventChoice > validEvents.size()) {
+                            System.out.println("Invalid selection.");
+                            break;
+                        }
 
-				Event selected = validEvents.get(eventChoice - 1);
+                        Event selected = validEvents.get(eventChoice - 1);
 
-				String msg = InputValidationUtil.readString(
-				        scanner,
-				        "Enter message:\n"
-				);
+                        String msg = InputValidationUtil.readString(scanner,
+                                "Enter message:\n"
+                        );
 
-				if (choice == 1) {
-				    notificationAction.sendEventUpdate(selected.getEventId(), msg);
-				} else {
-				    notificationAction.sendScheduleChange(selected.getEventId(), msg);
-				}
+                        if (choice == 1) {
+                            notificationAction.sendEventUpdate(selected.getEventId(), msg);
+                        } else {
+                            notificationAction.sendScheduleChange(selected.getEventId(), msg);
+                        }
 
-				System.out.println("Notification sent.");
+                        System.out.println("Notification sent.");
+
+                    } catch (DataAccessException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
                     break;
 
                 case 3:

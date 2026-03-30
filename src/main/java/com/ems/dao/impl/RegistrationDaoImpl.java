@@ -92,8 +92,17 @@ public class RegistrationDaoImpl implements RegistrationDao {
 
 	@Override
 	public int getEventRegistrationCount(int eventId) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return 0;
+		// Lightweight count query for capacity checks
+				String sql = "select count(*) from registrations where event_id=? and status='CONFIRMED' ";
+				try (Connection con = DBConnectionUtil.getConnection();
+						PreparedStatement ps = con.prepareStatement(sql)) {
+
+					ps.setInt(1, eventId);
+					ResultSet rs = ps.executeQuery();
+					return rs.next() ? rs.getInt(1) : 0;
+				} catch (Exception e) {
+					throw new DataAccessException("Unable to fetch registered count");
+				}
 	}
 
 	@Override

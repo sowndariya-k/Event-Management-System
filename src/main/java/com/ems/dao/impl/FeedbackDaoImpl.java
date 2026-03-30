@@ -46,44 +46,43 @@ public class FeedbackDaoImpl implements FeedbackDao {
 	public boolean submitRating(int eventId, int userId, int rating, String comments)
 	        throws DataAccessException {
 	
-	    String sql =
-	        "select count(*) from events e " +
-	        "join registrations r on e.event_id = r.event_id " +
-	        "where r.user_id = ? " +
-	        "and e.event_id = ? " +
-	        "and e.status = 'COMPLETED' " +
-	        "and r.status = 'CONFIRMED'";
-	
-	    try (Connection con = DBConnectionUtil.getConnection();
-	         PreparedStatement ps = con.prepareStatement(sql)) {
-	
-	        ps.setInt(1, userId);
-	        ps.setInt(2, eventId);
-	
-	        try (ResultSet rs = ps.executeQuery()) {
-	
-	            if (rs.next() && rs.getInt(1) > 0) {
-	
-	                String insertReview =
-	                    "insert into feedback(event_id, user_id, rating, comments, submitted_at) " +
-	                    "values(?, ?, ?, ?, utc_timestamp())";
-	
-	                try (PreparedStatement ps1 = con.prepareStatement(insertReview)) {
-	                    ps1.setInt(1, eventId);
-	                    ps1.setInt(2, userId);
-	                    ps1.setInt(3, rating);
-	                    ps1.setString(4, comments);
-	
-	                    return ps1.executeUpdate() > 0;
-	                }
-	            }
-	        }
-	
-	        return false;
-	
-	    } catch (SQLException e) {
-	        throw new DataAccessException("Error while submitting rating");
-	    }
-	}
+		 String sql =
+			        "select count(*) from events e " +
+			        "join registrations r on e.event_id = r.event_id " +
+			        "where r.user_id = ? " +
+			        "and e.event_id = ? " +
+			        "and r.status = 'CONFIRMED'";
+			
+			    try (Connection con = DBConnectionUtil.getConnection();
+			         PreparedStatement ps = con.prepareStatement(sql)) {
+			
+			        ps.setInt(1, userId);
+			        ps.setInt(2, eventId);
+			
+			        try (ResultSet rs = ps.executeQuery()) {
+			
+			            if (rs.next() && rs.getInt(1) > 0) {
+			
+			                String insertReview =
+			                    "insert into feedback(event_id, user_id, rating, comments, submitted_at) " +
+			                    "values(?, ?, ?, ?, utc_timestamp())";
+			
+			                try (PreparedStatement ps1 = con.prepareStatement(insertReview)) {
+			                    ps1.setInt(1, eventId);
+			                    ps1.setInt(2, userId);
+			                    ps1.setInt(3, rating);
+			                    ps1.setString(4, comments);
+			
+			                    return ps1.executeUpdate() > 0;
+			                }
+			            }
+			        }
+			
+			        return false;
+			
+			    } catch (SQLException e) {
+			        throw new DataAccessException("Error while submitting rating");
+			    }
+			}
 
 }
