@@ -37,6 +37,15 @@ public interface UserDao {
 	 */
 	User findByEmail(String email) throws DataAccessException;
 
+	 /**
+     * Updates the status of a user account
+     *
+     * @param userId
+     * @param status
+     * @return true if update succeeded
+     * @throws DataAccessException
+     */
+    boolean updateUserStatus(int userId, UserStatus status) throws DataAccessException;
 
 	/**
 	 * Retrieves all users of a given role

@@ -82,6 +82,49 @@ public class UserDaoImpl implements UserDao {
 
 		return user;
 	}
+	
+	@Override
+	public boolean updateUserStatus(int userId, UserStatus status)
+			throws DataAccessException {
+
+		String adminCheck = "select r.role_name from roles r inner join users u on r.role_id = u.role_id where u.user_id = ?";
+		String sql = "update users set status = ?, failed_attempts = ? where user_id = ?";
+
+		try (Connection con = DBConnectionUtil.getConnection();
+				PreparedStatement ps1 = con.prepareStatement(adminCheck);
+				PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps1.setInt(1, userId);
+			ResultSet rs = ps1.executeQuery();
+			String role = "";
+
+			if (rs.next()) {
+				role = rs.getString("role_name");
+			}
+
+			if (role.trim().equalsIgnoreCase(UserRole.ADMIN.name())) {
+				throw new DataAccessException("Admin accounts status cannot be modified");
+			}
+
+			ps.setString(1, status.name());
+
+			if (UserStatus.ACTIVE.equals(status)) {
+				ps.setInt(2, 0);
+			} else {
+				ps.setInt(2, 3);
+			}
+
+			ps.setInt(3, userId);
+
+			int rowsUpdated = ps.executeUpdate();
+
+			rs.close();
+			return rowsUpdated > 0;
+
+		} catch (SQLException e) {
+			throw new DataAccessException("Error while updating the user status");
+		}
+	}
 
 	@Override
 	public List<User> findAllUsers(String userType) throws DataAccessException {

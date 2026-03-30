@@ -79,6 +79,48 @@ public class AdminMenuHelper {
 
         System.out.println(SEPARATOR);
     }
+    
+    public static void printEventDetails(Event event) {
+        try {
+            String category = eventService.getCategory(event.getCategoryId()).getName();
+            String venueName = eventService.getVenueName(event.getVenueId());
+            String venueAddress = eventService.getVenueAddress(event.getVenueId());
+            int totalAvailable = eventService.getAvailableTickets(event.getEventId());
+            List<Ticket> tickets = eventService.getTicketTypes(event.getEventId());
+
+            System.out.println("\n==============================================");
+            System.out.println("Title           : " + event.getTitle());
+
+            if (event.getDescription() != null) {
+                System.out.println("Description     : " + event.getDescription());
+            }
+
+            System.out.println("Category        : " + category);
+            System.out.println("Duration        : "
+                    + DateTimeUtil.formatForDisplay(event.getStartDateTime())
+                    + " to "
+                    + DateTimeUtil.formatForDisplay(event.getEndDateTime()));
+            System.out.println("Total Tickets   : " + totalAvailable);
+
+            System.out.println("\nTicket Types");
+            System.out.println("----------------------------------------------");
+            for (Ticket ticket : tickets) {
+                System.out.println("• "
+                        + ticket.getTicketType()
+                        + " | Price: ₹" + ticket.getPrice()
+                        + " | Available: " + ticket.getAvailableQuantity());
+            }
+
+            System.out.println("\nVenue");
+            System.out.println("----------------------------------------------");
+            System.out.println("Name            : " + venueName);
+            System.out.println("Address         : " + venueAddress);
+            System.out.println("==============================================");
+
+        } catch (DataAccessException e) {
+            System.out.println("Error fetching event details: " + e.getMessage());
+        }
+    }
 
     // -----------------------------------------------------------------------
     // Ticket display

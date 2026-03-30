@@ -179,25 +179,27 @@ VALUES
 (39, 3, 'Sustainable Energy Summit', 'Panels and workshops on renewable energy, green tech, and sustainable business practices.', 2, 2, '2026-06-10 10:00:00', '2026-06-10 17:00:00', 300, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
 (40, 3, 'Startup Pitch Night', 'Early-stage startups pitch to investors, receive feedback and networking opportunities.', 3, 3, '2026-06-15 18:00:00', '2026-06-15 21:00:00', 150, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
 (41, 5, 'Madurai Literature Festival', 'Celebration of regional literature with author talks, book launches, and workshops.', 6, 5, '2026-06-20 09:00:00', '2026-06-21 18:00:00', 200, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
-(43, 6, 'Cybersecurity & Privacy Forum', 'Discussions on data privacy, ethical hacking, compliance, and corporate cybersecurity strategies.', 1, 2, '2026-01-05 09:00:00', '2026-02-25 17:00:00', 400, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP);
--- Check inserted data
-UNLOCK TABLES;
-
+(42, 3, 'Blockchain Expo 2026', 'Explore blockchain innovations and Web3 applications.', '1', '2', '2026-07-01 09:00:00', '2026-07-01 17:00:00', '500', 'PUBLISHED', '1', '2026-03-26 15:09:37', '2026-03-26 15:09:37', '2026-03-26 15:09:37'),
+(43, 6, 'Cybersecurity & Privacy Forum', 'Discussions on data privacy, ethical hacking, compliance, and corporate cybersecurity strategies.', 1, 2, '2026-01-05 09:00:00', '2026-02-25 17:00:00', 400, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),(42, 3, 'Blockchain Expo 2026', 'Explore blockchain innovations and Web3 applications.', 1, 2, '2026-07-01 09:00:00', '2026-07-01 17:00:00', 500, 'PUBLISHED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
+(45, 5, 'Photography Masterclass', 'Hands-on photography training with experts.', 6, 6, '2026-07-05 10:00:00', '2026-07-05 16:00:00', 200, 'PUBLISHED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
+(46, 5, 'Fitness Bootcamp', 'High intensity training and wellness sessions.', 4, 7, '2026-07-10 06:00:00', '2026-07-10 09:00:00', 300, 'PUBLISHED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
+(47, 3, 'Startup Networking Meetup', 'Connect with investors and founders.', 9, 10, '2026-07-12 18:00:00', '2026-07-12 21:00:00', 150, 'PUBLISHED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
+(48, 6, 'Food Carnival Chennai', 'Explore diverse cuisines and live cooking shows.', 8, 1, '2026-07-15 11:00:00', '2026-07-15 20:00:00', 1000, 'PUBLISHED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
+(49, 3, 'Cybersecurity Workshop', 'Learn ethical hacking and security practices.', 1, 2, '2026-07-18 09:00:00', '2026-07-18 17:00:00', 250, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
+(50, 5, 'Music Night Live', 'Live concert with top bands.', 2, 7, '2026-07-20 18:00:00', '2026-07-20 22:00:00', 3000, 'PUBLISHED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
+(51, 3, 'Business Growth Summit', 'Strategies for scaling businesses.', 3, 3, '2026-07-22 09:00:00', '2026-07-22 17:00:00', 400, 'APPROVED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
+(52, 6, 'Art & Culture Fest', 'Celebrating traditional and modern art.', 6, 5, '2026-07-25 10:00:00', '2026-07-26 18:00:00', 600, 'PUBLISHED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
+(53, 5, 'Yoga Retreat', 'Relaxation and mindfulness sessions.', 4, 6, '2026-07-28 06:00:00', '2026-07-28 12:00:00', 200, 'CANCELLED', NULL, NULL, NOW(), CURRENT_TIMESTAMP);
 SELECT * FROM `events`;
--- see published event
-SELECT * FROM events WHERE status = 'PUBLISHED';
+-- approve
+SELECT * 
+FROM events
+WHERE TRIM(status) = 'DRAFT'
+  AND start_datetime > UTC_TIMESTAMP()
+  AND approved_at IS NULL;
+-- cancel
+UPDATE events SET status = 'CANCELLED' WHERE event_id = 1;
 
--- for registration show published event ticket 
-
-SELECT * FROM events e
-WHERE e.status = 'PUBLISHED'
-AND e.start_datetime > UTC_TIMESTAMP()
-AND EXISTS (
-    SELECT 1 FROM tickets t 
-    WHERE t.event_id = e.event_id 
-    AND t.available_quantity > 0
-);
--- 
 -- event table structure
 --
 -- Drop table if exists
@@ -226,6 +228,7 @@ INSERT INTO `feedback`
 VALUES 
 (1, 1, 2, 5, 'Excellent bootcamp! The hands-on sessions were incredibly practical.', '2026-01-20 10:00:00');
 UNLOCK TABLES;
+
 
 -- Check inserted data
 SELECT * FROM `feedback`;
@@ -376,13 +379,18 @@ LOCK TABLES `tickets` WRITE;
 INSERT INTO `tickets` (`ticket_id`, `event_id`, `ticket_type`, `price`, `total_quantity`, `available_quantity`) VALUES
 (1,40,'General Admission',499.00,3000,2999),
 (2,41,'General Admission',799.00,2000,2000),
-(3,1,'Delegate Pass',999.00,500,500);
+(3,1,'Delegate Pass',999.00,500,500),
+(4, 39, 'Regular', 500, 100, 100),
+(5, 39, 'VIP', 1000, 50, 50),
+(38, 'General', 500.00, 250, 250),
+(42, 'General', 750.00, 500, 500),
+(45, 'General', 600.00, 200, 200),
+(46, 'General', 300.00, 300, 300),
+(47, 'General', 400.00, 150, 150),
+(48, 'General', 700.00, 1000, 1000),
+(50, 'General', 800.00, 3000, 3000),
+(52, 'General', 450.00, 600, 600);
 UNLOCK TABLES;
--- for ticket registration
-INSERT INTO tickets (event_id, ticket_type, price, total_quantity, available_quantity)
-VALUES 
-(39, 'Regular', 500, 100, 100),
-(39, 'VIP', 1000, 50, 50);
 -- Reference query to check data
 SELECT * FROM `tickets`;
 --
@@ -445,9 +453,14 @@ UNLOCK TABLES;
 -- Check inserted data
 SELECT * FROM `payments`;
 
+
+--
+-- Dumping routines for database 'event_management_db'
+--
 DELIMITER ;;
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_register_for_event`(
+-- INPUT PARAMETERS
     IN p_user_id INT,
     IN p_event_id INT,
     IN p_ticket_id INT,
@@ -455,18 +468,31 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_register_for_event`(
     IN p_price DECIMAL(10,2),
     IN p_payment_method VARCHAR(30),
     IN p_offer_code VARCHAR(50),
+    
+    -- OUTPUT PARAMETERS
+    
     OUT o_success BOOLEAN,
     OUT o_message VARCHAR(255),
     OUT o_registration_id INT,
     OUT o_final_amount DECIMAL(10,2)
 )
 proc_block: BEGIN
+ /*
+        Local variables used only inside this procedure.
+        These keep intermediate state so that Java does not
+        have to manage partial results.
+    */
     DECLARE v_available INT;
     DECLARE v_offer_id INT DEFAULT NULL;
     DECLARE v_discount INT DEFAULT 0;
     DECLARE v_base_amount DECIMAL(10,2);
     DECLARE v_discount_amount DECIMAL(10,2);
-
+     /*
+        Global error handler.
+        If ANY SQL exception occurs after START TRANSACTION,
+        this handler executes automatically.
+        This guarantees atomicity.
+    */
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
@@ -474,6 +500,10 @@ proc_block: BEGIN
         SET o_message = 'Transaction failed due to database error';
     END;
 
+    /*
+        Always initialize OUT parameters.
+        This avoids returning garbage values.
+    */
     SET o_success = FALSE;
     SET o_message = '';
     SET o_registration_id = NULL;
@@ -481,18 +511,31 @@ proc_block: BEGIN
 
     START TRANSACTION;
 
+    /*
+        Step 1: Lock the ticket row.
+        FOR UPDATE ensures that concurrent registrations
+        cannot overbook tickets.
+    */
     SELECT available_quantity
     INTO v_available
     FROM tickets
     WHERE ticket_id = p_ticket_id
     FOR UPDATE;
 
+    /*
+        Step 2: Validate ticket availability.
+        If insufficient, rollback and exit procedure early.
+    */
     IF v_available < p_quantity THEN
         ROLLBACK;
         SET o_message = 'Insufficient tickets available';
         LEAVE proc_block;
     END IF;
 
+    /*
+        Step 3: Validate offer code only if provided.
+        Blank or NULL offer codes are ignored.
+    */
     IF p_offer_code IS NOT NULL AND TRIM(p_offer_code) <> '' THEN
         SELECT offer_id, discount_percentage
         INTO v_offer_id, v_discount
@@ -502,12 +545,18 @@ proc_block: BEGIN
           AND (valid_from IS NULL OR valid_from <= NOW())
           AND (valid_to IS NULL OR valid_to >= NOW());
 
+         /*
+            If no offer row is found, offer_id remains NULL.
+        */
         IF v_offer_id IS NULL THEN
             ROLLBACK;
             SET o_message = 'Invalid or expired offer code';
             LEAVE proc_block;
         END IF;
 
+         /*
+            Prevent the same user from using the same offer again.
+        */
         IF EXISTS (
             SELECT 1
             FROM offer_usages
@@ -519,37 +568,104 @@ proc_block: BEGIN
             LEAVE proc_block;
         END IF;
     END IF;
-
-    INSERT INTO registrations (user_id, event_id, registration_date, status)
-    VALUES (p_user_id, p_event_id, UTC_TIMESTAMP(), 'CONFIRMED');
+     /*
+        Step 4: Create registration record.
+        LAST_INSERT_ID is safe inside a transaction.
+    */
+     INSERT INTO registrations (
+        user_id,
+        event_id,
+        registration_date,
+        status
+    )
+    VALUES (
+        p_user_id,
+        p_event_id,
+        UTC_TIMESTAMP(),
+        'CONFIRMED'
+    );
 
     SET o_registration_id = LAST_INSERT_ID();
 
-    INSERT INTO registration_tickets (registration_id, ticket_id, quantity)
-    VALUES (o_registration_id, p_ticket_id, p_quantity);
+    /*
+        Step 5: Link tickets to registration.
+    */
+    INSERT INTO registration_tickets (
+        registration_id,
+        ticket_id,
+        quantity
+    )
+    VALUES (
+        o_registration_id,
+        p_ticket_id,
+        p_quantity
+    );
 
+    /*
+        Step 6: Calculate payable amount.
+        All monetary calculation happens in DB
+        to avoid mismatch with Java.
+    */
     SET v_base_amount = p_price * p_quantity;
     SET v_discount_amount = (v_base_amount * v_discount) / 100;
     SET o_final_amount = v_base_amount - v_discount_amount;
 
-    INSERT INTO payments (registration_id, amount, payment_method, payment_status, created_at, offer_id)
-    VALUES (o_registration_id, o_final_amount, p_payment_method, 'SUCCESS', UTC_TIMESTAMP(), v_offer_id);
+    /*
+        Step 7: Record payment.
+        If this insert fails, EXIT HANDLER rolls back everything.
+    */
+    INSERT INTO payments (
+        registration_id,
+        amount,
+        payment_method,
+        payment_status,
+        created_at,
+        offer_id
+    )
+    VALUES (
+        o_registration_id,
+        o_final_amount,
+        p_payment_method,
+        'SUCCESS',
+        UTC_TIMESTAMP(),
+        v_offer_id
+    );
 
+    /*
+        Step 8: Deduct ticket quantity only after payment success.
+    */
     UPDATE tickets
     SET available_quantity = available_quantity - p_quantity
     WHERE ticket_id = p_ticket_id;
 
+    /*
+        Step 9: Record offer usage only if offer was applied.
+    */
     IF v_offer_id IS NOT NULL THEN
-        INSERT INTO offer_usages (offer_id, user_id, registration_id, used_at)
-        VALUES (v_offer_id, p_user_id, o_registration_id, UTC_TIMESTAMP());
+        INSERT INTO offer_usages (
+            offer_id,
+            user_id,
+            registration_id,
+            used_at
+        )
+        VALUES (
+            v_offer_id,
+            p_user_id,
+            o_registration_id,
+            UTC_TIMESTAMP()
+        );
     END IF;
 
+    /*
+        Step 10: Commit transaction.
+        At this point, all data is consistent.
+    */
     COMMIT;
 
     SET o_success = TRUE;
     SET o_message = 'Registration successful';
-END proc_block;;
 
+END proc ;;
 DELIMITER ;
 
 -- Declare output variables
@@ -574,3 +690,6 @@ CALL sp_register_for_event(
 );
 
 SELECT @success AS success, @msg AS message, @reg_id AS registration_id, @final_amt AS final_amount;
+
+
+

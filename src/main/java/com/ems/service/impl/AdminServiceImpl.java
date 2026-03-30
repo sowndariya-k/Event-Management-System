@@ -3,6 +3,7 @@ package com.ems.service.impl;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import com.ems.dao.CategoryDao;
 import com.ems.dao.EventDao;
@@ -58,8 +59,11 @@ public class AdminServiceImpl implements AdminService {
 	 */
 	@Override
 	public List<User> getUsersList(String userType) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return null;
+		List<User> users = userDao.findAllUsers(userType);
+		if (users.isEmpty()) {
+			System.out.println("No users available for the selected role");
+		}
+		return users;
 	}
 	
 	/*
@@ -92,8 +96,13 @@ public class AdminServiceImpl implements AdminService {
 	 */
 	@Override
 	public boolean changeStatus(UserStatus status, int userId) throws DataAccessException {
-		// TODO Auto-generated method stub
-		return false;
+	    boolean updated = userDao.updateUserStatus(userId, status);
+
+	    if (updated && UserStatus.ACTIVE.equals(status)) {
+	        userDao.resetFailedAttempts(userId);
+	    }
+
+	    return updated;
 	}
 
 	/*
@@ -134,9 +143,12 @@ public class AdminServiceImpl implements AdminService {
 	 */
 	@Override
 	public boolean approveEvents(int userId, int eventId) throws DataAccessException {
-
-
-		return false;
+		boolean isApproved = eventDao.approveEvent(eventId, userId);
+		if (isApproved) {
+			notificationDao.sendNotification(eventDao.getOrganizerId(eventId),
+					"Your event: " + eventId + " has been approved!", NotificationType.EVENT);
+		}
+		return isApproved;
 	}
 
 	/*
@@ -146,9 +158,11 @@ public class AdminServiceImpl implements AdminService {
 	 */
 	@Override
 	public void cancelEvent(int eventId) throws DataAccessException {
-		
-		
-		
+		boolean isCancelled = eventDao.cancelEvent(eventId);
+		if (isCancelled) {
+			notificationDao.sendNotification(eventDao.getOrganizerId(eventId),
+					"Your event: " + eventId + " has been cancelled!", NotificationType.EVENT);
+		}
 	}
 
 	/*
@@ -170,9 +184,12 @@ public class AdminServiceImpl implements AdminService {
 	 */
 	@Override
 	public List<EventRegistrationReport> getEventWiseRegistrations(int eventId) throws DataAccessException {
+		List<EventRegistrationReport> reports = registrationDao.getEventWiseRegistrations(eventId);
 
-
-		return null;
+		if (reports.isEmpty()) {
+			return new ArrayList<>();
+		}
+		return reports;
 	}
 
 	/*
@@ -180,9 +197,7 @@ public class AdminServiceImpl implements AdminService {
 	 */
 	@Override
 	public List<EventRevenueReport> getRevenueReport() throws DataAccessException {
-
-
-		return null;
+		return eventDao.getEventWiseRevenueReport();
 	}
 
 	/*
@@ -190,8 +205,21 @@ public class AdminServiceImpl implements AdminService {
 	 */
 	@Override
 	public void getOrganizerWisePerformance() throws DataAccessException {
-		
-		
+		Map<String, Integer> organizerStats = eventDao.getOrganizerWiseEventCount();
+
+		if (organizerStats.isEmpty()) {
+			System.out.println("No organizer data available.");
+			return;
+		}
+
+		System.out.println("\nOrganizer Wise Performance");
+		System.out.println("-----------------------------------");
+
+		organizerStats.forEach((organizer, count) -> {
+			System.out.println("Organizer : " + organizer + " | Total Events : " + count);
+		});
+
+		System.out.println("-----------------------------------");
 	}
 
 	/*
@@ -199,36 +227,37 @@ public class AdminServiceImpl implements AdminService {
 	 */
 	@Override
 	public List<Category> getAllCategories() throws DataAccessException {
-		
-		
-		return null;
+		return categoryDao.getAllCategories();
 	}
 
 	@Override
 	public void addCategory(String name) throws DataAccessException {
-
-
-		
+		categoryDao.addCategory(name);
 	}
 
 	@Override
 	public void updateCategory(int categoryId, String name) throws DataAccessException {
-
-
-		
+		categoryDao.updateCategoryName(categoryId, name);
 	}
 
 	@Override
 	public void updateCategory(int categoryId) throws DataAccessException {
-
-
+		try {
+			categoryDao.activateCategory(categoryId);
+			} catch (DataAccessException e) {
+			System.out.println(e.getMessage());
+		}
 		
 	}
 
 	@Override
 	public void deleteCategory(int categoryId) throws DataAccessException {
+		try {
+			categoryDao.deactivateCategory(categoryId);
 
-		
+		} catch (DataAccessException e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 	/*
@@ -236,26 +265,38 @@ public class AdminServiceImpl implements AdminService {
 	 */
 	@Override
 	public void addVenue(Venue venue) throws DataAccessException {
-		
+		try {
+			venueDao.addVenue(venue);
+		} catch (DataAccessException e) {
+			System.out.println(e.getMessage());
+		}
 		
 	}
 
 	@Override
-	public void updateVenue(Venue selectedVenue) throws DataAccessException {
-		
+	public void updateVenue(Venue venue) throws DataAccessException {
+		try {
+			venueDao.updateVenue(venue);
+
+		} catch (DataAccessException e) {
+			System.out.println(e.getMessage());
+		}
 		
 	}
 
 	@Override
 	public void removeVenue(int venueId) throws DataAccessException {
-		
+		try {
+			venueDao.deactivateVenue(venueId);
+		} catch (DataAccessException e) {
+			System.out.println(e.getMessage());
+		}
 		
 	}
 
 	@Override
 	public void activateVenue(int venueId) throws DataAccessException {
-		
-		
+		venueDao.activateVenue(venueId);
 	}
 
 	

@@ -22,31 +22,32 @@ public final class InputValidationUtil {
 	public static int readInt(Scanner scanner, String message) {
         while (true) {
             System.out.print(message);
-            if (scanner.hasNextInt()) {
-                int value = scanner.nextInt();
+            String input = scanner.nextLine().trim();
+            try {
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter an integer.");
+            }
+        }
+    }
+
+	public static double readDouble(Scanner scanner, String message) {
+        while (true) {
+            System.out.print(message);
+            if (scanner.hasNextDouble()) {
+                double value = scanner.nextDouble();
                 scanner.nextLine();
                 return value;
             } else {
-                System.out.println("Invalid input. Please enter an integer.");
+                System.out.println("Invalid input. Please enter a decimal number.");
                 scanner.nextLine();
             }
         }
     }
 
-    public static double readDouble(Scanner scanner, String message) {
-        while (true) {
-            System.out.print(message);
-            String input = scanner.nextLine().trim();
-            try {
-                return Double.parseDouble(input);
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a decimal number.");
-            }
-        }
-    }
 
 
-    public static char readChar(Scanner scanner, String message) {
+	public static char readChar(Scanner scanner, String message) {
         while (true) {
             System.out.print(message);
             String input = scanner.nextLine();
@@ -56,8 +57,8 @@ public final class InputValidationUtil {
             System.out.println("Invalid input. Please enter a single character.");
         }
     }
-
-    public static String readNonEmptyString(Scanner scanner, String message) {
+	
+	public static String readNonEmptyString(Scanner scanner, String message) {
         while (true) {
             System.out.print(message);
             String input = scanner.nextLine().trim();
