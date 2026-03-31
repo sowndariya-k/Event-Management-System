@@ -169,6 +169,8 @@ public class RegistrationDaoImpl implements RegistrationDao {
 					try (ResultSet rs = ps.executeQuery()) {
 						while (rs.next()) {
 							RegistrationTicket rt = new RegistrationTicket();
+							rs.getInt("id");
+							rs.getInt("registration_id");
 							rt.setTicketId(rs.getInt("ticket_id"));
 							rt.setQuantity(rs.getInt("quantity"));
 							tickets.add(rt);
@@ -181,5 +183,5 @@ public class RegistrationDaoImpl implements RegistrationDao {
 				}
 
 			}
-
+ 
 }
