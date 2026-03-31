@@ -1,9 +1,5 @@
 package com.ems.actions;
 
-import java.util.List;
-
-import com.ems.model.EventRevenueReport;
-import com.ems.model.OrganizerEventSummary;
 import com.ems.service.OrganizerService;
 import com.ems.util.ApplicationUtil;
 
@@ -26,97 +22,17 @@ public class OrganizerReportAction {
 	 */
 	 
 	public void getRevenueSummary(int userId) {
-		 try {
-		        List<EventRevenueReport> reports =
-		                organizerService.getRevenueReport(userId);
-
-		        if (reports == null || reports.isEmpty()) {
-		            System.out.println("No revenue data available.");
-		            return;
-		        }
-
-		        double totalRevenue = 0;
-
-		        System.out.println("\n================ REVENUE SUMMARY ================");
-
-		        // Table Header
-		        System.out.printf("%-8s %-20s %-12s %-12s %-12s %-15s %-12s\n",
-		                "ID", "Title", "Regs", "Tickets", "Revenue", "Avg Price", "Discount");
-
-		        System.out.println("--------------------------------------------------------------------------");
-
-		        // Table Rows
-		        for (EventRevenueReport r : reports) {
-		            System.out.printf("%-8d %-20s %-12d %-12d %-12.2f %-15.2f %-12.2f\n",
-		                    r.getEventId(),
-		                    r.getEventTitle(),
-		                    r.getTotalRegistrations(),
-		                    r.getTicketsSold(),
-		                    r.getTotalRevenue(),
-		                    r.getAvgTicketPrice(),
-		                    r.getTotalDiscountGiven()
-		            );
-
-		            totalRevenue += r.getTotalRevenue();
-		        }
-
-		        System.out.println("--------------------------------------------------------------------------");
-		        System.out.printf("TOTAL REVENUE: ₹%.2f\n", totalRevenue);
-		        System.out.println("=================================================");
-
-		    } catch (Exception e) {
-		        System.out.println("Error fetching revenue report.");
-		        e.printStackTrace();
-		    }
-  }
 		
 		
-	
+		
+	}
 
 	public void getEventSummary(int userId) {
-		try {
-	        List<OrganizerEventSummary> summaries =
-	                organizerService.getOrganizerEventSummary(userId);
-
-	        if (summaries == null || summaries.isEmpty()) {
-	            System.out.println("No events found.");
-	            return;
-	        }
-
-	        System.out.println("\n================ EVENT SUMMARY ================");
-
-	        // Table Header
-	        System.out.printf("%-8s %-20s %-12s %-15s %-15s %-15s\n",
-	                "ID", "Title", "Status", "Total Tickets", "Booked", "Available");
-
-	        System.out.println("--------------------------------------------------------------------------");
-
-	        // Table Rows
-	        for (OrganizerEventSummary e : summaries) {
-
-	            int available = e.getTotalTickets() - e.getBookedTickets();
-
-	            System.out.printf("%-8d %-20s %-12s %-15d %-15d %-15d\n",
-	                    e.getEventId(),
-	                    e.getTitle(),
-	                    e.getStatus(),
-	                    e.getTotalTickets(),
-	                    e.getBookedTickets(),
-	                    available
-	            );
-	        }
-
-	        System.out.println("================================================");
-
-	    } catch (Exception ex) {
-	        System.out.println("Error fetching event summary.");
-	        ex.printStackTrace();
-	    }
-    }
 		
 		
-}
+		
+	}
 
 	
 
-
+}

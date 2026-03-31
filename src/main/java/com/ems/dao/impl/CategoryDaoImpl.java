@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.util.ArrayList;
 import com.ems.util.DBConnectionUtil;
 import com.ems.dao.CategoryDao;
@@ -157,7 +156,6 @@ public class CategoryDaoImpl implements CategoryDao {
 	    }
 
 
-
 	 @Override
 	    public List<Category> getAllCategories() throws DataAccessException {
 	        // Includes both active and inactive records for admin views
@@ -188,7 +186,6 @@ public class CategoryDaoImpl implements CategoryDao {
 	        // MySQL duplicate key constraint
 	        return "23000".equals(e.getSQLState());
 	    }
-
 
 	
 
