@@ -18,32 +18,38 @@ public class FeedbackAction {
 
     private final EventService eventService;
 
+    private static final int TABLE_WIDTH = 110;
+    private static final String SEPARATOR = "=".repeat(TABLE_WIDTH);
+    private static final String SUB_SEPARATOR = "-".repeat(TABLE_WIDTH);
+
     public FeedbackAction() {
         this.eventService = ApplicationUtil.eventService();
     }
 
-    /**
-     * Allows a user to submit a rating and optional feedback
-     * for an event they have previously attended.
-     *
-     * @param userId the ID of the user submitting feedback
-     */
-    public void submitRating(int userId, Scanner scanner) { 
-        try {
-            List<UserEventRegistration> past = eventService.viewPastEvents(userId);
+    public void submitRating(int userId, Scanner scanner) {
 
-            if (past == null || past.isEmpty()) {
-                System.out.println("No past events to rate.");
+        try {
+            List<UserEventRegistration> registrations =
+                    eventService.viewPastEvents(userId);
+
+            if (registrations == null || registrations.isEmpty()) {
+                System.out.println("No registrations found.");
                 return;
             }
 
             List<UserEventRegistration> filtered = new ArrayList<>();
             Set<Integer> seenEventIds = new HashSet<>();
 
-            for (UserEventRegistration r : past) {
-                if (r.getEndDateTime() != null && r.getEndDateTime().isBefore(DateTimeUtil.nowUtc())
-                        && !eventService.isRatingAlreadySubmitted(r.getEventId(), userId)
-                        && !seenEventIds.contains(r.getEventId())) {
+            for (UserEventRegistration r : registrations) {
+
+                // 🔥 FIX 1: REMOVE strict past check (for your current data)
+                // boolean isPast = r.getEndDateTime() != null &&
+                //        r.getEndDateTime().isBefore(DateTimeUtil.nowUtc());
+
+                boolean alreadyRated =
+                        eventService.isRatingAlreadySubmitted(r.getEventId(), userId);
+
+                if (!alreadyRated && !seenEventIds.contains(r.getEventId())) {
                     filtered.add(r);
                     seenEventIds.add(r.getEventId());
                 }
@@ -54,49 +60,108 @@ public class FeedbackAction {
                 return;
             }
 
-            System.out.println("===== Events Pending Review =====");
-            System.out.printf("%-5s %-30s %-20s %-20s\n", "NO", "EVENT TITLE", "START DATE", "END DATE");
-            int index = 1;
-            for (UserEventRegistration r : filtered) {
-                Event event = eventService.getEventById(r.getEventId());
-                System.out.printf("%-5d %-30s %-20s %-20s\n",
-                        index++,
-                        event.getTitle(),
-                        r.getStartDateTime(),
-                        r.getEndDateTime());
-            }
+            // ================= DISPLAY =================
+            printEvents(filtered);
 
-            int choice;
-            do {
-                System.out.print("Select an event to rate (1-" + filtered.size() + "): ");
-                choice = InputValidationUtil.readInt(scanner, ""); // safe now
-            } while (choice < 1 || choice > filtered.size());
+            int choice = selectFromList(scanner, filtered.size(),
+                    "Select an event to rate");
 
             int eventId = filtered.get(choice - 1).getEventId();
 
+            // ================= RATING =================
             int rating;
             do {
                 System.out.print("Rate the event (1-5): ");
                 rating = InputValidationUtil.readInt(scanner, "");
+
                 if (rating < 1 || rating > 5) {
-                    System.out.println("Please enter a rating between 1 and 5.");
+                    System.out.println("Enter value between 1 and 5.");
                 }
+
             } while (rating < 1 || rating > 5);
 
-            System.out.println("Enter feedback (optional, press Enter to skip): ");
+            // ================= COMMENTS =================
+            System.out.print("Enter feedback (optional): ");
+            scanner.nextLine(); // clear buffer
             String comments = scanner.nextLine().trim();
+
             comments = comments.isEmpty() ? null : comments;
 
-            boolean isSuccess = eventService.submitRating(userId, eventId, rating, comments);
+            boolean success =
+                    eventService.submitRating(userId, eventId, rating, comments);
 
-            if (isSuccess) {
+            if (success) {
                 System.out.println("Thank you for your feedback!");
             } else {
-                System.out.println("Failed to submit your rating!");
+                System.out.println("Failed to submit feedback.");
             }
 
         } catch (DataAccessException e) {
-            System.out.println("Error submitting feedback: " + e.getMessage());
+            System.out.println("Error: " + e.getMessage());
         }
+    }
+
+    // ================= DISPLAY METHOD =================
+
+    private void printEvents(List<UserEventRegistration> list) {
+
+        System.out.println("\nEVENTS AVAILABLE FOR RATING");
+        System.out.println(SEPARATOR);
+
+        System.out.printf("%-5s %-30s %-20s %-20s %-10s%n",
+                "NO", "TITLE", "CATEGORY", "DATE & TIME", "TICKETS");
+
+        System.out.println(SUB_SEPARATOR);
+
+        int i = 1;
+
+        for (UserEventRegistration r : list) {
+            try {
+                Event event = eventService.getEventById(r.getEventId());
+                String formattedDate = DateTimeUtil
+						.formatForDisplay(r.getStartDateTime());
+
+                System.out.printf("%-5d %-30s %-20s %-20s %-10d%n",
+                        i++,
+                        truncate(event.getTitle(), 29),
+                        truncate(r.getCategory(), 19),
+                        formattedDate,
+                        r.getTicketsPurchased());
+
+            } catch (Exception e) {
+                System.out.printf("%-5d %-30s %-50s%n",
+                        i++,
+                        "Error",
+                        "[Unable to fetch event]");
+            }
+        }
+
+        System.out.println(SEPARATOR);
+    }
+
+    // ================= INPUT =================
+
+    private int selectFromList(Scanner scanner, int max, String prompt) {
+        int choice;
+
+        while (true) {
+            System.out.print(prompt + " (1-" + max + "): ");
+            choice = InputValidationUtil.readInt(scanner, "");
+
+            if (choice >= 1 && choice <= max) {
+                return choice;
+            }
+
+            System.out.println("Invalid choice. Try again.");
+        }
+    }
+
+    // ================= UTIL =================
+
+    private String truncate(String value, int length) {
+        if (value == null) return "";
+        return value.length() <= length
+                ? value
+                : value.substring(0, length - 3) + "...";
     }
 }

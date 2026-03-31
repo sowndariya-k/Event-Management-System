@@ -43,7 +43,6 @@ public class PaymentServiceImpl implements PaymentService {
                 );
 
             } else {
-                // optional: you can print or ignore
                 System.out.println(result.getMessage());
             }
 

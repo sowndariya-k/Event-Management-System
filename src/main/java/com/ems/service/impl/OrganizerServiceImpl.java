@@ -16,6 +16,7 @@ import com.ems.model.OrganizerEventSummary;
 import com.ems.model.Ticket;
 import com.ems.service.NotificationService;
 import com.ems.service.OrganizerService;
+import com.ems.util.DateTimeUtil;
 /*
  * Handles organizer related business operations.
  *
@@ -207,9 +208,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public List<Event> getOrganizerEvents(int organizerId) throws DataAccessException {
-
-
-		return null;
+		return eventDao.getEventsByOrganizer(organizerId);
 	}
 
 	@Override
@@ -220,11 +219,23 @@ public class OrganizerServiceImpl implements OrganizerService {
 		}
 		return null;
 	}
+	
 
 	@Override
 	public void sendCancellationRequest(Event selectedEvent, String message) throws DataAccessException {
-		// TODO Auto-generated method stub
-		
+		String notificationMessage = "CANCELLATION REQUEST\n\n" +
+				"Event: " + selectedEvent.getTitle() + "\n" +
+				"Event ID: " + selectedEvent.getEventId() + "\n" +
+				"Start Time: " + DateTimeUtil.formatForDisplay(selectedEvent.getStartDateTime()) + "\n\n" +
+				"Requested by Organizer:\n" +
+				selectedEvent.getOrganizerId() + " (User ID: " + selectedEvent.getOrganizerId() + ")\n\n" +
+				"Organizer Message:\n" +
+				message;
+
+		notificationService.sendPersonalNotification(
+				selectedEvent.getApprovedBy(),
+				notificationMessage,
+				NotificationType.EVENT);
 	}
 	
 	/*

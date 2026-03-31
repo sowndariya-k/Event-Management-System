@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.ems.dao.*;
 import com.ems.dao.impl.FeedbackDaoImpl;
@@ -136,9 +137,8 @@ public class EventServiceImpl implements EventService {
 	public List<UserEventRegistration> viewPastEvents(int userId) throws DataAccessException {
 	    return eventDao.getUserRegistrations(userId)
 	            .stream()
-	            .filter(reg -> reg.getStartDateTime() != null
-	                    && reg.getStartDateTime().isBefore(java.time.Instant.now()))
-	            .collect(java.util.stream.Collectors.toList());
+	            .filter(r -> r.getEndDateTime() != null)
+	            .collect(Collectors.toList());
 	}
 
 

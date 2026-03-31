@@ -10,7 +10,6 @@ import com.ems.model.User;
 import com.ems.service.AdminService;
 import com.ems.util.ApplicationUtil;
 import com.ems.util.InputValidationUtil;
-import com.ems.util.ScannerUtil;
 
 public class AdminUserManagementAction {
 	private Scanner scanner;

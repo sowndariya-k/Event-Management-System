@@ -367,44 +367,80 @@ public class EventDaoImpl implements EventDao {
 	}
 
 	@Override
-	public List<UserEventRegistration> getUserRegistrations(int userId) throws DataAccessException {
-	    List<UserEventRegistration> registrations = new ArrayList<>();
-	    String sql = "SELECT r.registration_id, r.user_id, r.event_id, r.registration_date, r.status AS reg_status, " +
-	                 "e.title, e.start_datetime, e.end_datetime, " +
-	                 "c.name AS category_name, " +
-	                 "t.ticket_type, rt.quantity, p.amount " +
-	                 "FROM registrations r " +
-	                 "JOIN events e ON r.event_id = e.event_id " +
-	                 "JOIN categories c ON e.category_id = c.category_id " +
-	                 "LEFT JOIN registration_tickets rt ON r.registration_id = rt.registration_id " +
-	                 "LEFT JOIN tickets t ON rt.ticket_id = t.ticket_id " +
-	                 "LEFT JOIN payments p ON r.registration_id = p.registration_id " +
-	                 "WHERE r.user_id = ? AND r.status = 'CONFIRMED'";
-	    try (Connection con = DBConnectionUtil.getConnection();
-	         PreparedStatement ps = con.prepareStatement(sql)) {
-	        ps.setInt(1, userId);
-	        ResultSet rs = ps.executeQuery();
-	        while (rs.next()) {
-	            UserEventRegistration reg = new UserEventRegistration();
-	            reg.setRegistrationId(rs.getInt("registration_id"));
-	            reg.setEventId(rs.getInt("event_id"));
-	            reg.setTitle(rs.getString("title"));                                    
-	            reg.setCategory(rs.getString("category_name"));                       
-	            reg.setStartDateTime(rs.getTimestamp("start_datetime").toInstant());
-	            reg.setEndDateTime(rs.getTimestamp("end_datetime").toInstant());
-	            reg.setRegistrationDate(rs.getTimestamp("registration_date").toInstant());
-	            reg.setRegistrationStatus(rs.getString("reg_status"));                
-	            reg.setTicketType(rs.getString("ticket_type"));                      
-	            reg.setTicketsPurchased(rs.getInt("quantity"));                        
-	            reg.setAmountPaid(rs.getDouble("amount"));                            
-	            registrations.add(reg);
-	        }
-	        rs.close();
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        throw new DataAccessException("Error fetching user registrations", e);
-	    }
-	    return registrations;
+	public List<UserEventRegistration> getUserRegistrations(int userId)
+			throws DataAccessException {
+
+		List<UserEventRegistration> list = new ArrayList<>();
+
+		String sql = "SELECT " +
+				"    r.registration_id, " +
+				"    r.registration_date, " +
+				"    r.status AS registration_status, " +
+				"    e.event_id, " +
+				"    e.title, " +
+				"    e.start_datetime, " +
+				"    e.end_datetime, " +
+				"    c.name AS category_name, " +
+				"    t.ticket_type, " +
+				"    " +
+				"    COALESCE(SUM(rt.quantity), 0) AS tickets_purchased, " +
+				"    " +
+				"    COALESCE(SUM( " +
+				"        CASE " +
+				"            WHEN p.payment_status = 'SUCCESS' THEN p.amount " +
+				"            WHEN p.payment_status = 'REFUNDED' THEN -p.amount " +
+				"            ELSE 0 " +
+				"        END " +
+				"    ), 0) AS amount_paid " +
+				" " +
+				"FROM registrations r " +
+				"JOIN events e ON r.event_id = e.event_id " +
+				"JOIN categories c ON e.category_id = c.category_id " +
+				"JOIN registration_tickets rt ON rt.registration_id = r.registration_id " +
+				"JOIN tickets t ON rt.ticket_id = t.ticket_id " +
+				"LEFT JOIN payments p ON p.registration_id = r.registration_id " +
+				" " +
+				"WHERE r.user_id = ? AND e.status <> 'CANCELLED' AND r.status = 'CONFIRMED' " +
+				"GROUP BY " +
+				"    r.registration_id, " +
+				"    r.registration_date, " +
+				"    r.status, " +
+				"    e.event_id, " +
+				"    e.title, " +
+				"    e.start_datetime, " +
+				"    e.end_datetime, " +
+				"    c.name, " +
+				"    t.ticket_type";
+		try (Connection con = DBConnectionUtil.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps.setInt(1, userId);
+			ResultSet rs = ps.executeQuery();
+
+			while (rs.next()) {
+				UserEventRegistration uer = new UserEventRegistration();
+
+				uer.setRegistrationId(rs.getInt("registration_id"));
+				uer.setRegistrationStatus(rs.getString("registration_status"));
+				uer.setEventId(rs.getInt("event_id"));
+				uer.setTitle(rs.getString("title"));
+				uer.setCategory(rs.getString("category_name"));
+				uer.setRegistrationDate(DateTimeUtil.fromTimestamp(rs.getTimestamp("registration_date")));
+				uer.setStartDateTime(DateTimeUtil.fromTimestamp(rs.getTimestamp("start_datetime")));
+				uer.setEndDateTime(DateTimeUtil.fromTimestamp(rs.getTimestamp("end_datetime")));
+				uer.setTicketsPurchased(rs.getInt("tickets_purchased"));
+				uer.setAmountPaid(rs.getDouble("amount_paid"));
+				uer.setTicketType(rs.getString("ticket_type"));
+
+				list.add(uer);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DataAccessException("Error fetching user registrations");
+		}
+
+		return list;
 	}
 
 	@Override
