@@ -99,6 +99,7 @@ public interface EventDao {
      * @throws DataAccessException
      */
 
+
     List<Event> searchByDate(LocalDate date) throws DataAccessException;
     
     /**
@@ -109,7 +110,9 @@ public interface EventDao {
      * @return list of events
      * @throws DataAccessException
      */
+
     List<Event> searchByDateRange(LocalDate startDate, LocalDate endDate) throws DataAccessException;
+
     
     /**
      * Searches events by given city 

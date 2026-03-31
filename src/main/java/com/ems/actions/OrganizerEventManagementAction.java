@@ -1,6 +1,10 @@
 package com.ems.actions;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 
@@ -40,7 +44,175 @@ public class OrganizerEventManagementAction {
      */
 	public void createEvent(int userId) {
 		
-		
+		try {
+            System.out.println("\n===== Create Event =====");
+
+            // Title
+            String title;
+            while (true) {
+                System.out.print("Enter Title (15-150 chars): ");
+                title = scanner.nextLine();
+                if (title.length() >= 15 && title.length() <= 150) break;
+                System.out.println("Invalid title length");
+            }
+
+            // Description
+            String description;
+            while (true) {
+                System.out.print("Enter Description (≥150 chars): ");
+                description = scanner.nextLine();
+                if (description.length() >= 150) break;
+                System.out.println("Description must be at least 150 characters");
+            }
+
+            // Category
+            List<Category> categories = getAllCategories();
+
+            if (categories == null || categories.isEmpty()) {
+                System.out.println("No categories available. Cannot create event.");
+                return;
+            }
+
+            int categoryId = -1;
+
+            while (true) {
+                System.out.println("Available Categories:");
+                for (Category c : categories) {
+                    System.out.println(c.getCategoryId() + " - " + c.getName());
+                }
+
+                System.out.print("Enter Category ID (1-10): ");
+                String input = scanner.nextLine().trim();
+
+                try {
+                    categoryId = Integer.parseInt(input);
+
+                    // Check if the entered ID exists in the categories list
+                    boolean valid = false;
+                    for (Category c : categories) {
+                        if (c.getCategoryId() == categoryId) {
+                            valid = true;
+                            break;
+                        }
+                    }
+
+                    if (valid) break; // valid input
+                    else System.out.println("Enter valid category");
+
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter a numeric category ID");
+                }
+            }
+            
+            
+            // Venue
+            List<Venue> venues = getAllVenues();
+
+            if (venues == null || venues.isEmpty()) {
+                System.out.println("No venues available. Cannot create event.");
+                return;
+            }
+
+            int venueId = -1;
+
+            while (true) {
+                System.out.println("Available Venues:");
+                for (Venue v : venues) {
+                    System.out.println(v.getVenueId() + " - " + v.getName());
+                }
+
+                System.out.print("Enter Venue ID: ");
+                String input = scanner.nextLine().trim();
+
+                try {
+                    venueId = Integer.parseInt(input);
+
+                    // Check if entered venue ID exists
+                    boolean valid = false;
+                    for (Venue v : venues) {
+                        if (v.getVenueId() == venueId) {
+                            valid = true;
+                            break;
+                        }
+                    }
+
+                    if (valid) break; // valid input
+                    else System.out.println("Please enter valid number");
+
+                } catch (NumberFormatException ex) {
+                    System.out.println("Please enter numeric value only");
+                }
+            }	
+
+            // Dates
+            LocalDateTime startDateTime = null;
+            LocalDateTime endDateTime = null;
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+
+            while (true) {
+                try {
+                    System.out.print("Enter Start Date (dd-MM-yyyy HH:mm): ");
+                    String startInput = scanner.nextLine().trim();
+                    startDateTime = LocalDateTime.parse(startInput, dateTimeFormatter);
+
+                    // Reject past dates
+                    if (startDateTime.isBefore(LocalDateTime.now())) {
+                        System.out.println("Start date/time cannot be in the past.");
+                        continue;
+                    }
+
+                    System.out.print("Enter End Date (dd-MM-yyyy HH:mm): ");
+                    String endInput = scanner.nextLine().trim();
+                    endDateTime = LocalDateTime.parse(endInput, dateTimeFormatter);
+
+                    // End date must be after start
+                    if (!endDateTime.isAfter(startDateTime)) {
+                        System.out.println("End date must be after start date");
+                        continue;
+                    }
+
+                    // Check venue availability
+                    if (!isVenueAvailable(venueId, startDateTime, endDateTime)) {
+                        System.out.println("Venue not available for selected time.");
+                        continue;
+                    }
+
+                    break; // valid dates
+                } catch (java.time.format.DateTimeParseException ex) {
+                    System.out.println("Invalid date/time format. Use dd-MM-yyyy HH:mm (e.g., 20-05-2026 12:50)");
+                }
+            }
+
+            // Capacity
+            int capacity;
+            int maxCapacity = getVenueById(venueId).getMaxCapacity();
+            while (true) {
+                System.out.print("Enter Capacity (≤ " + maxCapacity + "): ");
+                try {
+                    capacity = Integer.parseInt(scanner.nextLine());
+                    if (capacity > 0 && capacity <= maxCapacity) break;
+                } catch (Exception ignored) {}
+                System.out.println("Exceeds venue capacity");
+            }
+
+            // Create Event Object
+            Event event = new Event();
+            event.setTitle(title);
+            event.setDescription(description);
+            event.setCategoryId(categoryId);
+            event.setVenueId(venueId);
+            event.setStartDateTime(startDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            event.setEndDateTime(endDateTime.atZone(ZoneId.systemDefault()).toInstant());
+            event.setCapacity(capacity);
+            event.setOrganizerId(userId);
+
+            int eventId = organizerService.createEvent(event);
+            System.out.println(title + " event has been submitted for approval. ID: " + eventId);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error creating event");
+        }
 		
 	}
 	
@@ -51,7 +223,80 @@ public class OrganizerEventManagementAction {
      * @param userId organizer ID
      */
 	public void viewMyEventDetails(int userId) {
-		
+		try {
+	        List<Event> events = getOrganizerEvents(userId);
+
+	        if (events == null || events.isEmpty()) {
+	            System.out.println("No events found.");
+	            return;
+	        }
+
+	        System.out.println("\nAVAILABLE EVENTS");
+	        System.out.println("===================================================================================================================================");
+	        System.out.printf("%-5s %-5s %-30s %-20s %-17s %-17s %-10s %-10s %-10s%n",
+	                "NO", "ID", "TITLE", "CATEGORY", "START DATE", "END DATE", "CAPACITY", "TICKETS", "STATUS");
+	        System.out.println("-----------------------------------------------------------------------------------------------------------------------------------");
+
+	        int i = 1;
+
+	        for (Event e : events) {
+
+	            // Skip CANCELLED events
+	            if (e.getStatus() != null && e.getStatus().toString().equalsIgnoreCase("CANCELLED")) {
+	                continue;
+	            }
+
+	            // Safe title
+	            String title = (e.getTitle() == null) ? "N/A" :
+	                    (e.getTitle().length() > 30 ? e.getTitle().substring(0, 27) + "..." : e.getTitle());
+
+	            // Category (currently ID)
+	            String category = String.valueOf(e.getCategoryId());
+
+	            // Safe date formatting
+	            String startDate = "N/A";
+	            String endDate = "N/A";
+
+	            if (e.getStartDateTime() != null) {
+	                startDate = e.getStartDateTime()
+	                        .atZone(ZoneId.systemDefault())
+	                        .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+	            }
+
+	            if (e.getEndDateTime() != null) {
+	                endDate = e.getEndDateTime()
+	                        .atZone(ZoneId.systemDefault())
+	                        .format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm"));
+	            }
+
+	            // Tickets (safe)
+	            int tickets = 0;
+	            try {
+	                tickets = organizerService.viewEventRegistrations(e.getEventId());
+	            } catch (Exception ex) {
+	                tickets = 0;
+	            }
+
+	            System.out.printf("%-5d %-5d %-30s %-20s %-17s %-17s %-10d %-10d %-10s%n",
+	                    i,
+	                    e.getEventId(),
+	                    title,
+	                    category,
+	                    startDate,
+	                    endDate,
+	                    e.getCapacity(),
+	                    tickets,
+	                    e.getStatus());
+
+	            i++;
+	        }
+
+	        System.out.println("===================================================================================================================================");
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        System.out.println("Error fetching events");
+	    }
 		
 		
 	}
@@ -65,6 +310,111 @@ public class OrganizerEventManagementAction {
      */
 	public void updateEventDetails(int userId) {
 		
+		try {
+	        viewMyEventDetails(userId);
+
+	        System.out.print("Enter Event ID to update: ");
+	        int eventId = Integer.parseInt(scanner.nextLine());
+
+	        Event event = getOrganizerEventById(userId, eventId);
+	        if (event == null) {
+	            System.out.println("Invalid Event");
+	            return;
+	        }
+
+	        String title = event.getTitle();
+	        String description = event.getDescription();
+	        int categoryId = event.getCategoryId();
+	        int capacity = event.getCapacity();
+
+	        //  TITLE
+	        System.out.print("Update Title? (Y/N): ");
+	        if (scanner.nextLine().trim().equalsIgnoreCase("Y")) {
+	            System.out.print("Enter new Title: ");
+	            String input = scanner.nextLine();
+	            if (!input.trim().isEmpty()) {
+	                title = input;
+	            }
+	        }
+
+	        //  DESCRIPTION
+	        System.out.print("Update Description? (Y/N): ");
+	        if (scanner.nextLine().trim().equalsIgnoreCase("Y")) {
+	            System.out.print("Enter new Description: ");
+	            String input = scanner.nextLine();
+	            if (!input.trim().isEmpty()) {
+	                description = input;
+	            }
+	        }
+
+	        //  CATEGORY
+	        System.out.print("Update Category? (Y/N): ");
+	        if (scanner.nextLine().trim().equalsIgnoreCase("Y")) {
+	            System.out.print("Enter new Category ID: ");
+	            String input = scanner.nextLine();
+	            if (!input.trim().isEmpty()) {
+	                categoryId = Integer.parseInt(input);
+	            }
+	        }
+
+	        //  CAPACITY
+	        System.out.print("Update Capacity? (Y/N): ");
+	        if (scanner.nextLine().trim().equalsIgnoreCase("Y")) {
+	            System.out.print("Enter new Capacity: ");
+	            String input = scanner.nextLine();
+	            if (!input.trim().isEmpty()) {
+	                capacity = Integer.parseInt(input);
+	            }
+	        }
+
+	        //  UPDATE BASIC DETAILS
+	        boolean updated = organizerService.updateEventDetails(
+	                eventId,
+	                title,
+	                description,
+	                categoryId,
+	                event.getVenueId()
+	        );
+
+	        if (!updated) {
+	            System.out.println("Update failed");
+	            return;
+	        }
+
+	        //  UPDATE CAPACITY
+	        organizerService.updateEventCapacity(eventId, capacity);
+
+	        //  SCHEDULE
+	        System.out.print("Update Schedule? (Y/N): ");
+	        if (scanner.nextLine().trim().equalsIgnoreCase("Y")) {
+
+	            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+
+	            System.out.print("Enter new Start (dd-MM-yyyy HH:mm): ");
+	            LocalDateTime start = LocalDateTime.parse(scanner.nextLine(), formatter);
+
+	            System.out.print("Enter new End (dd-MM-yyyy HH:mm): ");
+	            LocalDateTime end = LocalDateTime.parse(scanner.nextLine(), formatter);
+
+	            if (end.isBefore(start)) {
+	                System.out.println("End time cannot be before start time");
+	                return;
+	            }
+
+	            boolean scheduleUpdated =
+	                    organizerService.updateEventSchedule(eventId, start, end);
+
+	            if (!scheduleUpdated) {
+	                System.out.println("Schedule update failed");
+	                return;
+	            }
+	        }
+
+	        System.out.println("Updated successfully");
+
+	    } catch (Exception e) {
+	        e.printStackTrace(); // keep this for debugging
+	    }
 		
 		
 	}
@@ -77,7 +427,30 @@ public class OrganizerEventManagementAction {
      * @param userId the organizer ID
      */
 	public void updateEventCapacity(int userId) {
-		
+		try {
+	        viewMyEventDetails(userId);
+
+	        System.out.print("Enter Event ID: ");
+	        int eventId = Integer.parseInt(scanner.nextLine());
+
+	        System.out.print("Enter new Capacity: ");
+	        int capacity = Integer.parseInt(scanner.nextLine());
+	        
+	        int booked = organizerService.viewEventRegistrations(eventId);
+
+	        if (capacity < booked) {
+	            System.out.println("Capacity cannot be less than booked tickets: " + booked);
+	            return;
+	        }
+
+	        boolean updated = updateEventCapacity(eventId, capacity);
+
+	        System.out.println(updated ? "Capacity updated" : "Failed");
+
+	    } catch (Exception e) {
+	    	e.printStackTrace();
+	        System.out.println("Error updating capacity");
+	    }
 		
 		
 		
@@ -94,7 +467,19 @@ public class OrganizerEventManagementAction {
      */
 
 	public void publishEvent(int userId) {
+		try {
+	        viewMyEventDetails(userId);
 
+	        System.out.print("Enter Event ID to publish: ");
+	        int eventId = Integer.parseInt(scanner.nextLine());
+
+	        boolean result = organizerService.publishEvent(eventId);
+
+	        System.out.println(result ? "Event published" : "Publish failed");
+
+	    } catch (Exception e) {
+	        System.out.println("Error publishing event");
+	    }
 
 		
 	}
@@ -105,7 +490,19 @@ public class OrganizerEventManagementAction {
      * Published events require admin approval.
      */
 	public void cancelEvent(int userId) {
+		 try {
+		        viewMyEventDetails(userId);
 
+		        System.out.print("Enter Event ID to cancel: ");
+		        int eventId = Integer.parseInt(scanner.nextLine());
+
+		        boolean result = organizerService.cancelEvent(eventId);
+
+		        System.out.println(result ? "Event cancelled" : "Cancellation failed");
+
+		    } catch (Exception e) {
+		        System.out.println("Error cancelling event");
+		    }
 
 		
 	}

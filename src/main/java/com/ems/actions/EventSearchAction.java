@@ -15,6 +15,7 @@ import com.ems.util.InputValidationUtil;
  * Action class for event search and filter operations.
  * Delegates all business logic to EventService.
  */
+
 public class EventSearchAction {
 
     private final EventService eventService;
@@ -25,11 +26,13 @@ public class EventSearchAction {
         this.scanner = scanner;
     }
 
+
     /**
      * Handles searching events by category.
      * Displays available categories, validates user input,
      * and prints matching events.
      */
+
     public void handleSearchByCategory() {
         try {
             List<Category> categories = eventService.getAllCategories();
@@ -150,12 +153,14 @@ public class EventSearchAction {
             System.out.println("ID: " + e.getEventId());
             System.out.println("Title: " + e.getTitle());
             System.out.println("Start: " + e.getStartDateTime());
+
             try {
                 System.out.println("Venue: " + eventService.getVenueName(e.getVenueId()) 
                                    + " (ID: " + e.getVenueId() + ")");
             } catch (DataAccessException ex) {
                 System.out.println("Venue info not available");
             }
+
             System.out.println("-----------------------------------");
         }
     }
