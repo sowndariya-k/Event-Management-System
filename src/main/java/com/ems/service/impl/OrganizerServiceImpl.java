@@ -7,6 +7,7 @@ import java.util.List;
 import com.ems.dao.impl.EventDaoImpl;
 import com.ems.dao.impl.RegistrationDaoImpl;
 import com.ems.dao.impl.TicketDaoImpl;
+import com.ems.enums.EventStatus;
 import com.ems.enums.NotificationType;
 import com.ems.exception.DataAccessException;
 import com.ems.model.Event;
@@ -48,9 +49,9 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public int createEvent(Event event) throws DataAccessException {
-
-
-		return 0;
+		event.setStatus(EventStatus.DRAFT);
+		int eventId = eventDao.createEvent(event);
+		return eventId;
 	}
 	
 	/*
@@ -61,9 +62,8 @@ public class OrganizerServiceImpl implements OrganizerService {
 	@Override
 	public boolean updateEventDetails(int eventId, String title, String description, int categoryId, int venueId)
 			throws DataAccessException {
-
-
-		return false;
+		boolean updated = eventDao.updateEventDetails(eventId, title, description, categoryId, venueId);
+		return updated;
 	}
 	
 	/*
@@ -73,9 +73,11 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public boolean updateEventSchedule(int eventId, LocalDateTime start, LocalDateTime end) throws DataAccessException {
-
-
-		return false;
+		boolean updated = eventDao.updateEventSchedule(
+				eventId,
+				DateTimeUtil.toUtcInstant(start),
+				DateTimeUtil.toUtcInstant(end));
+		return updated;
 	}
 	
 	/*
@@ -83,9 +85,8 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public boolean updateEventCapacity(int eventId, int capacity) throws DataAccessException {
-
-
-		return false;
+		boolean updated = eventDao.updateEventCapacity(eventId, capacity);
+		return updated;
 	}
 	
 	
@@ -94,9 +95,8 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public boolean publishEvent(int eventId) throws DataAccessException {
-
-
-		return false;
+		boolean published = eventDao.updateEventStatus(eventId, EventStatus.PUBLISHED);
+		return published;
 	}
 	
 	/*
@@ -106,9 +106,8 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public boolean cancelEvent(int eventId) throws DataAccessException {
-
-
-		return false;
+		boolean cancelled = eventDao.updateEventStatus(eventId, EventStatus.CANCELLED);
+		return cancelled;
 	}
 	// ticket management
 	

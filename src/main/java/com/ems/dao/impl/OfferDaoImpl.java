@@ -34,8 +34,7 @@ public class OfferDaoImpl implements OfferDao {
 
 	    // Filters out expired offers at DAO level
 	    String sql = "select offer_id, event_id, code, discount_percentage, valid_from, valid_to "
-	    		+ "from offers "
-	    		+ "where valid_to > utc_timestamp() ";
+	    		+ "from offers ";
 
         List<Offer> offers = new ArrayList<>();
         

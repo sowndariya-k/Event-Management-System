@@ -407,18 +407,22 @@ public class AdminMenuHelper {
                     : "NA";
 
             String status;
+
             if (o.getValidFrom() != null && o.getValidTo() != null) {
                 Instant now = DateTimeUtil.nowUtc();
-                if (now.isBefore(o.getValidFrom()))
+
+                if (o.getValidTo().isBefore(o.getValidFrom())) {
+                    status = "INACTIVE";
+                } else if (now.isBefore(o.getValidFrom())) {
                     status = "UPCOMING";
-                else if (!now.isAfter(o.getValidTo()))
-                    status = "ACTIVE";
-                else
+                } else if (now.isAfter(o.getValidTo())) {
                     status = "EXPIRED";
+                } else {
+                    status = "ACTIVE";
+                }
             } else {
                 status = "UNKNOWN";
             }
-
             System.out.printf("%-5d %-10d %-15s %-12s %-20s %-20s %-12s%n",
                     index++,
                     o.getOfferId(),
@@ -520,7 +524,7 @@ public class AdminMenuHelper {
         Instant now = DateTimeUtil.nowUtc();
         return offers.stream()
                 .filter(o -> o.getValidTo() != null && o.getValidTo().isAfter(now))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public static List<Offer> filterExpiredOffers(List<Offer> offers) {
@@ -529,7 +533,7 @@ public class AdminMenuHelper {
                 .filter(o -> o.getEventId() != 0
                         && o.getValidTo() != null
                         && o.getValidTo().isBefore(now))
-                .collect(Collectors.toList());
+                .toList();
     }
     
  // -----------------------------------------------------------------------

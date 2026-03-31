@@ -692,4 +692,4 @@ CALL sp_register_for_event(
 SELECT @success AS success, @msg AS message, @reg_id AS registration_id, @final_amt AS final_amount;
 
 
-
+SELECT * FROM registrations WHERE user_id = 2;

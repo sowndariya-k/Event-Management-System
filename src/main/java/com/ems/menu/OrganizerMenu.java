@@ -47,7 +47,7 @@ public class OrganizerMenu extends BaseMenu {
         this.registrationAction = new OrganizerRegistrationAction(scanner);
         this.reportAction = new OrganizerReportAction();
         this.notificationAction = new NotificationAction();
-        this.offerManagementAction = new OrganizerOfferManagementAction();
+        this.offerManagementAction = new OrganizerOfferManagementAction(scanner);
     }
 
     public void start() throws DataAccessException {
