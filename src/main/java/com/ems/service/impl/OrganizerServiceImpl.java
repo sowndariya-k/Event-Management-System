@@ -118,9 +118,8 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public boolean createTicket(Ticket ticket) throws DataAccessException {
-
-
-		return false;
+		ticket.setAvailableQuantity(ticket.getTotalQuantity());
+		return ticketDao.createTicket(ticket);
 	}
 
 	/*
@@ -128,9 +127,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public boolean updateTicketPrice(int ticketId, double price) throws DataAccessException {
-
-
-		return false;
+		return ticketDao.updateTicketPrice(ticketId, price);
 	}
 
 	/*
@@ -138,9 +135,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public boolean updateTicketQuantity(int ticketId, int quantity) throws DataAccessException {
-
-
-		return false;
+		return ticketDao.updateTicketQuantity(ticketId, quantity);
 	}
 
 	/*
@@ -149,8 +144,11 @@ public class OrganizerServiceImpl implements OrganizerService {
 	@Override
 	public List<Ticket> viewTicketAvailability(int eventId) throws DataAccessException {
 
-
-		return null;
+		List<Ticket> tickets = ticketDao.getTicketsByEvent(eventId);
+		if (tickets == null) {
+			return new ArrayList<>();
+		}
+		return tickets;
 	}
 
 	// registrations & reports
@@ -159,9 +157,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public int viewEventRegistrations(int eventId) throws DataAccessException {
-
-
-		return 0;
+		return registrationDao.getEventRegistrationCount(eventId);
 	}
 	
 
