@@ -49,7 +49,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	public int createEvent(Event event) throws DataAccessException {
 
 
-		return eventDao.createEvent(event);
+		return 0;
 	}
 	
 	/*
@@ -62,7 +62,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 			throws DataAccessException {
 
 
-		return eventDao.updateEventDetails(eventId, title, description, categoryId, venueId);
+		return false;
 	}
 	
 	/*
@@ -74,11 +74,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	public boolean updateEventSchedule(int eventId, LocalDateTime start, LocalDateTime end) throws DataAccessException {
 
 
-		return eventDao.updateEventSchedule(
-	            eventId,
-	            start.atZone(java.time.ZoneId.systemDefault()).toInstant(),
-	            end.atZone(java.time.ZoneId.systemDefault()).toInstant()
-	    );
+		return false;
 	}
 	
 	/*
@@ -88,7 +84,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	public boolean updateEventCapacity(int eventId, int capacity) throws DataAccessException {
 
 
-		return eventDao.updateEventCapacity(eventId, capacity);
+		return false;
 	}
 	
 	
@@ -99,7 +95,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	public boolean publishEvent(int eventId) throws DataAccessException {
 
 
-		return eventDao.updateEventStatus(eventId, com.ems.enums.EventStatus.PUBLISHED);
+		return false;
 	}
 	
 	/*
@@ -111,7 +107,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	public boolean cancelEvent(int eventId) throws DataAccessException {
 
 
-		return eventDao.cancelEvent(eventId);
+		return false;
 	}
 	// ticket management
 	
@@ -165,7 +161,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	public int viewEventRegistrations(int eventId) throws DataAccessException {
 
 
-		return registrationDao.getEventRegistrationCount(eventId);
+		return 0;
 	}
 	
 
@@ -175,9 +171,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	
 	@Override
 	public List<EventRevenueReport> getRevenueReport(int organizerId) throws DataAccessException {
-
-
-		return null;
+		return eventDao.getEventWiseRevenueReportByOrganizer(organizerId);
 	}
 
 	/*
@@ -185,9 +179,7 @@ public class OrganizerServiceImpl implements OrganizerService {
 	 */
 	@Override
 	public List<OrganizerEventSummary> getOrganizerEventSummary(int organizerId) throws DataAccessException {
-
-
-		return null;
+		return eventDao.getEventSummaryByOrganizer(organizerId);
 	}
 	
 	// notifications
@@ -217,13 +209,15 @@ public class OrganizerServiceImpl implements OrganizerService {
 	public List<Event> getOrganizerEvents(int organizerId) throws DataAccessException {
 
 
-		return eventDao.getEventsByOrganizer(organizerId);
+		return null;
 	}
 
 	@Override
 	public Event getOrganizerEventById(int organizerId, int eventId) throws DataAccessException {
-		Event e = eventDao.getEventById(eventId);
-	    if (e != null && e.getOrganizerId() == organizerId) return e;
+		Event event = eventDao.getEventById(eventId);
+		if (event != null && event.getOrganizerId() == organizerId) {
+			return event;
+		}
 		return null;
 	}
 

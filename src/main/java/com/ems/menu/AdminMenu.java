@@ -68,10 +68,8 @@ public class AdminMenu extends BaseMenu {
 				    "6 Offer and promotion management\n" +
 				    "7 Reports and analytics\n" +
 				    "8 Notifications\n" +
-				    "9 Feedback moderation\n" +
-				    "10 Role management\n" + 
-				    "11 Update profile\n" +
-				    "12 Logout\n\n" +
+				    "9 Update profile\n" +
+				    "10 Logout\n\n" +
 				    "Choice:"
 				);
 
@@ -104,18 +102,12 @@ public class AdminMenu extends BaseMenu {
 				notificationMenu();
 				break;
 			case 9:
-				feedbackModerationMenu();
-				break;
-			case 10:
-				roleManagementMenu();
-				break;
-			case 11:
 				boolean updated = userAction.updateProfile(loggedInUser);
 				if(updated) {
 					return;
 				}
 				break;
-			case 12:
+			case 10:
 				eventManagementAction.markCompletedEvents();
 				if (confirmLogout()) {
 					System.out.println("Logging out...");
@@ -516,55 +508,6 @@ public class AdminMenu extends BaseMenu {
 		}
 	}
 	
-	private void feedbackModerationMenu() {
-		while (true) {
-			System.out.println(
-				    "\nFeedback moderation\n" +
-				    "1 View feedback by event\n" +
-				    "2 View feedback by organizer\n" +
-				    "3 Delete feedback\n" +
-				    "4 Mark feedback as reviewed\n" +
-				    "5 Back\n\n" +
-				    "Choice:"
-				);
-
-
-			int choice = InputValidationUtil.readInt(scanner, "");
-
-			switch (choice) {
-			case 5:
-				return;
-			default:
-				System.out.println("This feature is under development and will be available soon.");
-			}
-		}
-
-	}
-
-	private void roleManagementMenu() {
-		while (true) {
-			System.out.println(
-				    "\nRole management\n" +
-				    "1 View roles\n" +
-				    "2 Create role\n" +
-				    "3 Assign role\n" +
-				    "4 Update role\n" +
-				    "5 Delete role\n" +
-				    "6 Back\n\n" +
-				    "Choice:"
-				);
-
-
-			int choice = InputValidationUtil.readInt(scanner, "");
-
-			switch (choice) {
-			case 6:
-				return;
-			default:
-				System.out.println("This feature is under development and will be available soon.");
-			}
-		}
-	}
 
 	private boolean confirmLogout() {
 		char choice = InputValidationUtil.readChar(scanner, "Are you sure you want to log out? (Y/N): ");
