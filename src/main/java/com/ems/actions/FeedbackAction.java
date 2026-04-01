@@ -1,167 +1,109 @@
 package com.ems.actions;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+
 import java.util.List;
 import java.util.Scanner;
-import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.ems.model.Event;
 import com.ems.model.UserEventRegistration;
 import com.ems.service.EventService;
 import com.ems.util.ApplicationUtil;
 import com.ems.util.DateTimeUtil;
 import com.ems.util.InputValidationUtil;
+import com.ems.util.MenuHelper;
 import com.ems.exception.DataAccessException;
 
+
+/**
+ * Action class for feedback operations.
+ * Delegates business logic to EventService.
+ */
 public class FeedbackAction {
 
-    private final EventService eventService;
+	private final EventService eventService;
+    private final Scanner scanner;
 
-    private static final int TABLE_WIDTH = 110;
-    private static final String SEPARATOR = "=".repeat(TABLE_WIDTH);
-    private static final String SUB_SEPARATOR = "-".repeat(TABLE_WIDTH);
-
-    public FeedbackAction() {
+    public FeedbackAction(Scanner scanner) {
         this.eventService = ApplicationUtil.eventService();
+        this.scanner = scanner;
     }
+    
+    /**
+	 * Allows a user to submit a rating and optional feedback
+	 * for an event they have previously attended.
+	 *
+	 * @param userId the ID of the user submitting feedback
+	 */
 
-    public void submitRating(int userId, Scanner scanner) {
+    public void submitRating(int userId) {
+		try {
+			List<UserEventRegistration> past = eventService.viewPastEvents(userId);
 
-        try {
-            List<UserEventRegistration> registrations =
-                    eventService.viewPastEvents(userId);
+			if (past == null || past.isEmpty()) {
+				System.out.println("No past events to rate.");
+				return;
+			}
 
-            if (registrations == null || registrations.isEmpty()) {
-                System.out.println("No registrations found.");
-                return;
-            }
+			List<UserEventRegistration> filtered = new ArrayList<>();
+			for (UserEventRegistration r : past) {
+				// 1. Only finished events
+				if (r.getEndDateTime() != null && r.getEndDateTime().isBefore(DateTimeUtil.nowUtc())) {
+					// 3. Remove already reviewed events
+					if (!eventService.isRatingAlreadySubmitted(r.getEventId(), userId)) {
+						filtered.add(r);
+					}
+				}
+			}
 
-            List<UserEventRegistration> filtered = new ArrayList<>();
-            Set<Integer> seenEventIds = new HashSet<>();
+			// 2. Remove duplicates by eventId
+			past = filtered.stream()
+					.collect(Collectors.collectingAndThen(
+							Collectors.toMap(
+									UserEventRegistration::getEventId,
+									r -> r,
+									(existing, duplicate) -> existing),
+							map -> new ArrayList<>(map.values())));
 
-            for (UserEventRegistration r : registrations) {
+			if (past.isEmpty()) {
+				System.out.println("You have no events pending review.");
+				return;
+			}
 
-                // 🔥 FIX 1: REMOVE strict past check (for your current data)
-                // boolean isPast = r.getEndDateTime() != null &&
-                //        r.getEndDateTime().isBefore(DateTimeUtil.nowUtc());
+			MenuHelper.printEventsList(filtered);
 
-                boolean alreadyRated =
-                        eventService.isRatingAlreadySubmitted(r.getEventId(), userId);
+			int choice = MenuHelper.selectFromList(
+					scanner, past.size(),
+					"Select an event to rate");
 
-                if (!alreadyRated && !seenEventIds.contains(r.getEventId())) {
-                    filtered.add(r);
-                    seenEventIds.add(r.getEventId());
-                }
-            }
+			int eventId = past.get(choice - 1).getEventId();
 
-            if (filtered.isEmpty()) {
-                System.out.println("You have no events pending review.");
-                return;
-            }
+			int rating;
+			do {
+				rating = InputValidationUtil.readInt(scanner,
+						"Rate the event (1-5): ");
 
-            // ================= DISPLAY =================
-            printEvents(filtered);
+				if (rating < 1 || rating > 5) {
+					System.out.println("Please enter a rating between 1 and 5.");
+				}
+			} while (rating < 1 || rating > 5);
 
-            int choice = selectFromList(scanner, filtered.size(),
-                    "Select an event to rate");
+			String comments = InputValidationUtil.readString(scanner,
+					"Enter feedback (optional, press Enter to skip):\n");
 
-            int eventId = filtered.get(choice - 1).getEventId();
+			comments = (comments == null || comments.trim().isEmpty())
+					? null
+					: comments.trim();
 
-            // ================= RATING =================
-            int rating;
-            do {
-                System.out.print("Rate the event (1-5): ");
-                rating = InputValidationUtil.readInt(scanner, "");
+			boolean isSuccess = eventService.submitRating(userId, eventId, rating, comments);
 
-                if (rating < 1 || rating > 5) {
-                    System.out.println("Enter value between 1 and 5.");
-                }
-
-            } while (rating < 1 || rating > 5);
-
-            // ================= COMMENTS =================
-            System.out.print("Enter feedback (optional): ");
-            scanner.nextLine(); // clear buffer
-            String comments = scanner.nextLine().trim();
-
-            comments = comments.isEmpty() ? null : comments;
-
-            boolean success =
-                    eventService.submitRating(userId, eventId, rating, comments);
-
-            if (success) {
-                System.out.println("Thank you for your feedback!");
-            } else {
-                System.out.println("Failed to submit feedback.");
-            }
-
-        } catch (DataAccessException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
-
-    // ================= DISPLAY METHOD =================
-
-    private void printEvents(List<UserEventRegistration> list) {
-
-        System.out.println("\nEVENTS AVAILABLE FOR RATING");
-        System.out.println(SEPARATOR);
-
-        System.out.printf("%-5s %-30s %-20s %-20s %-10s%n",
-                "NO", "TITLE", "CATEGORY", "DATE & TIME", "TICKETS");
-
-        System.out.println(SUB_SEPARATOR);
-
-        int i = 1;
-
-        for (UserEventRegistration r : list) {
-            try {
-                Event event = eventService.getEventById(r.getEventId());
-                String formattedDate = DateTimeUtil
-						.formatForDisplay(r.getStartDateTime());
-
-                System.out.printf("%-5d %-30s %-20s %-20s %-10d%n",
-                        i++,
-                        truncate(event.getTitle(), 29),
-                        truncate(r.getCategory(), 19),
-                        formattedDate,
-                        r.getTicketsPurchased());
-
-            } catch (Exception e) {
-                System.out.printf("%-5d %-30s %-50s%n",
-                        i++,
-                        "Error",
-                        "[Unable to fetch event]");
-            }
-        }
-
-        System.out.println(SEPARATOR);
-    }
-
-    // ================= INPUT =================
-
-    private int selectFromList(Scanner scanner, int max, String prompt) {
-        int choice;
-
-        while (true) {
-            System.out.print(prompt + " (1-" + max + "): ");
-            choice = InputValidationUtil.readInt(scanner, "");
-
-            if (choice >= 1 && choice <= max) {
-                return choice;
-            }
-
-            System.out.println("Invalid choice. Try again.");
-        }
-    }
-
-    // ================= UTIL =================
-
-    private String truncate(String value, int length) {
-        if (value == null) return "";
-        return value.length() <= length
-                ? value
-                : value.substring(0, length - 3) + "...";
-    }
+			if (isSuccess) {
+				System.out.println("Thank you for your feedback!");
+			} else {
+				System.out.println("Failed to submit your rating!");
+			}
+		} catch (DataAccessException e) {
+			System.out.println("Error submitting feedback: " + e.getMessage());
+		}
+	}
 }

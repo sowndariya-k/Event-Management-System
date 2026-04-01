@@ -1,6 +1,12 @@
 package com.ems.actions;
 
+import java.util.List;
+
+import com.ems.exception.DataAccessException;
+import com.ems.model.EventRevenueReport;
+import com.ems.model.OrganizerEventSummary;
 import com.ems.service.OrganizerService;
+import com.ems.util.AdminMenuHelper;
 import com.ems.util.ApplicationUtil;
 
 /**
@@ -21,18 +27,37 @@ public class OrganizerReportAction {
 	 * @return the total revenue amount
 	 */
 	 
-	public void getRevenueSummary(int userId) {
-		
-		
-		
-	}
+	 public void getRevenueSummary(int organizerId) {
+	        try {
+	            List<EventRevenueReport> reports =
+	                    organizerService.getRevenueReport(organizerId);
 
-	public void getEventSummary(int userId) {
-		
-		
-		
-	}
+	            if (reports.isEmpty()) {
+	                System.out.println("No revenue generated yet.");
+	                return;
+	            }
 
-	
+	            AdminMenuHelper.printEventRevenueReport(reports);
 
+	        } catch (DataAccessException e) {
+	            System.out.println("Error getting revenue summary: " + e.getMessage());
+	        }
+	    }
+
+	 public void getEventSummary(int organizerId) {
+	        try {
+	            List<OrganizerEventSummary> summary =
+	                    organizerService.getOrganizerEventSummary(organizerId);
+
+	            if (summary.isEmpty()) {
+	                System.out.println("No events conducted by this organizer.");
+	                return;
+	            }
+	            
+	            AdminMenuHelper.printOrganizerEventSummary(summary);
+
+	        } catch (DataAccessException e) {
+	            System.out.println("Error getting event summary: " + e.getMessage());
+	        }
+	    }
 }

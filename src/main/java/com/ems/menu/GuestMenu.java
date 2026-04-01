@@ -19,7 +19,7 @@ public class GuestMenu {
 
         this.userAction = new UserAction(ApplicationUtil.userService(), scanner);
         this.eventBrowsingAction =
-                new EventBrowsingAction(scanner, ApplicationUtil.eventService());
+                new EventBrowsingAction(scanner);
     }
 
     public void start() {

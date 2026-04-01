@@ -15,6 +15,7 @@ import com.ems.util.AdminMenuHelper;
 import com.ems.util.ApplicationUtil;
 import com.ems.util.DateTimeUtil;
 import com.ems.util.InputValidationUtil;
+import com.ems.util.MenuHelper;
 
 public class AdminOfferManagementAction {
 	private final OfferService offerService;
@@ -43,22 +44,22 @@ public class AdminOfferManagementAction {
 		return offerService.getOfferUsageReport();
 	}
 
+	// ===================== VIEW OFFERS=====================
 	public void viewAllOffers() {
 		try {
 			List<Offer> offers = getAllOffers();
 
 			if (offers.isEmpty()) {
 				System.out.println("No offers found.");
-				return;
+			} else {
+				AdminMenuHelper.printOffers(offers);
 			}
-
-			printOffers(offers);
-
 		} catch (DataAccessException e) {
 			System.out.println("Error viewing offers: " + e.getMessage());
 		}
 	}
 
+	// ===================== CREATE OFFER=====================
 
 	public void createOffer() {
 		try {
@@ -69,7 +70,7 @@ public class AdminOfferManagementAction {
 				return;
 			}
 
-			printEvents(events);
+			MenuHelper.printEventSummaries(events);
 
 			int eChoice = InputValidationUtil.readInt(scanner,
 					"Select event (1-" + events.size() + "): ");
@@ -83,11 +84,13 @@ public class AdminOfferManagementAction {
 			String code = InputValidationUtil.readNonEmptyString(scanner, "Enter the offer code: ");
 
 			int discount = InputValidationUtil.readInt(scanner, "Enter the discount percentage: ");
-			while (discount < 1 || discount > 100) {
-				discount = InputValidationUtil.readInt(scanner, "Enter valid discount (1-100): ");
+			while (discount < 0 || discount > 100) {
+				discount = InputValidationUtil.readInt(scanner,
+						"Enter the discount percentage (1 - 100): ");
 			}
 
 			LocalDateTime from = null;
+
 			while (from == null) {
 				String input = InputValidationUtil.readString(scanner,
 						"Enter the valid from (dd-MM-yyyy HH:mm): ");
@@ -98,12 +101,13 @@ public class AdminOfferManagementAction {
 						|| DateTimeUtil.toUtcInstant(from).isBefore(DateTimeUtil.nowUtc())
 						|| DateTimeUtil.toUtcInstant(from).isAfter(event.getStartDateTime())) {
 
-					System.out.println("Invalid 'from' date time. Please try again.");
+					System.out.println("Invalid 'from' date time.");
 					from = null;
 				}
 			}
 
 			LocalDateTime to = null;
+
 			while (to == null) {
 				String input = InputValidationUtil.readString(scanner,
 						"Enter the valid to (dd-MM-yyyy HH:mm): ");
@@ -115,24 +119,28 @@ public class AdminOfferManagementAction {
 						|| to.isBefore(from)
 						|| DateTimeUtil.toUtcInstant(to).isAfter(event.getStartDateTime())) {
 
-					System.out.println("Invalid 'to' date time. Please try again.");
+					System.out.println("Invalid 'to' date time.");
 					to = null;
 				}
 			}
 
-			boolean isCreated = createOffer(event.getEventId(), code, discount, from, to);
+			boolean isCreated = createOffer(
+					event.getEventId(),
+					code,
+					discount,
+					from,
+					to);
 
-			if (isCreated) {
-				System.out.println("Offer created successfully. Offer: " + code);
-			} else {
-				System.out.println("Offer creation failed");
-			}
+			System.out.println(isCreated
+					? "Offer created successfully. Offer: " + code
+					: "Offer creation failed");
 
 		} catch (DataAccessException e) {
 			System.out.println("Error creating offer: " + e.getMessage());
 		}
 	}
 
+	// =====================CHANGE STATUS =====================
 	public void changeOfferStatus() {
 		try {
 			System.out.println("\n1. Activate offer\n2. Deactivate offer\n3. Back\n>");
@@ -148,16 +156,32 @@ public class AdminOfferManagementAction {
 				return;
 			}
 
-			printOffers(offers);
+			List<Offer> filtered;
+
+			if (option == 1) {
+				filtered = AdminMenuHelper.filterExpiredOffers(offers);
+			} else if (option == 2) {
+				filtered = AdminMenuHelper.filterActiveOffers(offers);
+			} else {
+				System.out.println("Invalid option.");
+				return;
+			}
+
+			if (filtered.isEmpty()) {
+				System.out.println("No applicable offers found");
+				return;
+			}
+
+			AdminMenuHelper.printOffers(filtered);
 
 			int choice = InputValidationUtil.readInt(scanner,
-					"Select offer (1-" + offers.size() + "): ");
+					"Select offer (1-" + filtered.size() + "): ");
 
-			while (choice < 1 || choice > offers.size()) {
+			while (choice < 1 || choice > filtered.size()) {
 				choice = InputValidationUtil.readInt(scanner, "Enter valid choice: ");
 			}
 
-			Offer selectedOffer = offers.get(choice - 1);
+			Offer selectedOffer = filtered.get(choice - 1);
 
 			LocalDateTime newValidTo;
 
@@ -169,12 +193,26 @@ public class AdminOfferManagementAction {
 				newValidTo = DateTimeUtil.toLocalDateTime(DateTimeUtil.nowUtc());
 			}
 
+			Event event = eventService.getEventById(selectedOffer.getEventId());
+
+			if (event == null) {
+				System.out.println("No event found for the offer!");
+				return;
+			}
+
+			if (DateTimeUtil.toUtcInstant(newValidTo).isAfter(event.getStartDateTime())) {
+				System.out.println("Offer validity must end before the event starts.");
+				return;
+			}
+
 			char confirm = InputValidationUtil.readChar(scanner,
 					"Are you sure you want to update offer status (Y/N): ");
 
 			if (confirm == 'Y' || confirm == 'y') {
 				toggleOfferStatus(selectedOffer.getOfferId(), newValidTo);
-				System.out.println(option == 1 ? "Offer activated successfully." : "Offer deactivated successfully.");
+				System.out.println(option == 1
+						? "Offer activated successfully."
+						: "Offer deactivated successfully.");
 			} else {
 				System.out.println("Process aborted!");
 			}
@@ -188,110 +226,10 @@ public class AdminOfferManagementAction {
 	public void viewOfferUsageReport() {
 		try {
 			Map<String, Integer> report = getOfferUsageReport();
-			printOfferUsage(report);
+			AdminMenuHelper.printOfferUsageReport(report);
 		} catch (DataAccessException e) {
-			System.out.println("Error viewing report: " + e.getMessage());
+			System.out.println("Error viewing offer usage report: " + e.getMessage());
 		}
 	}
 
-
-	// ===================== DISPLAY METHODS =====================
-
-
-	private static final int TABLE_WIDTH = 110;
-	private static final String SEPARATOR = "=".repeat(TABLE_WIDTH);
-	private static final String SUB_SEPARATOR = "-".repeat(TABLE_WIDTH);
-
-		private void printEvents(List<Event> events) {
-			System.out.println("\nAVAILABLE EVENTS");
-			System.out.println(SEPARATOR);
-
-			System.out.printf("%-5s %-30s %-20s %-20s %-10s%n",
-					"NO", "TITLE", "CATEGORY", "START DATE", "TICKETS");
-
-			System.out.println(SUB_SEPARATOR);
-
-			int i = 1;
-			for (Event e : events) {
-				try {
-					String categoryName = eventService
-							.getCategory(e.getCategoryId())
-							.getName();
-
-					int tickets = eventService
-							.getAvailableTickets(e.getEventId());
-					
-					String formattedDate = DateTimeUtil
-							.formatForDisplay(e.getStartDateTime());
-
-					System.out.printf("%-5d %-30s %-20s %-20s %-10d%n",
-							i++,
-							truncate(e.getTitle(), 29),
-							categoryName,
-							formattedDate,
-							tickets);
-
-				} catch (DataAccessException ex) {
-					System.out.printf("%-5d %-30s %-50s%n",
-							i++,
-							truncate(e.getTitle(), 29),
-							"[Error fetching details]");
-				}
-			}
-
-			System.out.println(SEPARATOR);
-			}
-
-		private void printOffers(List<Offer> offers) {
-		    System.out.println("\nOFFERS REPORT");
-		    System.out.println("==============================================================================================================");
-		    System.out.printf("%-5s %-10s %-15s %-12s %-20s %-20s %-10s%n",
-		            "NO", "OFFER ID", "CODE", "DISCOUNT", "VALID FROM", "VALID TO", "STATUS");
-		    System.out.println("--------------------------------------------------------------------------------------------------------------");
-
-		    int i = 1;
-
-		    for (Offer o : offers) {
-		        String status;
-		        Instant now = Instant.now();
-
-		        if (o.getValidTo() != null && o.getValidTo().isBefore(now)) {
-		            status = "EXPIRED";
-		        } else if (o.getValidFrom() != null && o.getValidFrom().isAfter(now)) {
-		            status = "UPCOMING";
-		        } else {
-		            status = "ACTIVE";
-		        }
-
-		        System.out.printf("%-5d %-10d %-15s %-12s %-20s %-20s %-10s%n",
-		                i++,
-		                o.getOfferId(),
-		                o.getCode(),
-		                (o.getDiscountPercentage() != null ? o.getDiscountPercentage() : 0) + "%",
-		                DateTimeUtil.formatForDisplay(o.getValidFrom()),
-		                DateTimeUtil.formatForDisplay(o.getValidTo()),
-		                status
-		        );
-		    }
-
-		    System.out.println("==============================================================================================================");
-		}
-		private void printOfferUsage(Map<String, Integer> report) {
-			System.out.println("\nOFFER USAGE REPORT");
-			System.out.println("==============================================================================================================");
-			System.out.printf("%-5s %-20s %-15s%n", "NO", "OFFER CODE", "USAGE COUNT");
-			System.out.println("--------------------------------------------------------------------------------------------------------------");
-
-			int i = 1;
-			for (Map.Entry<String, Integer> entry : report.entrySet()) {
-				System.out.printf("%-5d %-20s %-15d%n", i++, entry.getKey(), entry.getValue());
-			}
-
-			System.out.println("==============================================================================================================");
-		}
-
-		private String truncate(String value, int length) {
-			if (value == null) return "";
-			return value.length() <= length ? value : value.substring(0, length - 3) + "...";
-		}
 }

@@ -7,6 +7,7 @@ import com.ems.exception.DataAccessException;
 import com.ems.model.BookingDetail;
 import com.ems.model.UserEventRegistration;
 import com.ems.service.EventService;
+import com.ems.util.MenuHelper;
 
 public class UserRegistrationAction {
 
@@ -32,20 +33,8 @@ public class UserRegistrationAction {
                 System.out.println("No upcoming registered events found.");
                 return;
             }
-            System.out.println("\nUpcoming Registered Events:");
-            System.out.println("==============================================");
-            for (UserEventRegistration reg : upcoming) {
-                System.out.println("Registration ID   : " + reg.getRegistrationId());
-                System.out.println("Event             : " + reg.getTitle());
-                System.out.println("Category          : " + reg.getCategory());
-                System.out.println("Start Date        : " + reg.getStartDateTime());
-                System.out.println("End Date          : " + reg.getEndDateTime());
-                System.out.println("Ticket Type       : " + reg.getTicketType());
-                System.out.println("Tickets Purchased : " + reg.getTicketsPurchased());
-                System.out.println("Amount Paid       : ₹" + reg.getAmountPaid());
-                System.out.println("Status            : " + reg.getRegistrationStatus());
-                System.out.println("----------------------------------------------");
-            }
+            MenuHelper.printEventsList(upcoming);
+            
         } catch (DataAccessException e) {
             System.out.println("Error fetching upcoming events: " + e.getMessage());
         }
@@ -63,20 +52,7 @@ public class UserRegistrationAction {
                 System.out.println("No past registered events found.");
                 return;
             }
-            System.out.println("\nPast Registered Events:");
-            System.out.println("==============================================");
-            for (UserEventRegistration reg : past) {
-                System.out.println("Registration ID   : " + reg.getRegistrationId());
-                System.out.println("Event             : " + reg.getTitle());
-                System.out.println("Category          : " + reg.getCategory());
-                System.out.println("Start Date        : " + reg.getStartDateTime());
-                System.out.println("End Date          : " + reg.getEndDateTime());
-                System.out.println("Ticket Type       : " + reg.getTicketType());
-                System.out.println("Tickets Purchased : " + reg.getTicketsPurchased());
-                System.out.println("Amount Paid       : ₹" + reg.getAmountPaid());
-                System.out.println("Status            : " + reg.getRegistrationStatus());
-                System.out.println("----------------------------------------------");
-            }
+            MenuHelper.printEventsList(past);
         } catch (DataAccessException e) {
             System.out.println("Error fetching past events: " + e.getMessage());
         }
@@ -95,19 +71,7 @@ public class UserRegistrationAction {
 	            System.out.println("No booking details found.");
 	            return;
 	        } 
-	        System.out.println("\nBooking Details:");
-	        System.out.println("==============================================");
-	        for (BookingDetail b : bookings) {
-	        	System.out.println("Registration ID : " + b.getRegistrationId());
-	            System.out.println("Event Name   : " + b.getEventName());
-	            System.out.println("Start Date   : " + b.getStartDateTime());
-	            System.out.println("Venue        : " + b.getVenueName());
-	            System.out.println("City         : " + b.getCity());
-	            System.out.println("Ticket Type  : " + b.getTicketType());
-	            System.out.println("Quantity     : " + b.getQuantity());
-	            System.out.println("Total Cost   : ₹" + b.getTotalCost());
-	            System.out.println("----------------------------------------------");
-	        }
+	        MenuHelper.printBookingDetails(bookings);
 	    } catch (DataAccessException e) {
 	        System.out.println("Error fetching booking details: " + e.getMessage());
 	    }

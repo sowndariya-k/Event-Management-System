@@ -126,18 +126,23 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public List<UserEventRegistration> viewUpcomingEvents(int userId) throws DataAccessException {
+	    java.time.Instant now = java.time.Instant.now();
+
 	    return eventDao.getUserRegistrations(userId)
 	            .stream()
 	            .filter(reg -> reg.getStartDateTime() != null
-	                    && reg.getStartDateTime().isAfter(java.time.Instant.now()))
-	            .collect(java.util.stream.Collectors.toList());
+	                    && reg.getStartDateTime().isAfter(now))
+	            .collect(Collectors.toList());
 	}
 
 	@Override
 	public List<UserEventRegistration> viewPastEvents(int userId) throws DataAccessException {
+	    java.time.Instant now = java.time.Instant.now();
+
 	    return eventDao.getUserRegistrations(userId)
 	            .stream()
-	            .filter(r -> r.getEndDateTime() != null)
+	            .filter(reg -> reg.getEndDateTime() != null
+	                    && reg.getEndDateTime().isBefore(now))
 	            .collect(Collectors.toList());
 	}
 

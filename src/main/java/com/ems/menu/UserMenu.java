@@ -37,11 +37,11 @@ public class UserMenu {
 		this.userAction = userAction;
 
 		this.notificationAction = new NotificationAction();
-		this.eventBrowsingAction = new EventBrowsingAction(scanner, eventService);
+		this.eventBrowsingAction = new EventBrowsingAction(scanner);
 		this.eventRegistrationAction = eventRegistrationAction;
 		this.userRegistrationAction = userRegistrationAction;
 		this.eventSearchAction = new EventSearchAction(eventService, scanner);
-		this.feedbackAction = new FeedbackAction();
+		this.feedbackAction = new FeedbackAction(scanner);
 	}
 
 	public void start() throws DataAccessException {
@@ -243,7 +243,7 @@ public class UserMenu {
 
 			switch (choice) {
 			case 1:
-				feedbackAction.submitRating(loggedInUser.getUserId(), scanner);
+				feedbackAction.submitRating(loggedInUser.getUserId());
 				break;
 
 			case 2:

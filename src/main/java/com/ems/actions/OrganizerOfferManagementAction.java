@@ -17,6 +17,7 @@ import com.ems.util.AdminMenuHelper;
 import com.ems.util.ApplicationUtil;
 import com.ems.util.DateTimeUtil;
 import com.ems.util.InputValidationUtil;
+import com.ems.util.MenuHelper;
 
 public class OrganizerOfferManagementAction {
 	private final Scanner scanner;
@@ -70,6 +71,7 @@ public class OrganizerOfferManagementAction {
                         Map.Entry::getValue));
     }
 
+
  // -------------------- CREATE OFFER --------------------
     
     public void createOffer(int userId) {
@@ -81,14 +83,16 @@ public class OrganizerOfferManagementAction {
                 return;
             }
 
-            printEventSummaries(events);
+            MenuHelper.printEventSummaries(events);
 
             int eChoice = InputValidationUtil.readInt(
                     scanner,
                     "Select event (1-" + events.size() + "): ");
 
             while (eChoice < 1 || eChoice > events.size()) {
-                eChoice = InputValidationUtil.readInt(scanner, "Enter a valid choice: ");
+                eChoice = InputValidationUtil.readInt(
+                        scanner,
+                        "Enter a valid choice: ");
             }
 
             Event event = events.get(eChoice - 1);
@@ -121,7 +125,7 @@ public class OrganizerOfferManagementAction {
                         || DateTimeUtil.toUtcInstant(from).isBefore(DateTimeUtil.nowUtc())
                         || DateTimeUtil.toUtcInstant(from).isAfter(event.getStartDateTime())) {
 
-                    System.out.println("Invalid 'from' date time. Please try again.");
+                    System.out.println("Invalid 'from' date time.");
                     from = null;
                 }
             }
@@ -141,7 +145,7 @@ public class OrganizerOfferManagementAction {
                         || to.isBefore(from)
                         || DateTimeUtil.toUtcInstant(to).isAfter(event.getStartDateTime())) {
 
-                    System.out.println("Invalid 'to' date time. Please try again.");
+                    System.out.println("Invalid 'to' date time.");
                     to = null;
                 }
             }
@@ -153,11 +157,9 @@ public class OrganizerOfferManagementAction {
                     from,
                     to);
 
-            if (isCreated) {
-                System.out.println("Offer created successfully. Offer: " + code);
-            } else {
-                System.out.println("Offer creation failed");
-            }
+            System.out.println(isCreated
+                    ? "Offer created successfully. Offer: " + code
+                    : "Offer creation failed");
 
         } catch (DataAccessException e) {
             System.out.println("Error creating offer: " + e.getMessage());
@@ -204,7 +206,9 @@ public class OrganizerOfferManagementAction {
                     "Select offer (1-" + filtered.size() + "): ");
 
             while (choice < 1 || choice > filtered.size()) {
-                choice = InputValidationUtil.readInt(scanner, "Enter valid choice: ");
+                choice = InputValidationUtil.readInt(
+                        scanner,
+                        "Enter valid choice: ");
             }
 
             Offer selectedOffer = filtered.get(choice - 1);
@@ -216,7 +220,9 @@ public class OrganizerOfferManagementAction {
                 return;
             }
 
-            String dateInput = InputValidationUtil.readString(scanner,"Activate until (dd-MM-yyyy HH:mm): ");
+            String dateInput = InputValidationUtil.readString(
+                    scanner,
+                    "Activate until (dd-MM-yyyy HH:mm): ");
 
             LocalDateTime newValidTo = DateTimeUtil.parseLocalDateTime(dateInput);
 
@@ -231,59 +237,61 @@ public class OrganizerOfferManagementAction {
             toggleOfferStatus(selectedOffer.getOfferId(), newValidTo);
 
             System.out.println("Offer activated successfully.");
-
         } catch (DataAccessException e) {
             System.out.println("Error activating offer: " + e.getMessage());
         }
     }
 
+
 	 // -------------------- DEACTIVATE OFFER --------------------
 
-	public void deactivateOffer(int userId) {
-        try {
-            List<Offer> offers = getAllOffers(userId);
+	 public void deactivateOffer(int userId) {
+	        try {
+	            List<Offer> offers = getAllOffers(userId);
 
-            if (offers.isEmpty()) {
-                System.out.println("No offers found.");
-                return;
-            }
+	            if (offers.isEmpty()) {
+	                System.out.println("No offers found.");
+	                return;
+	            }
 
-            List<Offer> filtered = AdminMenuHelper.filterActiveOffers(offers);
+	            List<Offer> filtered = AdminMenuHelper.filterActiveOffers(offers);
 
-            if (filtered.isEmpty()) {
-                System.out.println("No active offers available.");
-                return;
-            }
+	            if (filtered.isEmpty()) {
+	                System.out.println("No active offers available.");
+	                return;
+	            }
 
-            AdminMenuHelper.printOffers(filtered);
+	            AdminMenuHelper.printOffers(filtered);
 
-            int choice = InputValidationUtil.readInt(
-                    scanner,
-                    "Select offer (1-" + filtered.size() + "): ");
+	            int choice = InputValidationUtil.readInt(
+	                    scanner,
+	                    "Select offer (1-" + filtered.size() + "): ");
 
-            while (choice < 1 || choice > filtered.size()) {
-                choice = InputValidationUtil.readInt(scanner, "Enter valid choice: ");
-            }
+	            while (choice < 1 || choice > filtered.size()) {
+	                choice = InputValidationUtil.readInt(
+	                        scanner,
+	                        "Enter valid choice: ");
+	            }
 
-            Offer selectedOffer = filtered.get(choice - 1);
+	            Offer selectedOffer = filtered.get(choice - 1);
 
-            Event event = eventService.getEventById(selectedOffer.getEventId());
+	            Event event = eventService.getEventById(selectedOffer.getEventId());
 
-            if (event == null || event.getOrganizerId() != userId) {
-                System.out.println("Unauthorized action.");
-                return;
-            }
+	            if (event == null || event.getOrganizerId() != userId) {
+	                System.out.println("Unauthorized action.");
+	                return;
+	            }
 
-            LocalDateTime now = DateTimeUtil.toLocalDateTime(DateTimeUtil.nowUtc());
+	            LocalDateTime now = DateTimeUtil.toLocalDateTime(DateTimeUtil.nowUtc());
 
-            toggleOfferStatus(selectedOffer.getOfferId(), now);
+	            toggleOfferStatus(selectedOffer.getOfferId(), now);
 
-            System.out.println("Offer deactivated successfully.");
+	            System.out.println("Offer deactivated successfully.");
+	        } catch (DataAccessException e) {
+	            System.out.println("Error deactivating offer: " + e.getMessage());
+	        }
+	    }
 
-        } catch (DataAccessException e) {
-            System.out.println("Error deactivating offer: " + e.getMessage());
-        }
-    }
 
 	
 	public void viewOfferUsageReport(int userId) {
