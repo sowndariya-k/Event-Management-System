@@ -65,35 +65,97 @@ src/main/java/com/ems/
 └── util/                      # Reusable utilities
     ├── ApplicationUtil.java   # Singleton Registry (Service/DAO Factory)
     ├── DBConnectionUtil.java  # Connection pooling/management
-    ├── PaginationUtil.java    # Robust, paginated data engine
-    └── ScannerUtil.java       # Centralized Input handling
+    ├── DateTimeUtil.java      # Date and time formatting helpers
+    ├── InputValidationUtil.java  # Centralized input validation
+    ├── MenuHelper.java        # Shared display/formatting utilities
+    ├── AdminMenuHelper.java   # Admin-specific display utilities
+    └── PasswordUtil.java      # BCrypt password hashing utility
 ```
 
 ---
 
 ## 📏 Coding Standards & Best Practices
 
-1.  **Naming Conventions**:
-    *   Classes: `PascalCase` (e.g., `AdminService`)
-    *   Methods/Variables: `camelCase` (e.g., `processPayment`)
-    *   Constants: `UPPER_SNAKE_CASE` (e.g., `MAX_RETRY_COUNT`)
-2.  **DRY (Don't Repeat Yourself)**: Reusable logic is extracted into static utilities or dedicated helper classes (e.g., `MenuHelper`).
-3.  **Input Integrity**: Every user input is validated via `InputValidationUtil` to prevent malformed data.
-4.  **Resource Management**: DB Connections and Scanners are handled carefully to prevent memory leaks.
-5.  **Refined Pagination**: Navigation through large datasets is managed by a centralized `PaginationUtil`, supporting flexible display formats via functional interfaces.
+1. **Naming Conventions**:
+   - Classes: `PascalCase` (e.g., `AdminService`)
+   - Methods/Variables: `camelCase` (e.g., `processPayment`)
+   - Constants: `UPPER_SNAKE_CASE` (e.g., `MAX_RETRY_COUNT`)
+2. **DRY (Don't Repeat Yourself)**: Reusable logic is extracted into static utilities or dedicated helper classes (e.g., `MenuHelper`, `AdminMenuHelper`).
+3. **Input Integrity**: Every user input is validated via `InputValidationUtil` to prevent malformed data.
+4. **Resource Management**: DB Connections and Scanners are handled carefully to prevent memory leaks.
+5. **Password Security**: User passwords are securely hashed and verified using the **BCrypt** algorithm via `PasswordUtil`.
 
 ---
 
 ## 🚀 Setup & Execution
 
 ### Prerequisites
-- Java JDK 17+
-- MySQL Server 8.0
-- MySQL JDBC Driver
+
+| Tool | Version |
+| :--- | :--- |
+| Java JDK | 25.0.2 |
+| Eclipse IDE | 2024-12 (4.34) or later |
+| MySQL Server | 8.0.45 |
+| MySQL JDBC Connector | 8.0.33 |
+| Maven | 3.6+ |
 
 ### Installation Steps
-1.  **Database Setup**: Execute the scripts in `src/main/resources/sql/` (Schema first, then Sample Data).
-2.  **Configuration**: Update `DBConnectionUtil.java` with your MySQL environment credentials.
-3.  **Build & Run**: Run the `App.java` file from your IDE or use Maven to build the project.
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/your-username/Event-Management-System.git
+   ```
+
+2. **Import into Eclipse**
+   - Open Eclipse IDE.
+   - Go to `File` → `Import` → `Existing Maven Projects`.
+   - Browse to the cloned project folder and click `Finish`.
+
+3. **Database Setup**
+   - Open MySQL Workbench or any MySQL client.
+   - Execute the SQL script located at:
+     ```
+     src/main/java/sql/ems.sql
+     ```
+   - This will create the schema, tables, and seed data.
+
+4. **Configure Database Credentials**
+   - Open `src/main/java/com/ems/util/DBConnectionUtil.java`.
+   - Update the following constants with your MySQL environment credentials:
+     ```java
+     private static final String URL      = "jdbc:mysql://localhost:3306/ems";
+     private static final String USER     = "your_mysql_username";
+     private static final String PASSWORD = "your_mysql_password";
+     ```
+
+5. **Build the Project**
+   - Right-click the project in Eclipse → `Run As` → `Maven Install`.
+   - This will download all dependencies defined in `pom.xml`.
+
+6. **Run the Application**
+   - Navigate to `src/main/java/com/ems/App.java`.
+   - Right-click → `Run As` → `Java Application`.
+   - The console-based application will launch in the Eclipse Console.
+
+---
+
+## 📦 Maven Dependencies
+
+| Dependency | Version | Purpose |
+| :--- | :--- | :--- |
+| `mysql-connector-java` | 8.0.33 | JDBC driver for MySQL database connectivity |
+| `jbcrypt` | 0.4 | BCrypt password hashing and verification |
+| `junit` | 3.8.1 | Unit testing framework |
+
+---
+
+## 👥 User Roles
+
+| Role | Capabilities |
+| :--- | :--- |
+| **Admin** | Manage users, events, venues, categories, tickets, offers, notifications, and view system reports |
+| **Organizer** | Create and manage own events, tickets, offers, view registrations and revenue reports |
+| **Attendee** | Browse and search events, register, make payments, view bookings, submit feedback |
+| **Guest** | Browse published events and register for a new account |
 
 ---
