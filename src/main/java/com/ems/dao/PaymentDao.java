@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * PaymentDao is the DAO interface that defines contract
+ * methods for processing and recording event registration
+ * payments using various payment methods.
+ */
 package com.ems.dao;
 
 import com.ems.enums.PaymentMethod;

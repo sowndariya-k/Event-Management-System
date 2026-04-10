@@ -1,31 +1,39 @@
+/*
+ * Author : Sowndariya
+ * EventSearchAction enables users to search for events
+ * by various filters such as category, date range, location,
+ * and keyword, and displays matching event results.
+ */
+
 package com.ems.actions;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.time.LocalDate;
 
+import com.ems.model.Category;
 import com.ems.model.Event;
 import com.ems.model.Venue;
-import com.ems.exception.DataAccessException;
-import com.ems.model.Category;
 import com.ems.service.EventService;
+import com.ems.util.ApplicationUtil;
+import com.ems.util.DateTimeUtil;
 import com.ems.util.InputValidationUtil;
 import com.ems.util.MenuHelper;
-
+import com.ems.exception.DataAccessException;
 
 /**
  * Action class for event search and filter operations.
  * Delegates all business logic to EventService.
  */
 public class EventSearchAction {
-
+	
     private final EventService eventService;
-    private final Scanner scanner;
+    private Scanner scanner;
 
-    public EventSearchAction(EventService eventService, Scanner scanner) {
-        this.eventService = eventService;
-        this.scanner = scanner;
+    public EventSearchAction(Scanner scanner) {
+    	this.scanner = scanner;
+        this.eventService = ApplicationUtil.eventService();
     }
 
     /**
@@ -35,45 +43,62 @@ public class EventSearchAction {
      */
     public void handleSearchByCategory() {
         try {
-            List<Category> categories = eventService.getAllCategories();
+            List<Category> categories = getAllCategories();
 
-            if (categories == null || categories.isEmpty()) {
+            if (categories.isEmpty()) {
                 System.out.println("No categories available.");
                 return;
             }
 
             MenuHelper.displayCategories(categories);
 
-            int choice = MenuHelper.selectFromList(scanner, categories.size(), "Select category");
+            int choice = InputValidationUtil.readInt(scanner, "Select category: ");
+
+            if (choice < 1 || choice > categories.size()) {
+                System.out.println("Invalid category selection.");
+                return;
+            }
 
             Category selected = categories.get(choice - 1);
+            List<Event> events = searchByCategory(selected.getCategoryId());
 
-            List<Event> events = eventService.searchByCategory(selected.getCategoryId());
+            if (events.isEmpty()) {
+                System.out.println(
+                        "No events found in category: " + selected.getName());
+                return;
+            }
 
             MenuHelper.printEventSummaries(events);
-
         } catch (DataAccessException e) {
-            System.out.println("Error while searching by category: " + e.getMessage());
+            System.out.println("Error searching by category: " + e.getMessage());
         }
     }
-    
+
     /**
      * Handles searching events by a specific date.
      * Prompts user for date input and displays matching events.
      */
     public void handleSearchByDate() {
         try {
-            String input = InputValidationUtil.readNonEmptyString(
-                    scanner, "Enter date (dd-mm-yyyy): ");
+            String input = InputValidationUtil.readNonEmptyString(scanner,
+                    "Enter date (dd-mm-yyyy): ");
 
-            LocalDate date = LocalDate.parse(input);
+            LocalDate date = DateTimeUtil.parseLocalDate(input);
+            if (date == null) {
+                System.out.println("Invalid date format.");
+                return;
+            }
 
-            List<Event> events = eventService.searchByDate(date);
+            List<Event> events = searchByDate(date);
+
+            if (events.isEmpty()) {
+                System.out.println("No events found on " + date);
+                return;
+            }
 
             MenuHelper.printEventSummaries(events);
-
-        } catch (Exception e) {
-            System.out.println("Invalid date format.");
+        } catch (DataAccessException e) {
+            System.out.println("Error searching by date: " + e.getMessage());
         }
     }
 
@@ -83,26 +108,35 @@ public class EventSearchAction {
      */
     public void handleSearchByDateRange() {
         try {
-            String startInput = InputValidationUtil.readNonEmptyString(
-                    scanner, "Enter start date (dd-mm-yyyy): ");
+            String startInput = InputValidationUtil.readNonEmptyString(scanner,
+                    "Enter start date (dd-mm-yyyy): ");
 
-            String endInput = InputValidationUtil.readNonEmptyString(
-                    scanner, "Enter end date (dd-mm-yyyy): ");
+            LocalDate start = DateTimeUtil.parseLocalDate(startInput);
+            if (start == null)
+                return;
 
-            LocalDate start = LocalDate.parse(startInput);
-            LocalDate end = LocalDate.parse(endInput);
+            String endInput = InputValidationUtil.readNonEmptyString(scanner,
+                    "Enter end date (dd-mm-yyyy): ");
+
+            LocalDate end = DateTimeUtil.parseLocalDate(endInput);
+            if (end == null)
+                return;
 
             if (start.isAfter(end)) {
                 System.out.println("Start date cannot be after end date.");
                 return;
             }
 
-            List<Event> events = eventService.searchByDateRange(start, end);
+            List<Event> events = searchByDateRange(start, end);
 
-            MenuHelper.printEventSummaries(events);
+            if (events.isEmpty()) {
+                System.out.println("No events found in selected range.");
+                return;
+            }
 
-        } catch (Exception e) {
-            System.out.println("Invalid date range input.");
+           MenuHelper.printEventSummaries(events);
+        } catch (DataAccessException e) {
+            System.out.println("Error searching by date range: " + e.getMessage());
         }
     }
 
@@ -121,16 +155,22 @@ public class EventSearchAction {
 
             MenuHelper.displayVenues(venues);
 
-            int choice = MenuHelper.selectFromList(scanner, venues.size(), "Select venue");
+            int choice = MenuHelper.selectFromList(
+                    scanner, venues.size(),
+                    "Select venue");
 
             Venue selected = venues.get(choice - 1);
 
-            List<Event> events = eventService.searchByCity(selected.getVenueId());
+            List<Event> events = searchByCity(selected.getVenueId());
+
+            if (events.isEmpty()) {
+                System.out.println("No events found at " + selected.getName());
+                return;
+            }
 
             MenuHelper.printEventSummaries(events);
-
         } catch (DataAccessException e) {
-            System.out.println("Error while searching by venue: " + e.getMessage());
+            System.out.println("Error searching by city: " + e.getMessage());
         }
     }
 
@@ -143,26 +183,24 @@ public class EventSearchAction {
             double min = InputValidationUtil.readDouble(scanner, "Enter minimum price: ");
             double max = InputValidationUtil.readDouble(scanner, "Enter maximum price: ");
 
-            if (min > max || min < 0) {
+            if (min < 0 || min > max) {
                 System.out.println("Invalid price range.");
                 return;
             }
 
-            List<Event> events = eventService.filterByPrice(min, max);
-            
+            List<Event> events = filterByPrice(min, max);
+
             if (events.isEmpty()) {
                 System.out.println("No events found in price range.");
                 return;
             }
 
             MenuHelper.printEventSummaries(events);
-
-        } catch (Exception e) {
-        	System.out.println("Error filtering by price: " + e.getMessage());
+        } catch (DataAccessException e) {
+            System.out.println("Error filtering by price: " + e.getMessage());
         }
     }
 
-    
     /* ===================== DATA RETRIEVAL METHODS ===================== */
 
     /**
@@ -171,7 +209,7 @@ public class EventSearchAction {
      * @return list of categories, or empty list if none exist
      */
     public List<Category> getAllCategories() throws DataAccessException {
-        return eventService.getAllCategories();
+        return eventService.getAllCategory();
     }
 
     /**
@@ -181,7 +219,7 @@ public class EventSearchAction {
      * @return list of events in the category
      */
     public List<Event> searchByCategory(int categoryId) throws DataAccessException {
-        return eventService.searchByCategory(categoryId);
+        return eventService.searchBycategory(categoryId);
     }
 
     /**
@@ -234,5 +272,4 @@ public class EventSearchAction {
     public List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException {
         return eventService.filterByPrice(minPrice, maxPrice);
     }
-   
 }

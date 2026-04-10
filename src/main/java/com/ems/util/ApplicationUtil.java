@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * ApplicationUtil is a utility class that initializes and
+ * provides singleton instances of all DAO and service
+ * objects, acting as a simple dependency injection
+ * container for the application.
+ */
 package com.ems.util;
 
 import com.ems.dao.impl.CategoryDaoImpl;

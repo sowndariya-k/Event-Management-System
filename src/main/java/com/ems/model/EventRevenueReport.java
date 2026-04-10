@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya, Jagadeep
+ * EventRevenueReport is a model class that encapsulates
+ * revenue data for an event, including event ID, title,
+ * total ticket sales, and total revenue generated, used
+ * for organizer and admin reports.
+ */
 package com.ems.model;
 
 public class EventRevenueReport {

@@ -1,3 +1,10 @@
+/*
+ * Author : Jagadeep
+ * OfferDao is the DAO interface that declares contract
+ * methods for offer-related database operations including
+ * creating, updating, deleting, and retrieving discount
+ * offers linked to events.
+ */
 package com.ems.dao;
 
 import java.time.Instant;

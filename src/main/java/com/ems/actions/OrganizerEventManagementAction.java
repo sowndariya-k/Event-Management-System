@@ -1,3 +1,10 @@
+/*
+ * Author : Jagadeep
+ * OrganizerEventManagementAction provides organizers with
+ * full event lifecycle management including creating,
+ * editing, publishing, cancelling events, and managing
+ * associated tickets and venue assignments.
+ */
 package com.ems.actions;
 
 import java.time.Instant;
@@ -331,8 +338,7 @@ public class OrganizerEventManagementAction {
                     break;
                 }
             }
-
-            System.out.println("Categories (enter 0 to keep current category)");
+            System.out.println("-------Categories--------");
             for (int i = 0; i < categories.size(); i++) {
                 String mark = (categories.get(i).getCategoryId() == selectedEvent.getCategoryId()) ? " (current)" : "";
                 System.out.println((i + 1) + ". " + categories.get(i).getName() + mark);
@@ -341,7 +347,7 @@ public class OrganizerEventManagementAction {
             int categoryChoice;
             while (true) {
                 String line = InputValidationUtil.readString(scanner,
-                        "Category (" + currentCategoryIndex + "): ").trim();
+                		"Category (Enter " + currentCategoryIndex + " to keep current category): ").trim();
 
                 if (line.isBlank()) {
                     categoryChoice = 0; // keep current
@@ -724,7 +730,7 @@ public class OrganizerEventManagementAction {
     
     
     public List<Category> getAllCategories() throws DataAccessException {
-        return eventService.getAllCategories();
+        return eventService.getAllCategory();
     }
 
     /**

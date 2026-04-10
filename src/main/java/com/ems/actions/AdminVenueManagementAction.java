@@ -1,3 +1,11 @@
+/*
+ * Author : Sowndariya
+ * AdminVenueManagementAction handles admin-side venue
+ * operations including adding new venues, updating venue
+ * details, deactivating venues, and listing all available
+ * venue records from the database.
+ */
+
 package com.ems.actions;
 
 import java.util.List;

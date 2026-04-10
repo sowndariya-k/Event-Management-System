@@ -1,3 +1,9 @@
+/*
+ * Author : Jagadeep
+ * OfferDaoImpl implements the OfferDao interface and
+ * handles all offer-related CRUD operations on the MySQL
+ * database using JDBC PreparedStatement and ResultSet.
+ */
 package com.ems.dao.impl;
 
 import java.sql.Connection;

@@ -1,3 +1,9 @@
+/*
+ * Author : Mythily
+ * TicketAction provides helper actions for fetching and
+ * displaying available ticket types for a selected event,
+ * used during the registration and booking process.
+ */
 package com.ems.actions;
 
 import java.util.List;

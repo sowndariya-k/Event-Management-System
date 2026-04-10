@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * RoleDao is the DAO interface that declares contract
+ * methods for retrieving user role data from the
+ * database.
+ */
 package com.ems.dao;
 
 import java.util.List;

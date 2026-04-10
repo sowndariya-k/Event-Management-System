@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * PaymentDaoImpl implements the PaymentDao interface and
+ * processes payment transactions and stores payment records
+ * in the MySQL database using JDBC queries and ResultSet
+ * mappings.
+ */
 package com.ems.dao.impl;
 
 import java.sql.Connection;
@@ -24,35 +31,6 @@ import com.ems.util.DBConnectionUtil;
  * - Handle refunds through status updates
  */
 public class PaymentDaoImpl implements PaymentDao {
-
-	@Override
-	public void updatePaymentStatus(int registrationId) throws DataAccessException {
-		// Marks a successful payment as refunded
-				String sql = "UPDATE payments "
-						+ "SET payment_status = ? "
-						+ "WHERE registration_id = ? "
-						+ "AND payment_status = ?";
-
-				try (Connection con = DBConnectionUtil.getConnection();
-						PreparedStatement ps = con.prepareStatement(sql)) {
-
-					ps.setString(1, PaymentStatus.REFUNDED.name());
-					ps.setInt(2, registrationId);
-					ps.setString(3, PaymentStatus.SUCCESS.name());
-
-					int updatedRows = ps.executeUpdate();
-
-					if (updatedRows == 0) {
-						throw new DataAccessException(
-								"No successful payment found to refund for registration id: " + registrationId);
-					}
-
-				} catch (SQLException e) {
-					throw new DataAccessException(
-							"Database error while updating payment status for registration id: " + registrationId,
-							e);
-				}
-			}
 
 	@Override
 	public RegistrationResult registerForEvent(
@@ -222,6 +200,33 @@ public class PaymentDaoImpl implements PaymentDao {
 			}
 		}
 	}
-	
+
+	@Override
+	public void updatePaymentStatus(int registrationId) throws DataAccessException {
+		// Marks a successful payment as refunded
+		String sql = "UPDATE payments "
+				+ "SET payment_status = ? "
+				+ "WHERE registration_id = ? "
+				+ "AND payment_status = ?";
+
+		try (Connection con = DBConnectionUtil.getConnection();
+				PreparedStatement ps = con.prepareStatement(sql)) {
+
+			ps.setString(1, PaymentStatus.REFUNDED.name());
+			ps.setInt(2, registrationId);
+			ps.setString(3, PaymentStatus.SUCCESS.name());
+
+			int updatedRows = ps.executeUpdate();
+
+			 if (updatedRows == 0) {
+		            System.out.println("DEBUG: No successful payment found to refund for registrationId = " + registrationId);
+		        }
+
+		    } catch (SQLException e) {
+		        throw new DataAccessException(
+		            "Database error while updating payment status for registration id: " + registrationId,
+		            e);
+		    }
+	}
 
 }

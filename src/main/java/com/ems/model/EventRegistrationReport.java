@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * EventRegistrationReport is a model class that holds
+ * registration report data for a specific event, including
+ * the event title, total registrations, and registration
+ * date, used for admin report generation.
+ */
 package com.ems.model;
 
 import java.time.Instant;

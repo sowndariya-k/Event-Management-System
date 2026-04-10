@@ -1,3 +1,10 @@
+/*
+ * Author : Mythily
+ * UserEventRegistration is a model class that represents
+ * a combined view of a user's event registration including
+ * event details, ticket type, payment info, and registration
+ * status, used for displaying booking history.
+ */
 package com.ems.model;
 
 import java.time.Instant;

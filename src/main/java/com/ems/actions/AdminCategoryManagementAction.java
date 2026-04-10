@@ -1,3 +1,11 @@
+/*
+ * Author : Sowndariya
+ * AdminCategoryManagementAction handles all admin-side
+ * operations related to event categories, including
+ * adding, updating, activating, and deactivating categories
+ * through console interaction using Scanner input.
+ */
+ 
 package com.ems.actions;
 
 import java.util.List;

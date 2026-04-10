@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * PasswordUtil is a utility class that provides methods
+ * for hashing plain-text passwords and verifying passwords
+ * against stored hashes using the BCrypt algorithm for
+ * secure credential management.
+ */
 package com.ems.util;
 
 import com.ems.exception.InvalidPasswordFormatException;

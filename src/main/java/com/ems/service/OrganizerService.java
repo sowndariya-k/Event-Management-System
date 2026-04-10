@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya, Mythily, Jagadeep
+ * OrganizerService is the service interface that defines
+ * business logic contracts for organizer operations such
+ * as event creation, ticket management, offer handling,
+ * and revenue report retrieval.
+ */
 package com.ems.service;
 
 import java.time.LocalDateTime;

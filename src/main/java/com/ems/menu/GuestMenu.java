@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * GuestMenu handles the menu flow for unauthenticated
+ * guests, allowing them to browse events, register a new
+ * account, or log in to access the full system.
+ */
 package com.ems.menu;
 
 import java.util.Scanner;

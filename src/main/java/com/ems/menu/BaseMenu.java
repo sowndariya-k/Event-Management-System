@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * BaseMenu is the abstract base class for all role-specific
+ * menus in the application, providing the shared structure
+ * for holding the logged-in user and defining the menu
+ * display contract.
+ */
 package com.ems.menu;
 
 import com.ems.exception.DataAccessException;

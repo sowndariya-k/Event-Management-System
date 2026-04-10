@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * AdminUserManagementAction provides admin controls to
+ * manage user accounts, including viewing, suspending,
+ * activating, and sorting users by role or status.
+ */
+
 package com.ems.actions;
 
 import java.util.Comparator;

@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * NotificationService is the service interface that
+ * declares contracts for sending and retrieving notifications
+ * to users and organizers based on notification type and
+ * recipient.
+ */
 package com.ems.service;
 
 import com.ems.exception.DataAccessException;

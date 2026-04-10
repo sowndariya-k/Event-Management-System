@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * AuthenticationException is a custom checked exception
+ * thrown when a user login attempt fails due to invalid
+ * credentials or unrecognized account details.
+ */
 package com.ems.exception;
 
 /**

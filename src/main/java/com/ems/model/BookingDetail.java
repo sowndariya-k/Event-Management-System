@@ -1,3 +1,10 @@
+/*
+ * Author : Mythily
+ * BookingDetail is a model class that represents the
+ * summary details of a user's event booking, including
+ * event title, ticket type, payment amount, and
+ * registration timestamp.
+ */
 package com.ems.model;
 
 import java.time.Instant;

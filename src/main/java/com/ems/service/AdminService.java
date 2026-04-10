@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * AdminService is the service interface that defines
+ * business logic contracts for admin operations including
+ * user management, event oversight, venue handling,
+ * notification dispatch, and report generation.
+ */
 package com.ems.service;
 
 import java.util.List;

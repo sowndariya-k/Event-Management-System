@@ -1,3 +1,10 @@
+/*
+ * Author : Jagadeep
+ * Ticket is a model class that represents a ticket type
+ * for an event, containing ticket ID, event ID, ticket
+ * name, price, total quantity, and available quantity,
+ * mapped to the tickets table.
+ */
 package com.ems.model;
 
 public class Ticket {

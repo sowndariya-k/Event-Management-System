@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * MainMenu is the root menu of the application that handles
+ * initial user login and routing, directing authenticated
+ * users to their role-specific menus (Admin, Organizer,
+ * or User) after successful login.
+ */
 package com.ems.menu;
 
 import java.util.Scanner;
@@ -69,13 +76,7 @@ public class MainMenu {
 						break;
 
 					case ATTENDEE:
-						UserMenu userMenu = new UserMenu(scanner,
-								user,
-								userAction,
-								ApplicationUtil.eventService(),
-								ApplicationUtil.offerService(),
-								new UserRegistrationAction(ApplicationUtil.eventService(), scanner),
-								new EventRegistrationAction(scanner));
+						UserMenu userMenu = new UserMenu(scanner,user);
 						userMenu.start();
 						break;
 

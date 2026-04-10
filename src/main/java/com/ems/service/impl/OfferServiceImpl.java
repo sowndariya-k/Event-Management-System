@@ -1,3 +1,10 @@
+/*
+ * Author : Jagadeep
+ * OfferServiceImpl implements the OfferService interface
+ * and provides business logic for managing event offers,
+ * including validation of offer codes and discount
+ * calculations using the OfferDao.
+ */
 package com.ems.service.impl;
 
 import java.time.LocalDateTime;

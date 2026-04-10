@@ -1,3 +1,10 @@
+/*
+ * Author : Jagadeep
+ * CategoryDao is the DAO interface that defines contract
+ * methods for category-related database operations such
+ * as retrieving, adding, updating, and toggling the
+ * active status of event categories.
+ */
 package com.ems.dao;
 
 import java.util.List;

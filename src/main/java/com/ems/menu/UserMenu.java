@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * UserMenu presents the attendee dashboard menu, allowing
+ * logged-in users to browse events, search, register for
+ * events, view their bookings, submit feedback, and manage
+ * their profile.
+ */
 package com.ems.menu;
 
 import java.util.Scanner;
@@ -13,36 +20,36 @@ import com.ems.exception.DataAccessException;
 import com.ems.model.User;
 import com.ems.service.EventService;
 import com.ems.service.OfferService;
+import com.ems.service.UserService;
+import com.ems.util.ApplicationUtil;
 import com.ems.util.InputValidationUtil;
 
-public class UserMenu {
+public class UserMenu extends BaseMenu {
 
-	private final Scanner scanner;
-	private final User loggedInUser;
+    private final Scanner scanner;
 
-	private final NotificationAction notificationAction;
-	private final EventBrowsingAction eventBrowsingAction;
-	private final EventRegistrationAction eventRegistrationAction;
-	private final UserRegistrationAction userRegistrationAction;
-	private final EventSearchAction eventSearchAction;
-	private final FeedbackAction feedbackAction;
-	private final UserAction userAction;
+    private final NotificationAction notificationAction;
+    private final EventBrowsingAction eventBrowsingAction;
+    private final EventRegistrationAction eventRegistrationAction;
+    private final UserRegistrationAction userRegistrationAction;
+    private final EventSearchAction eventSearchAction;
+    private final FeedbackAction feedbackAction;
+    private final UserAction userAction;
 
-	public UserMenu(Scanner scanner, User user, UserAction userAction, EventService eventService,
-			OfferService offerService, UserRegistrationAction userRegistrationAction,
-			EventRegistrationAction eventRegistrationAction) {
+    public UserMenu(Scanner scanner, User user) {
+        super(user);
+        this.scanner = scanner;
+        EventService eventService = ApplicationUtil.eventService();
+        UserService userService = ApplicationUtil.userService();
 
-		this.scanner = scanner;
-		this.loggedInUser = user;
-		this.userAction = userAction;
-
-		this.notificationAction = new NotificationAction();
-		this.eventBrowsingAction = new EventBrowsingAction(scanner);
-		this.eventRegistrationAction = eventRegistrationAction;
-		this.userRegistrationAction = userRegistrationAction;
-		this.eventSearchAction = new EventSearchAction(eventService, scanner);
-		this.feedbackAction = new FeedbackAction(scanner);
-	}
+        this.notificationAction = new NotificationAction();
+        this.eventBrowsingAction = new EventBrowsingAction(scanner);
+        this.eventRegistrationAction = new EventRegistrationAction(scanner);
+        this.userRegistrationAction = new UserRegistrationAction(eventService, scanner);
+        this.eventSearchAction = new EventSearchAction(scanner);
+        this.feedbackAction = new FeedbackAction(scanner);
+        this.userAction = new UserAction(userService, scanner);
+    }
 
 	public void start() throws DataAccessException {
 

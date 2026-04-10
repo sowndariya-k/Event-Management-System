@@ -1,3 +1,11 @@
+/*
+ * Author : Jagadeep
+ * OrganizerEventSummary is a model class that provides
+ * a lightweight summary view of an organizer's event,
+ * including event ID, title, and current status, used
+ * in organizer dashboard listings.
+ */
+
 package com.ems.model;
 
 public class OrganizerEventSummary {

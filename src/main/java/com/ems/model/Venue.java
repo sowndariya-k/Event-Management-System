@@ -1,3 +1,10 @@
+/*
+ * Author : Mythily
+ * Venue is a model class that represents a venue entity
+ * with fields for venue ID, name, address, city, capacity,
+ * and active status, mapped to the venues table in the
+ * database.
+ */
 package com.ems.model;
 
 import java.time.Instant;

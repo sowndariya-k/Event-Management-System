@@ -1,3 +1,9 @@
+/*
+ * Author : Mythily
+ * UserRegistrationAction manages the new user sign-up
+ * process, collecting user details via console input
+ * and registering the account through the user service.
+ */
 package com.ems.actions;
 
 import java.util.List;

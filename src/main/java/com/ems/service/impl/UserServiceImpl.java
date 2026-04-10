@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * UserServiceImpl implements the UserService interface
+ * and provides business logic for user authentication,
+ * new user registration, profile updates, and password
+ * management using the UserDao and RoleDao.
+ */
 package com.ems.service.impl;
 
 import java.time.LocalDateTime;

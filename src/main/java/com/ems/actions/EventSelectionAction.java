@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * EventSelectionAction provides a helper action for
+ * selecting a specific event from a list, used as
+ * a shared utility across multiple action classes.
+ */
+ 
 package com.ems.actions;
 
 import java.util.List;

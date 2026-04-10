@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * AdminServiceImpl implements the AdminService interface
+ * and provides business logic for admin operations including
+ * user management, event moderation, venue oversight,
+ * and report generation using the corresponding DAO classes.
+ */
 package com.ems.service.impl;
 
 import java.util.ArrayList;

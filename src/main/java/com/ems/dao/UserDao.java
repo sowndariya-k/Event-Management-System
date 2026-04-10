@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * UserDao is the DAO interface that defines contract
+ * methods for user-related database operations including
+ * registration, authentication, profile updates, role
+ * management, and user status changes.
+ */
 package com.ems.dao;
 
 import java.time.LocalDateTime;

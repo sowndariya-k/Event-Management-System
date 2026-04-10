@@ -1,3 +1,9 @@
+/*
+ * Author : Jagadeep
+ * OrganizerReportAction generates revenue and registration
+ * reports for organizers, summarizing performance data
+ * across all events managed by the organizer.
+ */
 package com.ems.actions;
 
 import java.util.List;

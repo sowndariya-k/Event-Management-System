@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * InputValidationUtil provides reusable console input
+ * helper methods with built-in validation, including
+ * methods for reading integers, strings, emails, and
+ * dates safely from the Scanner with error handling.
+ */
 package com.ems.util;
 
 import java.util.Scanner;

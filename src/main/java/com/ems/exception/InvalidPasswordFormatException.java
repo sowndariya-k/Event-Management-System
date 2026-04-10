@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * InvalidPasswordFormatException is a custom checked exception
+ * thrown when a user's password does not meet the required
+ * format or strength policy during registration or update.
+ */
 package com.ems.exception;
 
 /**

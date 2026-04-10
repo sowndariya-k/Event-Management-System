@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * NotificationDao is the DAO interface that defines
+ * contract methods for creating, fetching, and managing
+ * notifications for users and organizers by type and
+ * recipient.
+ */
 package com.ems.dao;
 
 import java.util.List;

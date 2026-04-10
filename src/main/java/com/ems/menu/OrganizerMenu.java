@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * OrganizerMenu presents the organizer dashboard and routes
+ * organizer inputs to appropriate actions for event creation,
+ * ticket management, offer management, registration viewing,
+ * and revenue reports.
+ */
 package com.ems.menu;
 
 import java.util.ArrayList;

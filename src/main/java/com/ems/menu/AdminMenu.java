@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * AdminMenu presents the admin dashboard menu and routes
+ * admin inputs to the appropriate action classes for
+ * managing users, events, venues, tickets, offers,
+ * notifications, categories, and reports.
+ */
 package com.ems.menu;
 
 import java.util.Scanner;

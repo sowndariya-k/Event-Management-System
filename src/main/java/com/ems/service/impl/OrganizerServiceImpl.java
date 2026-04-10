@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya, Mythily, Jagadeep
+ * OrganizerServiceImpl implements the OrganizerService
+ * interface and provides the business logic for organizer
+ * operations such as event and ticket management, offer
+ * creation, and revenue reporting via the DAO layer.
+ */
 package com.ems.service.impl;
 
 import java.time.LocalDateTime;

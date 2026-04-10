@@ -1,3 +1,9 @@
+/*
+ * Author : Jagadeep
+ * OrganizerOfferManagementAction allows organizers to
+ * manage discount offers linked to their events, including
+ * creating, editing, activating, and removing offers.
+ */
 package com.ems.actions;
 
 import java.time.LocalDateTime;

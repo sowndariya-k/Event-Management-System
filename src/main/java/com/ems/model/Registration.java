@@ -1,3 +1,11 @@
+/*
+ * Author : Mythily
+ * Registration is a model class that represents an event
+ * registration record, containing user ID, event ID,
+ * ticket details, registration status, and timestamps,
+ * mapped to the registrations table.
+ */
+ 
 package com.ems.model;
 
 import java.time.Instant;

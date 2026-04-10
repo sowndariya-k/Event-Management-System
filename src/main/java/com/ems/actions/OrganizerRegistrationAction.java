@@ -1,3 +1,10 @@
+/*
+ * Author : Mythily
+ * OrganizerRegistrationAction handles the registration
+ * flow for new organizers, collecting required profile
+ * details and saving organizer accounts to the database.
+ */
+
 package com.ems.actions;
 
 import java.util.Comparator;
@@ -20,11 +27,10 @@ public class OrganizerRegistrationAction {
 	
 	private final Scanner scanner;
 	private OrganizerService organizerService;
-	private final EventService eventService;
 	
 	public OrganizerRegistrationAction(Scanner scanner) {
         this.organizerService = ApplicationUtil.organizerService();
-        this.eventService = ApplicationUtil.eventService();
+        ApplicationUtil.eventService();
         this.scanner = scanner;
     }
 

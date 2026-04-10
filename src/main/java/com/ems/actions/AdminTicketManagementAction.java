@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * AdminTicketManagementAction handles admin operations for
+ * ticket management, including viewing all tickets, sorting
+ * them, and overseeing ticket availability across events.
+ */
+
 package com.ems.actions;
 
 import java.util.Comparator;

@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * Role is a model class that represents a user role
+ * entity with a role ID, role name, and creation
+ * timestamp, mapped to the roles table in the database.
+ */
 package com.ems.model;
 
 import java.time.Instant;

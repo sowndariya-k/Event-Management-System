@@ -1,3 +1,9 @@
+/*
+ * Author : Jagadeep
+ * FeedbackDao is the DAO interface that declares the
+ * contract for saving and retrieving user feedback
+ * records associated with attended events.
+ */
 package com.ems.dao;
 
 import com.ems.exception.DataAccessException;

@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * Notification is a model class that represents a system
+ * or event notification, containing recipient details,
+ * notification type, message content, and read status,
+ * mapped to the notifications table.
+ */
 package com.ems.model;
 
 import java.time.Instant;

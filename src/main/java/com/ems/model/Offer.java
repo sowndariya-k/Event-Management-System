@@ -1,3 +1,10 @@
+/*
+ * Author : Jagadeep
+ * Offer is a model class that represents a discount offer
+ * linked to an event, containing offer code, discount
+ * percentage, validity dates, and active status, mapped
+ * to the offers table.
+ */
 package com.ems.model;
 
 import java.time.Instant;

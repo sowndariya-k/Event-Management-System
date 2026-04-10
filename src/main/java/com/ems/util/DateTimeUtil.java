@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * DateTimeUtil is a utility class that provides helper
+ * methods for parsing, formatting, and converting date
+ * and time values between Java LocalDateTime, Instant,
+ * Timestamp, and user-readable string formats.
+ */
 package com.ems.util;
 
 import java.sql.Timestamp;

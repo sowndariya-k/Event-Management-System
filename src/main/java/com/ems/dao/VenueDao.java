@@ -1,3 +1,10 @@
+/*
+ * Author : Mythily
+ * VenueDao is the DAO interface that defines contract
+ * methods for venue-related database operations such as
+ * adding, updating, deactivating, and retrieving venue
+ * records.
+ */
 package com.ems.dao;
 
 import java.sql.Timestamp;

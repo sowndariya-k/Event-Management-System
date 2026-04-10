@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya,Mythily,Jagadeep
+ * Event is a model class that represents an event entity
+ * with fields for event ID, title, description, category,
+ * venue, organizer, dates, capacity, status, and pricing,
+ * mapped to the events table in the database.
+ */
 package com.ems.model;
 
 import java.time.Instant;

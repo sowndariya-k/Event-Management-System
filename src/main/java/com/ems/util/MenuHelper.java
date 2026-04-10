@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya, Mythily, Jagadeep
+ * MenuHelper provides shared display utility methods for
+ * the user and organizer menus, including formatted console
+ * output for booking details, event lists, registration
+ * summaries, and ticket information.
+ */
 package com.ems.util;
 
 import java.util.List;
@@ -107,7 +114,7 @@ public class MenuHelper {
 
         System.out.println("\nAVAILABLE EVENTS");
         System.out.println(SEPARATOR);
-        System.out.printf("%-5s %-30s %-20s %-20s %-10s%n",
+        System.out.printf("%-5s %-30s %-22s %-20s %-10s%n",
                 "NO", "TITLE", "CATEGORY", "START DATE", "TICKETS");
         System.out.println(SUB_SEPARATOR);
 
@@ -117,7 +124,7 @@ public class MenuHelper {
                 String category = eventService.getCategory(event.getCategoryId()).getName();
                 int available = eventService.getAvailableTickets(event.getEventId());
 
-                System.out.printf("%-5d %-30s %-20s %-20s %-10d%n",
+                System.out.printf("%-5d %-30s %-22s %-20s %-10d%n",
                         index++,
                         truncate(event.getTitle(), 29),
                         category,

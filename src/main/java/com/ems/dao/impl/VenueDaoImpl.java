@@ -1,3 +1,10 @@
+/*
+ * Author : Mythily
+ * VenueDaoImpl implements the VenueDao interface and
+ * manages all venue-related CRUD operations on the MySQL
+ * database using JDBC PreparedStatement and ResultSet
+ * mappings.
+ */
 package com.ems.dao.impl;
 
 import java.sql.Connection;

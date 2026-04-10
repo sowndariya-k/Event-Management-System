@@ -1,4 +1,13 @@
--- create database
+/*
+ * Author : Sowndariya
+ * ems.sql contains the complete MySQL database schema and
+ * seed data for the Event Management System, including
+ * table definitions for users, events, venues, tickets,
+ * registrations, payments, offers, notifications, feedback,
+ * categories, roles, and system logs.
+ */
+ 
+ -- create database
 CREATE DATABASE  IF NOT EXISTS `event_management_system` ;
 
 -- use database 
@@ -87,7 +96,7 @@ INSERT INTO `categories` (`category_id`, `name`, `is_active`) VALUES
 (5, 'Education', 1),
 (6, 'Arts & Culture', 1),
 (7, 'Sports', 1),
-(8, 'Food & Beveragecategories', 1),
+(8, 'Food & Beverage', 1),
 (9, 'Networking', 1),
 (10, 'Entertainment', 1),
 (11, 'Infotainment', 0);
@@ -174,7 +183,7 @@ LOCK TABLES `events` WRITE;
 INSERT INTO `events` 
 (`event_id`, `organizer_id`, `title`, `description`, `category_id`, `venue_id`, `start_datetime`, `end_datetime`, `capacity`, `status`, `approved_by`, `approved_at`, `created_at`, `updated_at`)
 VALUES 
-(1, 3, 'AI & Machine Learning Summit 2026', 'Deep-dive into the latest advances in AI and ML with industry experts from across India.', 1, 1, '2026-04-10 09:00:00', '2026-04-10 18:00:00', 1000, 'DRAFT', NULL, NULL, '2026-02-01 10:00:00', CURRENT_TIMESTAMP),
+(1, 3, 'AI & Machine Learning Summit 2026', 'Deep-dive into the latest advances in AI and ML with industry experts from across India.', 1, 1, '2025-01-05 09:00:00', '2025-01-05 18:00:00', 1000, 'DRAFT', NULL, NULL, '2026-02-01 10:00:00', CURRENT_TIMESTAMP),
 (38, 5, 'AI in Healthcare Conference', 'Explore AI applications transforming healthcare, diagnostics, and patient care with expert sessions.', 1, 1, '2026-06-05 09:00:00', '2026-06-05 18:00:00', 250, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
 (39, 3, 'Sustainable Energy Summit', 'Panels and workshops on renewable energy, green tech, and sustainable business practices.', 2, 2, '2026-06-10 10:00:00', '2026-06-10 17:00:00', 300, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
 (40, 3, 'Startup Pitch Night', 'Early-stage startups pitch to investors, receive feedback and networking opportunities.', 3, 3, '2026-06-15 18:00:00', '2026-06-15 21:00:00', 150, 'DRAFT', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
@@ -189,7 +198,11 @@ VALUES
 (50, 5, 'Music Night Live', 'Live concert with top bands.', 2, 7, '2026-07-20 18:00:00', '2026-07-20 22:00:00', 3000, 'PUBLISHED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
 (51, 3, 'Business Growth Summit', 'Strategies for scaling businesses.', 3, 3, '2026-07-22 09:00:00', '2026-07-22 17:00:00', 400, 'APPROVED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
 (52, 6, 'Art & Culture Fest', 'Celebrating traditional and modern art.', 6, 5, '2026-07-25 10:00:00', '2026-07-26 18:00:00', 600, 'PUBLISHED', 1, NOW(), NOW(), CURRENT_TIMESTAMP),
-(53, 5, 'Yoga Retreat', 'Relaxation and mindfulness sessions.', 4, 6, '2026-07-28 06:00:00', '2026-07-28 12:00:00', 200, 'CANCELLED', NULL, NULL, NOW(), CURRENT_TIMESTAMP);
+(53, 5, 'Yoga Retreat', 'Relaxation and mindfulness sessions.', 4, 6, '2026-07-28 06:00:00', '2026-07-28 12:00:00', 200, 'CANCELLED', NULL, NULL, NOW(), CURRENT_TIMESTAMP),
+(60, 3, 'AI Bootcamp 2025', 'AI Bootcamp learning AI tools.', 1, 1,'2025-03-10 09:00:00', '2025-03-10 18:00:00',200, 'PUBLISHED', 1, NOW(), NOW(), NOW()),
+(61, 5, 'Tech Meetup 2025', 'Networking and tech talks.', 2, 2,'2025-02-15 10:00:00', '2025-02-15 17:00:00',150, 'PUBLISHED', 1, NOW(), NOW(), NOW());
+ UNLOCK TABLES;
+
 SELECT * FROM `events`;
 -- approve
 SELECT * 
@@ -317,7 +330,9 @@ LOCK TABLES `registrations` WRITE;
 INSERT INTO `registrations` 
 (`registration_id`, `user_id`, `event_id`, `registration_date`, `status`)
 VALUES 
-(1, 2, 1, '2026-01-05 10:15:00', 'CONFIRMED');
+(1, 2, 1, '2026-01-05 10:15:00', 'CONFIRMED'),
+(200, 1, 60, NOW(), 'CONFIRMED'),
+(201, 1, 61, NOW(), 'CONFIRMED');
 UNLOCK TABLES;
 
 -- Check inserted data
@@ -382,14 +397,14 @@ INSERT INTO `tickets` (`ticket_id`, `event_id`, `ticket_type`, `price`, `total_q
 (3,1,'Delegate Pass',999.00,500,500),
 (4, 39, 'Regular', 500, 100, 100),
 (5, 39, 'VIP', 1000, 50, 50),
-(38, 'General', 500.00, 250, 250),
-(42, 'General', 750.00, 500, 500),
-(45, 'General', 600.00, 200, 200),
-(46, 'General', 300.00, 300, 300),
-(47, 'General', 400.00, 150, 150),
-(48, 'General', 700.00, 1000, 1000),
-(50, 'General', 800.00, 3000, 3000),
-(52, 'General', 450.00, 600, 600);
+(38, 38, 'General', 500.00, 250, 250),
+(42, 42, 'General', 750.00, 500, 500),
+(45, 45, 'General', 600.00, 200, 200),
+(46, 46, 'General', 300.00, 300, 300),
+(47, 47, 'General', 400.00, 150, 150),
+(48, 48, 'General', 700.00, 1000, 1000),
+(50, 50, 'General', 800.00, 3000, 3000),
+(52, 52, 'General', 450.00, 600, 600);
 UNLOCK TABLES;
 -- Reference query to check data
 SELECT * FROM `tickets`;
@@ -417,7 +432,9 @@ LOCK TABLES `registration_tickets` WRITE;
 INSERT INTO `registration_tickets` 
 (`id`, `registration_id`, `ticket_id`, `quantity`)
 VALUES 
-(1, 1, 3, 1);
+(1, 1, 3, 1),
+(9, 200, 1, 2),
+(10, 201, 1, 1);
 UNLOCK TABLES;
 
 -- Check inserted data
@@ -449,11 +466,11 @@ INSERT INTO `payments`
 VALUES 
 (1, 1, 3999.00, 'CARD', 'SUCCESS', '2026-01-05 10:16:00', NULL);
 UNLOCK TABLES;
-
 -- Check inserted data
 SELECT * FROM `payments`;
 
 
+DROP PROCEDURE IF EXISTS sp_register_for_event;
 --
 -- Dumping routines for database 'event_management_db'
 --
@@ -665,7 +682,7 @@ proc_block: BEGIN
     SET o_success = TRUE;
     SET o_message = 'Registration successful';
 
-END proc ;;
+END proc_block ;;
 DELIMITER ;
 
 -- Declare output variables
@@ -688,8 +705,27 @@ CALL sp_register_for_event(
     @reg_id,
     @final_amt
 );
-
 SELECT @success AS success, @msg AS message, @reg_id AS registration_id, @final_amt AS final_amount;
 
+SELECT * 
+FROM registrations r
+JOIN events e ON r.event_id = e.event_id
+WHERE r.user_id = 2
+AND r.status = 'CONFIRMED'
+AND e.start_datetime >= NOW();
+SELECT * FROM payments WHERE registration_id = 6;
+DESC payments;
+ALTER TABLE payments 
+MODIFY payment_status ENUM('SUCCESS','FAILED','PENDING','REFUNDED');
 
 SELECT * FROM registrations WHERE user_id = 2;
+SELECT * FROM feedback WHERE user_id = 2;
+
+SELECT e.event_id, e.start_datetime, e.end_datetime, r.status
+FROM events e
+JOIN registrations r ON e.event_id = r.event_id
+WHERE r.user_id = 2;
+
+UPDATE registrations
+SET status = 'CONFIRMED'
+WHERE event_id IN (42,47,50);

@@ -1,3 +1,10 @@
+/*
+ * Author : Jagadeep
+ * FeedbackDaoImpl implements the FeedbackDao interface
+ * and handles insertion and retrieval of user feedback
+ * records from the MySQL database using JDBC queries.
+ */
+
 package com.ems.dao.impl;
 
 import java.sql.Connection;
@@ -46,12 +53,12 @@ public class FeedbackDaoImpl implements FeedbackDao {
 	public boolean submitRating(int eventId, int userId, int rating, String comments)
 	        throws DataAccessException {
 	
-		 String sql =
-			        "select count(*) from events e " +
-			        "join registrations r on e.event_id = r.event_id " +
-			        "where r.user_id = ? " +
-			        "and e.event_id = ? " +
-			        "and r.status = 'CONFIRMED'";
+		String sql =
+			    "select count(*) from events e " +
+			    "join registrations r on e.event_id = r.event_id " +
+			    "where r.user_id = ? " +
+			    "and r.status IN ('CONFIRMED', 'COMPLETED') " +
+			    "and e.end_datetime < CURRENT_TIMESTAMP";
 			
 			    try (Connection con = DBConnectionUtil.getConnection();
 			         PreparedStatement ps = con.prepareStatement(sql)) {

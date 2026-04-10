@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * AdminEventManagementAction provides admin controls for
+ * managing events, including viewing, approving, cancelling,
+ * and updating event status across the system.
+ */
+ 
 package com.ems.actions;
 
 import java.util.List;
@@ -12,6 +19,7 @@ import com.ems.service.EventService;
 import com.ems.util.AdminMenuHelper;
 import com.ems.util.ApplicationUtil;
 import com.ems.util.InputValidationUtil;
+import com.ems.util.MenuHelper;
 
 public class AdminEventManagementAction {
 	private final AdminService adminService;
@@ -27,72 +35,64 @@ public class AdminEventManagementAction {
 
 	// LIST ALL EVENTS
 	public void listAllEvents() {
-		 try {
-	            List<Event> events = getAllEvents();
-
-	            if (events.isEmpty()) {
-	                System.out.println("No events available at the moment.");
-	                return;
-	            }
-
-	            AdminMenuHelper.printAllEventsWithStatus(events, 1);
-
-	        } catch (DataAccessException e) {
-	            System.out.println("Error listing events: " + e.getMessage());
-	        }
-		
+		try {
+			List<Event> events = getAllEvents();
+			if (events.isEmpty()) {
+				System.out.println("No events available at the moment.");
+			} else {
+				AdminMenuHelper.printAllEventsWithStatus(events);
+			}
+		} catch (DataAccessException e) {
+			System.out.println("Error listing events: " + e.getMessage());
+		}
 	}
 	
 	// EVENT DETAILS
 	public void printEventDetails() {
-		 try {
-	            Event event = selectAnyEvent();
-	            if (event == null) return;
+		try {
+			Event selectedEvent = selectAnyEvent();
+			if (selectedEvent == null)
+				return;
 
-	            AdminMenuHelper.printEventDetails(event);
-
-	        } catch (DataAccessException e) {
-	            System.out.println("Error printing event details: " + e.getMessage());
-	        }
+			MenuHelper.printEventDetails(selectedEvent);
+		} catch (DataAccessException e) {
+			System.out.println("Error printing event details: " + e.getMessage());
+		}
 	}
 	
 	// LIST TICKETS
 	public void listTicketsForEvent() {
-		 try {
-	            List<Event> events = getAllEvents();
+		try {
+			List<Event> events = getAllEvents();
+			List<Event> filteredEvents = events.stream()
+					.filter(e -> EventStatus.PUBLISHED.equals(e.getStatus())).toList();
+			if (filteredEvents.isEmpty()) {
+				System.out.println("No published events available at the moment.");
+				return;
+			}
 
-	            List<Event> filtered = events.stream()
-	                    .filter(e -> EventStatus.PUBLISHED.equals(e.getStatus()))
-	                    .toList();
+			AdminMenuHelper.printAllEventsWithStatus(filteredEvents);
 
-	            if (filtered.isEmpty()) {
-	                System.out.println("No published events available.");
-	                return;
-	            }
+			int choice = InputValidationUtil.readInt(scanner,
+					"Select an event (1-" + filteredEvents.size() + "): ");
 
-	            AdminMenuHelper.printAllEventsWithStatus(filtered, 1);
+			while (choice < 1 || choice > filteredEvents.size()) {
+				choice = InputValidationUtil.readInt(scanner, "Enter a valid choice: ");
+			}
 
-	            int choice = InputValidationUtil.readInt(scanner,
-	                    "Select an event (1-" + filtered.size() + "): ");
+			Event event = filteredEvents.get(choice - 1);
 
-	            while (choice < 1 || choice > filtered.size()) {
-	                choice = InputValidationUtil.readInt(scanner, "Enter valid choice: ");
-	            }
+			List<Ticket> tickets = eventService.getTicketTypes(event.getEventId());
 
-	            Event event = filtered.get(choice - 1);
+			if (tickets.isEmpty()) {
+				System.out.println("No ticket options are available for this event.");
+				return;
+			}
 
-	            List<Ticket> tickets = eventService.getTicketTypes(event.getEventId());
-
-	            if (tickets.isEmpty()) {
-	                System.out.println("No ticket options available.");
-	                return;
-	            }
-
-	            AdminMenuHelper.printTicketDetails(tickets);
-
-	        } catch (DataAccessException e) {
-	            System.out.println("Error listing tickets: " + e.getMessage());
-	        }
+			AdminMenuHelper.printTicketDetails(tickets);
+		} catch (DataAccessException e) {
+			System.out.println("Error listing tickets: " + e.getMessage());
+		}
 	}
 
 	 // AVAILABLE EVENTS
@@ -199,9 +199,11 @@ public class AdminEventManagementAction {
 	
 
 	public void markCompletedEvents() {
-		
-		
-		
+		try {
+			adminService.markCompletedEvents();
+		} catch (DataAccessException e) {
+			System.out.println("Error marking completed events: " + e.getMessage());
+		}
 	}
 	
 	

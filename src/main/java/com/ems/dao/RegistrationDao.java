@@ -1,3 +1,10 @@
+/*
+ * Author : Mythily
+ * RegistrationDao is the DAO interface that defines
+ * contract methods for managing event registrations
+ * including saving, cancelling, and fetching registration
+ * records and reports.
+ */
 package com.ems.dao;
 
 import java.util.List;

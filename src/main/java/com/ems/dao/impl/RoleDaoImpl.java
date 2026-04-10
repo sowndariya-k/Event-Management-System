@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * RoleDaoImpl implements the RoleDao interface and
+ * retrieves role data from the MySQL database using
+ * JDBC queries, mapping role records to Role model objects.
+ */
 package com.ems.dao.impl;
 
 import java.util.ArrayList;

@@ -1,3 +1,9 @@
+/*
+ * Author : Jagadeep
+ * OfferService is the service interface that defines
+ * business logic contracts for managing event discount
+ * offers including creation, validation, and retrieval.
+ */
 package com.ems.service;
 
 import java.time.LocalDateTime;

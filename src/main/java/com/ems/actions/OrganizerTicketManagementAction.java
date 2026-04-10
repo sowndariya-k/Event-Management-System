@@ -1,3 +1,9 @@
+/*
+ * Author : Mythily
+ * OrganizerTicketManagementAction enables organizers to
+ * create, update, and manage ticket types for their events,
+ * including setting prices, quantities, and ticket categories.
+ */
 package com.ems.actions;
 
 import java.time.Instant;

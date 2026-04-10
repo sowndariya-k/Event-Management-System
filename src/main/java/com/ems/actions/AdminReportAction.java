@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * AdminReportAction generates system-wide reports for the
+ * admin, including event registration summaries and revenue
+ * analytics filtered by user role and event details.
+ */
+
 package com.ems.actions;
 
 import java.util.List;

@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * DBConnectionUtil is a utility class that manages the
+ * JDBC database connection to MySQL, providing a static
+ * method to obtain a Connection instance using the
+ * configured driver, URL, username, and password.
+ */
 package com.ems.util;
 
 import java.sql.Connection;

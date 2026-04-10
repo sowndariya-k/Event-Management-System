@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * AuthorizationException is a custom checked exception
+ * thrown when a user attempts to perform an action they
+ * do not have permission to execute based on their role.
+ */
 package com.ems.exception;
 
 /**

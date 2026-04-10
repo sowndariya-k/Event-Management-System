@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * NotificationAction retrieves and displays notifications
+ * for the logged-in user or organizer, fetching unread
+ * and historical notifications from the notification service.
+ */
 package com.ems.actions;
 
 import com.ems.exception.DataAccessException;

@@ -1,3 +1,10 @@
+/*
+ * Author : Mythily
+ * RegistrationResult is a model class used as a response
+ * object after an event registration attempt, carrying
+ * success status, result message, and the generated
+ * registration ID.
+ */
 package com.ems.model;
 
 public class RegistrationResult {

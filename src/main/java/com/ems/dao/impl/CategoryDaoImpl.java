@@ -1,3 +1,9 @@
+/*
+ * Author : Jagadeep
+ * CategoryDaoImpl implements the CategoryDao interface and
+ * retrieves and modifies category data from the MySQL
+ * database using JDBC PreparedStatement queries.
+ */
 package com.ems.dao.impl;
 
 import java.util.List;

@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * PaymentServiceImpl implements the PaymentService interface
+ * and handles the payment processing logic for event
+ * registrations, updating payment records and sending
+ * payment notifications via the respective DAOs.
+ */
 package com.ems.service.impl;
 
 import com.ems.dao.EventDao;

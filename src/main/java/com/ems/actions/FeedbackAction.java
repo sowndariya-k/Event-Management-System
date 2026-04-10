@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * FeedbackAction handles the process of collecting and
+ * submitting user feedback for attended events, including
+ * rating input and comment capture through console prompts.
+ */
 package com.ems.actions;
 
 import java.util.ArrayList;

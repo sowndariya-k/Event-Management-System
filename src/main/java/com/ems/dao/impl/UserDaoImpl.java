@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * UserDaoImpl implements the UserDao interface and handles
+ * all user-related database operations such as registration,
+ * login authentication, profile update, and status management
+ * using JDBC queries against the MySQL database.
+ */
 package com.ems.dao.impl;
 
 import java.sql.*;

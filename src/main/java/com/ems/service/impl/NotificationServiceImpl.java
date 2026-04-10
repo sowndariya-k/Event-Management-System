@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * NotificationServiceImpl implements the NotificationService
+ * interface and provides the business logic for creating and
+ * delivering notifications to users and organizers by
+ * delegating to the NotificationDao.
+ */
 package com.ems.service.impl;
 
 import java.util.Comparator;

@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * NotificationDaoImpl implements the NotificationDao
+ * interface and manages the persistence and retrieval
+ * of notification records from the MySQL database using
+ * JDBC PreparedStatement queries.
+ */
 package com.ems.dao.impl;
 
 import java.sql.Connection;

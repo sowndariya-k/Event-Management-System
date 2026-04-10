@@ -1,3 +1,9 @@
+/*
+ * Author : Jagadeep
+ * Category is a model class that represents an event
+ * category entity with fields for category ID, name,
+ * and active status, mapped to the categories table.
+ */
 package com.ems.model;
 
 public class Category {

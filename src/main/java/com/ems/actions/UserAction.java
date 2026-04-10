@@ -1,3 +1,9 @@
+/*
+ * Author : Sowndariya
+ * UserAction handles user account operations including
+ * login, logout, profile update, password change, and
+ * viewing registration history for the logged-in attendee.
+ */
 package com.ems.actions;
 
 import java.time.Instant;

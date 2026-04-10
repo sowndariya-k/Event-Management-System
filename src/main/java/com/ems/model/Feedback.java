@@ -1,3 +1,10 @@
+/*
+ * Author : Jagadeep
+ * Feedback is a model class that represents a user's
+ * feedback entry for an attended event, containing
+ * the user ID, event ID, rating, comment, and submission
+ * timestamp.
+ */
 package com.ems.model;
 
 import java.time.LocalDateTime;

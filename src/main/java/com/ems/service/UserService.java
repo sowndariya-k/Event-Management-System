@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * UserService is the service interface that defines
+ * business logic contracts for user operations including
+ * authentication, registration, profile management,
+ * and role-based access control.
+ */
 package com.ems.service;
 
 import com.ems.enums.UserRole;

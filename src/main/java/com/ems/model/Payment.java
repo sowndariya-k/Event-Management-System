@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * Payment is a model class that represents a payment
+ * transaction record, containing registration ID, amount
+ * paid, payment method, payment status, and transaction
+ * timestamp, mapped to the payments table.
+ */
 package com.ems.model;
 
 import java.time.LocalDateTime;

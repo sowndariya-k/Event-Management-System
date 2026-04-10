@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * User is a model class that represents a registered user
+ * in the system, containing user ID, name, email, hashed
+ * password, role, status, and timestamps, implementing
+ * Comparable for sorting by user attributes.
+ */
 package com.ems.model;
 
 import java.time.Instant;

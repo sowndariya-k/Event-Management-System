@@ -1,3 +1,10 @@
+/*
+ * Author : Jagadeep
+ * TicketDao is the DAO interface that defines contract
+ * methods for ticket-related database operations such as
+ * creating tickets, updating availability, and retrieving
+ * tickets by event.
+ */
 package com.ems.dao;
 
 import java.util.List;

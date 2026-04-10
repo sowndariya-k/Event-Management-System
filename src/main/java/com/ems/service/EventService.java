@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya,Mythily, Jagadeep
+ * EventService is the service interface that defines
+ * business logic contracts for event-related operations
+ * such as browsing, searching, filtering, and retrieving
+ * event details for attendees and organizers.
+ */
 package com.ems.service;
 
 import java.time.LocalDate;
@@ -16,76 +23,75 @@ import com.ems.model.Venue;
 
 public interface EventService {
 
-    List<Event> viewEvents() ;
- // ticket information
- 	List<Ticket> getTicketTypes(int eventId) throws DataAccessException;
+	// ticket information
+	List<Ticket> getTicketTypes(int eventId) throws DataAccessException;
 
- 	int getAvailableTickets(int eventId) throws DataAccessException;
+	int getAvailableTickets(int eventId) throws DataAccessException;
 
- 	// event filtering
- 	List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException;
+	// event filtering
+	List<Event> filterByPrice(double minPrice, double maxPrice) throws DataAccessException;
 
-    // event searching
- 	List<Event> searchByCity(int cityId) throws DataAccessException;
+	List<Event> searchByCity(int venueId) throws DataAccessException;
 
- 	List<Event> searchByDate(LocalDate localDate) throws DataAccessException;
+	List<Event> searchByDate(LocalDate localDate) throws DataAccessException;
 
- 	List<Event> searchByDateRange(LocalDate startDate, LocalDate endDate) throws DataAccessException;
+	List<Event> searchByDateRange(LocalDate startDate, LocalDate endDate) throws DataAccessException;
 
- 	List<Event> searchByCategory(int categoryId) throws DataAccessException;
+	List<Event> searchBycategory(int selectedCategoryId) throws DataAccessException;
 
- 	// event registration and booking
- 	boolean registerForEvent(
- 			int userId,
- 			int eventId,
- 			int ticketId,
- 			int quantity,
- 			double price,
- 			PaymentMethod paymentMethod,
- 			String offerCode) throws DataAccessException;
+	// event registration and booking
+	boolean registerForEvent(
+			int userId,
+			int eventId,
+			int ticketId,
+			int quantity,
+			double price,
+			PaymentMethod paymentMethod,
+			String offerCode) throws DataAccessException;
 
- 	List<BookingDetail> viewBookingDetails(int userId) throws DataAccessException;
+	List<BookingDetail> viewBookingDetails(int userId) throws DataAccessException;
 
- 	// user event history
- 	List<UserEventRegistration> viewUpcomingEvents(int userId) throws DataAccessException;
+	// user event history
+	List<UserEventRegistration> viewUpcomingEvents(int userId) throws DataAccessException;
 
- 	List<UserEventRegistration> viewPastEvents(int userId) throws DataAccessException;
+	List<UserEventRegistration> viewPastEvents(int userId) throws DataAccessException;
 
- 	// feedback
- 	boolean submitRating(int userId, int eventId, int rating, String comments) throws DataAccessException;
+	// feedback
+	boolean submitRating(int userId, int eventId, int rating, String comments) throws DataAccessException;
 
- 	// Event listing & retrival
- 	List<Event> getAllEvents() throws DataAccessException;
+	// Event listing & retrival
+	List<Event> getAllEvents() throws DataAccessException;
 
- 	List<Event> listAvailableEvents() throws DataAccessException;
+	List<Event> listAvailableEvents() throws DataAccessException;
 
- 	List<Event> listEventsYetToApprove() throws DataAccessException;
+	List<Event> listEventsYetToApprove() throws DataAccessException;
 
- 	List<Event> listAvailableAndDraftEvents() throws DataAccessException;
+	List<Event> listAvailableAndDraftEvents() throws DataAccessException;
 
- 	Event getEventById(int eventId) throws DataAccessException;
+	Event getEventById(int eventId) throws DataAccessException;
 
- 	// Category & city lookups
- 	Category getCategory(int eventId) throws DataAccessException;
+	// Category & city lookups
+	Category getCategory(int eventId) throws DataAccessException;
 
- 	List<Category> getAllCategories() throws DataAccessException;
+	List<Category> getAllCategory() throws DataAccessException;
 
- 	Map<Integer, String> getAllCities() throws DataAccessException;
+	Map<Integer, String> getAllCities() throws DataAccessException;
 
- 	// Venue information & availability
- 	String getVenueName(int venueId) throws DataAccessException;
+	// Venue information & availability
+	String getVenueName(int venueId) throws DataAccessException;
 
- 	String getVenueAddress(int venueId) throws DataAccessException;
+	String getVenueAddress(int venueId) throws DataAccessException;
 
- 	List<Venue> getActiveVenues() throws DataAccessException;
+	List<Venue> getActiveVenues() throws DataAccessException;
 
- 	List<Venue> getAllVenues() throws DataAccessException;
+	List<Venue> getAllVenues() throws DataAccessException;
 
- 	Venue getVenueById(int venueId) throws DataAccessException;
+	Venue getVenueById(int venueId) throws DataAccessException;
 
- 	boolean isVenueAvailable(int venueId, LocalDateTime startTime, LocalDateTime endTime) throws DataAccessException;
+	boolean isVenueAvailable(int venueId, LocalDateTime startTime, LocalDateTime endTime) throws DataAccessException;
 
- 	boolean cancelRegistration(int userId, int registrationId) throws DataAccessException;
+	boolean cancelRegistration(int userId, int registrationId) throws DataAccessException;
 
- 	boolean isRatingAlreadySubmitted(int eventId, int userId) throws DataAccessException;
+	boolean isRatingAlreadySubmitted(int eventId, int userId) throws DataAccessException;
+
 }

@@ -1,3 +1,10 @@
+/*
+ * Author : Sowndariya
+ * AdminNotificationManagementAction allows the admin to
+ * create and send notifications to users or organizers,
+ * supporting different notification types such as SYSTEM,
+ * EVENT, and PAYMENT.
+ */
 package com.ems.actions;
 
 import java.util.List;
@@ -8,9 +15,9 @@ import com.ems.enums.UserRole;
 import com.ems.exception.DataAccessException;
 import com.ems.model.User;
 import com.ems.service.AdminService;
-import com.ems.util.AdminMenuHelper;
 import com.ems.util.ApplicationUtil;
 import com.ems.util.InputValidationUtil;
+import com.ems.util.MenuHelper;
 
 public class AdminNotificationManagementAction {
 	private final AdminService adminService;
@@ -94,47 +101,47 @@ public class AdminNotificationManagementAction {
 			List<User> users = adminService.getAllUsers();
 
 			if (users.isEmpty()) {
-			    System.out.println("No users available");
-			    return;
+				System.out.println("No users available");
+				return;
 			}
 
-			// display using helper
-			AdminMenuHelper.printUsers(users, 1);
+			MenuHelper.displayUsers(users);
 
 			int choice = InputValidationUtil.readInt(scanner,
-			        "Select a user (1-" + users.size() + "): ");
+					"Select a user (1-" + users.size() + "): ");
 
 			while (choice < 1 || choice > users.size()) {
-			    choice = InputValidationUtil.readInt(scanner, "Enter a valid choice: ");
+				choice = InputValidationUtil.readInt(scanner, "Enter a valid choice: ");
 			}
 
 			User selectedUser = users.get(choice - 1);
 
-		System.out.println("\nSelect notification type\n" + "1. SYSTEM\n" + "2. EVENT\n" + "3. PAYMENT\n>");
+			System.out.println("\nSelect notification type\n" + "1. SYSTEM\n" + "2. EVENT\n" + "3. PAYMENT\n>");
 
-		int typeChoice = InputValidationUtil.readInt(scanner, "");
+			int typeChoice = InputValidationUtil.readInt(scanner, "");
 
-		NotificationType type;
+			NotificationType type;
 
-		if (typeChoice == 1) {
-			type = NotificationType.SYSTEM;
-		} else if (typeChoice == 2) {
-			type = NotificationType.EVENT;
-		} else if (typeChoice == 3) {
-			type = NotificationType.PAYMENT;
-		} else {
-			System.out.println("Invalid notification type selected.");
-			return;
+			if (typeChoice == 1) {
+				type = NotificationType.SYSTEM;
+			} else if (typeChoice == 2) {
+				type = NotificationType.EVENT;
+			} else if (typeChoice == 3) {
+				type = NotificationType.PAYMENT;
+			} else {
+				System.out.println("Invalid notification type selected.");
+				return;
+			}
+
+			String message = InputValidationUtil.readNonEmptyString(scanner, "Enter message: ");
+
+			sendNotificationToUser(message, type, selectedUser.getUserId());
+
+			System.out.println("Notification sent successfully.");
+		} catch (DataAccessException e) {
+			System.out.println("Error sending notification: " + e.getMessage());
 		}
-
-		String message = InputValidationUtil.readNonEmptyString(scanner, "Enter message: ");
-
-		sendNotificationToUser(message, type, selectedUser.getUserId());
-
-		System.out.println("Notification sent successfully.");
-	} catch (DataAccessException e) {
-		System.out.println("Error sending notification: " + e.getMessage());
 	}
-  }
+
 		
 }

@@ -1,10 +1,16 @@
+/*
+ * Author : Sowndariya
+ * AdminMenuHelper provides reusable display and formatting
+ * utility methods for the admin menu, including tabular
+ * output of users, events, venues, tickets, offers, and
+ * report data to the console.
+ */
 package com.ems.util;
 
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import com.ems.model.Category;
 import com.ems.model.Event;
@@ -13,7 +19,6 @@ import com.ems.model.EventRevenueReport;
 import com.ems.model.Offer;
 import com.ems.model.OrganizerEventSummary;
 import com.ems.model.Ticket;
-import com.ems.model.User;
 import com.ems.model.Venue;
 import com.ems.service.EventService;
 import com.ems.exception.DataAccessException;
@@ -23,8 +28,8 @@ public class AdminMenuHelper {
     private static final EventService eventService = ApplicationUtil.eventService();
 
     private static final int TABLE_WIDTH = 110;
-    private static final String SEPARATOR = repeatChar('=', TABLE_WIDTH);
-    private static final String SUB_SEPARATOR = repeatChar('-', TABLE_WIDTH);
+    private static final String SEPARATOR = "=".repeat(TABLE_WIDTH);
+    private static final String SUB_SEPARATOR = "-".repeat(TABLE_WIDTH);
 
     // -----------------------------------------------------------------------
     // Event display
@@ -78,48 +83,6 @@ public class AdminMenuHelper {
         }
 
         System.out.println(SEPARATOR);
-    }
-    
-    public static void printEventDetails(Event event) {
-        try {
-            String category = eventService.getCategory(event.getCategoryId()).getName();
-            String venueName = eventService.getVenueName(event.getVenueId());
-            String venueAddress = eventService.getVenueAddress(event.getVenueId());
-            int totalAvailable = eventService.getAvailableTickets(event.getEventId());
-            List<Ticket> tickets = eventService.getTicketTypes(event.getEventId());
-
-            System.out.println("\n==============================================");
-            System.out.println("Title           : " + event.getTitle());
-
-            if (event.getDescription() != null) {
-                System.out.println("Description     : " + event.getDescription());
-            }
-
-            System.out.println("Category        : " + category);
-            System.out.println("Duration        : "
-                    + DateTimeUtil.formatForDisplay(event.getStartDateTime())
-                    + " to "
-                    + DateTimeUtil.formatForDisplay(event.getEndDateTime()));
-            System.out.println("Total Tickets   : " + totalAvailable);
-
-            System.out.println("\nTicket Types");
-            System.out.println("----------------------------------------------");
-            for (Ticket ticket : tickets) {
-                System.out.println("• "
-                        + ticket.getTicketType()
-                        + " | Price: ₹" + ticket.getPrice()
-                        + " | Available: " + ticket.getAvailableQuantity());
-            }
-
-            System.out.println("\nVenue");
-            System.out.println("----------------------------------------------");
-            System.out.println("Name            : " + venueName);
-            System.out.println("Address         : " + venueAddress);
-            System.out.println("==============================================");
-
-        } catch (DataAccessException e) {
-            System.out.println("Error fetching event details: " + e.getMessage());
-        }
     }
 
     // -----------------------------------------------------------------------
@@ -208,7 +171,7 @@ public class AdminMenuHelper {
                 .sorted(Comparator
                         .comparingInt(OrganizerEventSummary::getStatusPriority)
                         .thenComparing(OrganizerEventSummary::getTitle))
-                .collect(Collectors.toList());
+                .toList();
 
         System.out.println("\nORGANIZER EVENT SUMMARY");
         System.out.println(SEPARATOR);
@@ -407,22 +370,18 @@ public class AdminMenuHelper {
                     : "NA";
 
             String status;
-
             if (o.getValidFrom() != null && o.getValidTo() != null) {
                 Instant now = DateTimeUtil.nowUtc();
-
-                if (o.getValidTo().isBefore(o.getValidFrom())) {
-                    status = "INACTIVE";
-                } else if (now.isBefore(o.getValidFrom())) {
+                if (now.isBefore(o.getValidFrom()))
                     status = "UPCOMING";
-                } else if (now.isAfter(o.getValidTo())) {
-                    status = "EXPIRED";
-                } else {
+                else if (!now.isAfter(o.getValidTo()))
                     status = "ACTIVE";
-                }
+                else
+                    status = "EXPIRED";
             } else {
                 status = "UNKNOWN";
             }
+
             System.out.printf("%-5d %-10d %-15s %-12s %-20s %-20s %-12s%n",
                     index++,
                     o.getOfferId(),
@@ -472,7 +431,6 @@ public class AdminMenuHelper {
         System.out.printf("TOTAL REVENUE: ₹%.2f%n", grandTotal);
     }
 
-    
     // -----------------------------------------------------------------------
     // Category display
     // -----------------------------------------------------------------------
@@ -535,36 +493,6 @@ public class AdminMenuHelper {
                         && o.getValidTo().isBefore(now))
                 .toList();
     }
-    
- // -----------------------------------------------------------------------
-    //user display
-    public static void printUsers(List<User> users, int startIndex) {
-        if (users == null || users.isEmpty()) {
-            System.out.println("No users found.");
-            return;
-        }
-
-        System.out.println("\nPage 1");
-        System.out.println(repeatChar('=', 110));
-        System.out.printf("%-5s %-5s %-20s %-10s %-25s %-15s %-10s%n",
-                "NO", "ID", "NAME", "GENDER", "EMAIL", "PHONE", "STATUS");
-        System.out.println(repeatChar('=', 110));
-
-        int index = startIndex;
-
-        for (User u : users) {
-            System.out.printf("%-5d %-5d %-20s %-10s %-25s %-15s %-10s%n",
-                    index++,
-                    u.getUserId(),
-                    u.getFullName(),
-                    u.getGender(),
-                    u.getEmail(),
-                    u.getPhone() == null ? "-" : u.getPhone(),
-                    u.getStatus());
-        }
-
-        System.out.println(repeatChar('=', 110));
-    }
 
     // -----------------------------------------------------------------------
     // Private helpers
@@ -583,15 +511,4 @@ public class AdminMenuHelper {
         }
         return value.substring(0, max - 3) + "...";
     }
-    
-    private static String repeatChar(char ch, int count) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            sb.append(ch);
-        }
-        return sb.toString();
-    }
-    
-    
-    
 }
